@@ -3,11 +3,11 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Chat extends Model {
     static associate(models) {
-      this.belongsTo(models.Users, {
+      this.belongsTo(models.User, {
         foreignKey: 'userKey',
         targetKey: 'userKey',
       });
-      this.belongsTo(models.Rooms, {
+      this.belongsTo(models.Room, {
         foreignKey: 'roomKey',
         targetKey: 'roomKey',
       });
