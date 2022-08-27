@@ -3,23 +3,23 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      this.hasMany(models.Selects, {
+      this.hasMany(models.Select, {
         foreignKey: 'userKey',
         sourceKey: 'userKey',
       });
-      this.hasMany(models.Comments, {
+      this.hasMany(models.Comment, {
         foreignKey: 'userKey',
         sourceKey: 'userKey',
       });
-      this.hasMany(models.Votes, {
+      this.hasMany(models.Vote, {
         foreignKey: 'userKey',
         sourceKey: 'userKey',
       });
-      this.hasMany(models.Rooms, {
+      this.hasMany(models.Room, {
         foreignKey: 'userKey',
         sourceKey: 'userKey',
       });
-      this.hasMany(models.Chats, {
+      this.hasMany(models.Chat, {
         foreignKey: 'userKey',
         sourceKey: 'userKey',
       });
