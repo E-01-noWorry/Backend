@@ -3,15 +3,15 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Select extends Model {
     static associate(models) {
-      this.belongsTo(models.Users, {
+      this.belongsTo(models.User, {
         foreignKey: 'userKey',
         targetKey: 'userKey',
       });
-      this.hasMany(models.Comments, {
+      this.hasMany(models.Comment, {
         foreignKey: 'selectKey',
         sourceKey: 'selectKey',
       });
-      this.hasMany(models.Votes, {
+      this.hasMany(models.Vote, {
         foreignKey: 'selectKey',
         sourceKey: 'selectKey',
       });
