@@ -7,7 +7,7 @@ module.exports = (req, res, next) => {
     const { authorization } = req.headers;
     console.log(authorization, 'auth 확인!');
 
-    const [authType, authToken] = (authorization || '').split(' ');
+    const [authType, authToken] = authorization.split(' ');
 
     if (authType !== 'Bearer') {
       return res.status(401).send({
