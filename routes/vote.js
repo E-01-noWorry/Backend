@@ -1,16 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const { Select, User, Vote } = require('../models');
-// const AuthMiddleware = require("../middlewares/auth_middlewares");
-// const VerifyMiddleware = require("../middlewares/verify_middlewares");
+const AuthMiddleware = require('../middlewares/authMiddlware');
+const isLoginMiddlware = require('../middlewares/isLoginMiddlware');
 const { Op } = require('sequelize');
 
 // 선택지 투표
-router.post('/:selectKey', async (req, res) => {
+router.post('/:selectKey', AuthMiddleware, async (req, res) => {
   try {
+    const { userKey } = res.locals.user;
     const { selectKey } = req.params;
     const { choice } = req.body;
-    const userKey = 8; // 임시 나중에 토큰에서 뽑음
 
     const data = await Select.findOne({ where: { selectKey } });
 
@@ -60,7 +60,6 @@ router.post('/:selectKey', async (req, res) => {
 router.get('/:selectKey', async (req, res) => {
   try {
     const { selectKey } = req.params;
-    const userKey = 14; // 임시 나중에 토큰에서 뽑음
 
     const isSelect = await Select.findOne({ where: { selectKey } });
 
@@ -72,11 +71,25 @@ router.get('/:selectKey', async (req, res) => {
       return;
     }
 
+    // const user = res.locals.user;
+    // console.log('잉?' + user.userKey);
+    // if (!user) {
+    //   res.status(400).json({
+    //     ok: false,
+    //     errMsg: '비로그인 사람임',
+    //   });
+    //   return;
+    // }
+
+    // const userKey = user.userKey;
+    const userKey = 22;
+
     const voteCheck = await Vote.findOne({
       where: { selectKey, userKey },
     });
 
     // false로 처리하는게 좋은지 아님 빈값을 주는게 맞는지..
+    // 아니면 총 참여자 수만 줄까?
     if (!voteCheck) {
       res.status(400).json({
         ok: false,
@@ -88,7 +101,6 @@ router.get('/:selectKey', async (req, res) => {
     const datas = await Vote.findAll({
       where: { selectKey },
     });
-    // console.log(datas);
 
     let count1 = 0;
     let count2 = 0;
@@ -129,7 +141,7 @@ router.get('/:selectKey', async (req, res) => {
     console.log(err);
     res.status(500).json({
       ok: false,
-      errMsg: '선택지 투표 실패.',
+      errMsg: '선택지 비율 조회 실패.',
     });
     return;
   }
