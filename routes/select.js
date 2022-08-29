@@ -8,8 +8,8 @@ const { Op } = require('sequelize');
 // 선택글 작성
 router.post('/', async (req, res) => {
   try {
-    const { title, category, content, image, time, options, userKey } =
-      req.body;
+    const { title, category, content, image, time, options } = req.body;
+    const userKey = 10; // 임시 나중에 토큰에서 뽑음
 
     if (
       title === '' ||
@@ -42,7 +42,7 @@ router.post('/', async (req, res) => {
 
     const nick = await User.findOne({
       where: { userKey },
-      attribute: ['nickname'],
+      attributes: ['nickname'],
     });
 
     res.status(200).json({
@@ -57,9 +57,10 @@ router.post('/', async (req, res) => {
         nickname: nick.nickname,
       },
     });
+    return;
   } catch (err) {
     console.log(err);
-    res.status(400).json({
+    res.status(500).json({
       ok: false,
       errMsg: '선택글 작성 실패.',
     });
@@ -71,7 +72,7 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const datas = await Select.findAll({
-      include: [{ model: User, attribute: ['nickname'] }],
+      include: [{ model: User, attributes: ['nickname'] }],
       order: [['selectKey', 'DESC']],
     });
 
@@ -89,9 +90,10 @@ router.get('/', async (req, res) => {
         };
       }),
     });
+    return;
   } catch (err) {
     console.log(err);
-    res.status(400).json({
+    res.status(500).json({
       ok: false,
       errMsg: '선택글 모두 조회 실패.',
     });
@@ -105,7 +107,7 @@ router.get('/:selectKey', async (req, res) => {
     const { selectKey } = req.params;
     const data = await Select.findOne({
       where: { selectKey },
-      include: [{ model: User, attribute: ['nickname'] }],
+      include: [{ model: User, attributes: ['nickname'] }],
     });
 
     if (!data) {
@@ -132,11 +134,65 @@ router.get('/:selectKey', async (req, res) => {
         finalChoice: data.finalChoice,
       },
     });
+    return;
   } catch (err) {
     console.log(err);
-    res.status(400).json({
+    res.status(500).json({
       ok: false,
-      errMsg: '선택글 모두 조회 실패.',
+      errMsg: '선택글 상세조회 실패.',
+    });
+    return;
+  }
+});
+
+// 선택글 삭제
+router.delete('/:selectKey', async (req, res) => {
+  try {
+    const userKey = 10; // 임시(나중에 토큰에서 꺼냄)
+    const { selectKey } = req.params;
+    const data = await Select.findOne({ where: { selectKey } });
+
+    if (!data) {
+      res.status(400).json({
+        ok: false,
+        errMsg: '해당 선택글이 존재하지 않음',
+      });
+      return;
+    }
+
+    if (userKey !== data.userKey) {
+      res.status(400).json({
+        ok: false,
+        errMsg: '작성자가 일치하지 않음',
+      });
+      return;
+    }
+
+    await Select.destroy({ where: { selectKey } });
+
+    const nick = await User.findOne({
+      where: { userKey },
+      attributes: ['nickname'],
+    });
+
+    res.status(200).json({
+      ok: true,
+      msg: '선택글 삭제 성공',
+      result: {
+        selectKey: data.selectKey,
+        title: data.title,
+        category: data.category,
+        deadLine: data.deadLine,
+        completion: data.completion,
+        nickname: nick.nickname,
+      },
+    });
+    return;
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      ok: false,
+      errMsg: '선택글 삭제 실패.',
     });
     return;
   }
