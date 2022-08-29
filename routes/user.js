@@ -6,7 +6,6 @@ const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const { User } = require('../models');
 const passport = require('passport');
-const KAKAO = require('../passport/kakao')
 
 //회원가입
 router.post('/user/signup', async (req, res) => {
@@ -33,7 +32,6 @@ router.post('/user/signup', async (req, res) => {
     const exitUsers = await User.findAll({
       where: { [Op.or]: { userId } },
     });
-    console.log(exitUsers, '어디보자');
     if (exitUsers.length) {
       return res
         .status(400)
@@ -54,7 +52,6 @@ router.post('/user/login', async (req, res, next) => {
   const { userId, password } = req.body;
 
   const user = await User.findOne({ where: { userId } });
-
   if (!user || !bcrypt.compareSync(password, user.password)) {
     return res
       .status(400)
