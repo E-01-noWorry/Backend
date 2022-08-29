@@ -79,7 +79,7 @@ const kakaoCallback = (req, res, next) => {
   try {
     passport.authenticate(
       'kakao',
-      { failureRedirect: '/' },
+      { failureRedirect: '/' },//실패하면 '/'로 돌아감.
       (err, user, info) => {
         if (err) return next(err);
 
