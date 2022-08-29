@@ -16,8 +16,8 @@ module.exports = (req, res, next) => {
   try {
     const decoded = jwt.verify(authToken, process.env.SECRET_KEY);
 
-    User.findOne({ where : {userKey:decoded.userKey} }).then((user) => {
-      res.locals.user = user;
+    User.findOne({ where : {userKey:decoded.userKey} }).then((userKey, userId, nickname) => {
+      res.locals.user = { userKey, userId, nickname };
       next();
     });
 
