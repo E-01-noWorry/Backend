@@ -5,17 +5,22 @@ const { User } = require('../models');
 
 module.exports = () => {
   passport.use(
-    new KaKaoStrategy(
+    new KaKaoStrategy(//KaKaoStrategy에서 인증전략 시행(카카오 서버에서 보내는 계정 정보가 들어있음.)
       {
         clientID: process.env.CLIENT_ID, // 카카오 로그인에서 발급받은 REST API 키
         callbackURL: process.env.CALLBACK_URL, // 카카오 로그인 Redirect URI 경로
       },
 
+      // clientID에 카카오 앱 아이디 추가
+      // callbackURL: 카카오 로그인 후 카카오가 결과를 전송해줄 URL
+      // accessToken, refreshToken : 로그인 성공 후 카카오가 보내준 토큰
+      // profile: 카카오가 보내준 유저 정보. profile의 정보를 바탕으로 회원가입
       async (accessToken, refreshToken, profile, done) => {
         console.log(accessToken, "토큰확인111")
         console.log(refreshToken, "토큰확인222")
 
-        try {const exUser = await User.findOne({
+        try {
+          const exUser = await User.findOne({//db에서 가입이력 조사
               // 카카오 플랫폼에서 로그인 했고 & snsId필드에 카카오 아이디가 일치할경우
           where : {snsId: profile.id, provider: 'kakao'}
         })
