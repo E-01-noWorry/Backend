@@ -1,15 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const { Select, User } = require('../models');
-// const AuthMiddleware = require("../middlewares/auth_middlewares");
+const AuthMiddleware = require('../middlewares/authMiddlware');
 // const VerifyMiddleware = require("../middlewares/verify_middlewares");
 const { Op } = require('sequelize');
+const authMiddlware = require('../middlewares/authMiddlware');
 
 // 선택글 작성
-router.post('/', async (req, res) => {
+router.post('/', AuthMiddleware, async (req, res) => {
   try {
+    console.log(res.locals.user);
+    const { userKey, nickname } = res.locals.user;
+    // const { userKey, nickname } = res.locals.user.userKey;
+    console.log(userKey, nickname);
     const { title, category, content, image, time, options } = req.body;
-    const userKey = 10; // 임시 나중에 토큰에서 뽑음
 
     if (
       title === '' ||
@@ -25,6 +29,8 @@ router.post('/', async (req, res) => {
       });
       return;
     }
+
+    // 마감시간 계산 (db 저장할때 한국시간과 기본적으로 9시간 차이나서 +9를 해줌 +time은 사용자가 지정한 시간)
     const date = new Date();
     const deadLine = date.setHours(date.getHours() + 9 + time);
 
@@ -40,11 +46,6 @@ router.post('/', async (req, res) => {
       finalChoice: 0,
     });
 
-    const nick = await User.findOne({
-      where: { userKey },
-      attributes: ['nickname'],
-    });
-
     res.status(200).json({
       ok: true,
       msg: '선택글 작성 성공',
@@ -54,7 +55,7 @@ router.post('/', async (req, res) => {
         category: data.category,
         deadLine: data.deadLine,
         completion: data.completion,
-        nickname: nick.nickname,
+        nickname: nickname,
       },
     });
     return;
@@ -146,9 +147,9 @@ router.get('/:selectKey', async (req, res) => {
 });
 
 // 선택글 삭제
-router.delete('/:selectKey', async (req, res) => {
+router.delete('/:selectKey', AuthMiddleware, async (req, res) => {
   try {
-    const userKey = 10; // 임시(나중에 토큰에서 꺼냄)
+    const { userKey, nickname } = res.locals.user;
     const { selectKey } = req.params;
     const data = await Select.findOne({ where: { selectKey } });
 
@@ -170,11 +171,6 @@ router.delete('/:selectKey', async (req, res) => {
 
     await Select.destroy({ where: { selectKey } });
 
-    const nick = await User.findOne({
-      where: { userKey },
-      attributes: ['nickname'],
-    });
-
     res.status(200).json({
       ok: true,
       msg: '선택글 삭제 성공',
@@ -184,7 +180,7 @@ router.delete('/:selectKey', async (req, res) => {
         category: data.category,
         deadLine: data.deadLine,
         completion: data.completion,
-        nickname: nick.nickname,
+        nickname: nickname,
       },
     });
     return;
