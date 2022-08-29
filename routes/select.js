@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { Select, User } = require('../models');
-const AuthMiddleware = require('../middlewares/authMiddlware');
+const authMiddleware = require('../middlewares/authMiddlware');
 // const { Op } = require('sequelize');
 
 // 선택글 작성
-router.post('/', AuthMiddleware, async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { title, category, content, image, time, options } = req.body;
@@ -102,7 +102,7 @@ router.get('/:selectKey', async (req, res) => {
     });
 
     if (!data) {
-      res.status(400).json({
+      return res.status(400).json({
         ok: false,
         errMsg: '해당 선택글이 존재하지 않음',
       });
@@ -135,7 +135,7 @@ router.get('/:selectKey', async (req, res) => {
 });
 
 // 선택글 삭제
-router.delete('/:selectKey', AuthMiddleware, async (req, res) => {
+router.delete('/:selectKey', authMiddleware, async (req, res) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { selectKey } = req.params;

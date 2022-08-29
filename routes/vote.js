@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { Select, User, Vote } = require('../models');
-const AuthMiddleware = require('../middlewares/authMiddlware');
+const authMiddleware = require('../middlewares/authMiddlware');
 const isLoginMiddlware = require('../middlewares/isLoginMiddlware');
 const { Op } = require('sequelize');
 
 // 선택지 투표
-router.post('/:selectKey', AuthMiddleware, async (req, res) => {
+router.post('/:selectKey', authMiddleware, async (req, res) => {
   try {
     const { userKey } = res.locals.user;
     const { selectKey } = req.params;
