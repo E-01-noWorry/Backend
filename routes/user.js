@@ -9,7 +9,7 @@ const passport = require('passport');
 const KAKAO = require('../passport/kakao')
 
 //회원가입
-router.post('/signup', async (req, res) => {
+router.post('/user/signup', async (req, res) => {
   try {
     const { userId, nickname, password, confirm } = req.body;
 
@@ -31,13 +31,13 @@ router.post('/signup', async (req, res) => {
     }
 
     const exitUsers = await User.findAll({
-      where: { [Op.or]: { nickname, userId } },
+      where: { [Op.or]: { userId } },
     });
     console.log(exitUsers, '어디보자');
     if (exitUsers.length) {
       return res
         .status(400)
-        .send({ errMsg: '이미 사용중인 아이디 또는 닉네임입니다.' });
+        .send({ errMsg: '이미 사용중인 아이디입니다.' });
     }
 
     const salt = await bcrypt.genSalt(10); //기본이 10, 숫자가 높을 수록 연산 시간과 보안이 높아짐.
@@ -50,7 +50,7 @@ router.post('/signup', async (req, res) => {
 });
 
 //로그인
-router.post('/login', async (req, res, next) => {
+router.post('/user/login', async (req, res, next) => {
   const { userId, password } = req.body;
 
   const user = await User.findOne({ where: { userId } });
