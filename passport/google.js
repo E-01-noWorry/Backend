@@ -14,9 +14,6 @@ module.exports = () => {
         passReqToCallback: true,
       },
       async (request, accessToken, refreshToken, profile, done) => {
-        console.log(accessToken, '구글 access토큰 확인');
-        console.log(refreshToken, '구글 refreshToken토큰 확인');
-        console.log(profile, '구글 프로필');
         try {
           const exUser = await User.findOne({
             snsId: profile.id,
