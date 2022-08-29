@@ -131,6 +131,7 @@ router.get('/:selectKey', async (req, res) => {
         deadLine: data.deadLine,
         options: data.options,
         completion: data.completion,
+        userKey: data.userKey,
         nickname: data.User.nickname,
         finalChoice: data.finalChoice,
       },
