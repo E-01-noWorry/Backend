@@ -1,6 +1,10 @@
 const express = require('express');
 const Router = require('./routes/index');
 
+const session = require('express-session');
+const passport = require("passport");
+const passportConfig = require("./passport");
+
 require('dotenv').config();
 const port = process.env.PORT;
 
@@ -15,7 +19,22 @@ app.use(
   })
 );
 
+passportConfig()
+
 app.use(express.json());
+
+app.use(session({
+  resave:false,
+  saveUninitialized: false,
+  secret: [process.env.KAKAO_SECRET, process.env.GOOGLE_SECRET],
+  cookie: {
+    httpOnly: true,
+    secure: false
+  }
+}))
+
+app.use(passport.initialize());// passport를 초기화 하기 위해서 passport.initialize 미들웨어 사용??
+app.use(passport.session());
 
 app.use('/api', Router);
 app.get('/', (req, res) => {
