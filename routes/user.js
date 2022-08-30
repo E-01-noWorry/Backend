@@ -89,7 +89,7 @@ const kakaoCallback = (req, res, next) => {
           token,
           nickname,
         };
-        res.status(201).send({ user: result, msg:'카카오 로그인에 성공하였습니다.' });
+        res.status(201).json({ user: result, msg:'카카오 로그인에 성공하였습니다.' });
       }
     )(req, res, next);
   } catch (err) {
