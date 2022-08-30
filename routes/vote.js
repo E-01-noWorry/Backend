@@ -71,12 +71,34 @@ router.get('/:selectKey', isLoginMiddlware, async (req, res) => {
       });
     }
 
+    const datas = await Vote.findAll({
+      where: { selectKey },
+    });
+
+    let count1 = 0;
+    let count2 = 0;
+    let count3 = 0;
+    let count4 = 0;
+    datas.map((e) => {
+      if (e.choice === 1) {
+        ++count1;
+      } else if (e.choice === 2) {
+        ++count2;
+      } else if (e.choice === 3) {
+        ++count3;
+      } else if (e.choice === 4) {
+        ++count4;
+      }
+    });
+    let total = count1 + count2 + count3 + count4;
+
     const user = res.locals.user;
     // 미들웨어를 거쳐서 로그인 유무 확인(비로그인시)
     if (!user) {
-      return res.status(400).json({
-        ok: false,
-        errMsg: '비로그인 상태',
+      return res.status(200).json({
+        ok: true,
+        msg: '비로그인 상태',
+        result: { total },
       });
     } else {
       // 미들웨어를 거쳐서 로그인 유무 확인(로그인시)
@@ -87,36 +109,14 @@ router.get('/:selectKey', isLoginMiddlware, async (req, res) => {
       });
 
       // 로그인은 했지만, 투표를 안하면 비율 안보이게함
-      // false로 처리하는게 좋은지 아님 빈값을 주는게 맞는지..
-      // 아니면 총 참여자 수만 줄까?
       if (!voteCheck) {
         return res.status(200).json({
-          ok: false,
-          errMsg: '참여자가 투표를 하지 않음',
+          ok: true,
+          msg: '참여자가 투표를 하지 않음',
+          result: { total },
         });
       } else {
         // 로그인하고 투표까지하면 투표비율 보여줌
-        const datas = await Vote.findAll({
-          where: { selectKey },
-        });
-
-        let count1 = 0;
-        let count2 = 0;
-        let count3 = 0;
-        let count4 = 0;
-        datas.map((e) => {
-          if (e.choice === 1) {
-            ++count1;
-          } else if (e.choice === 2) {
-            ++count2;
-          } else if (e.choice === 3) {
-            ++count3;
-          } else if (e.choice === 4) {
-            ++count4;
-          }
-        });
-        let total = count1 + count2 + count3 + count4;
-
         const isVote = await Vote.findOne({
           where: { selectKey, userKey },
           attributes: ['choice'],
