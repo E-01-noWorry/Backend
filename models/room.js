@@ -3,31 +3,38 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Room extends Model {
     static associate(models) {
-      this.belongsTo(models.User, {
-        foreignKey: 'userKey',
-        targetKey: 'userKey',
-      });
-      this.hasMany(models.Chat, {
-        foreignKey: 'roomKey',
-        sourceKey: 'roomKey',
-      });
+      // this.belongsTo(models.User, {
+      //   foreignKey: 'userKey',
+      //   targetKey: 'userKey',
+      // });
+      // this.hasMany(models.Chat, {
+      //   foreignKey: 'roomKey',
+      //   sourceKey: 'roomKey',
+      // });
     }
   }
   Room.init(
     {
-      roomKey: {
+      roomId: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
       title: DataTypes.STRING,
-      keyword: DataTypes.JSON,
-      max: DataTypes.INTEGER,
-      currentPeople: DataTypes.INTEGER,
+      hostId: DataTypes.STRING,
+      hostNickname: DataTypes.STRING,
+      hostImg: DataTypes.STRING,
+      max: DataTypes.STRING,
+      hashTag: DataTypes.JSON,
+      roomUserId: DataTypes.JSON,
+      roomUserNickname: DataTypes.JSON,
+      roomUserNum: DataTypes.INTEGER,
+      roomUserImg: DataTypes.JSON,
     },
     {
+      timestamp: true,
       sequelize,
-      modelName: 'Room',
+      modelName: 'Rooms',
     }
   );
   return Room;
