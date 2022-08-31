@@ -1,6 +1,7 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
+const ErrorCustom = require('../advice/errorCustom');
 
 module.exports = (req, res, next) => {
   try {
@@ -10,9 +11,7 @@ module.exports = (req, res, next) => {
     const [authType, authToken] = authorization.split(' ');
 
     if (authType !== 'Bearer') {
-      return res.status(401).send({
-        errMsg: '토큰 타입이 맞지 않습니다.',
-      });
+      throw new ErrorCustom(401, '토큰 타입이 맞지 않습니다.');
     }
     try {
       const decoded = jwt.verify(authToken, process.env.SECRET_KEY);
@@ -25,13 +24,9 @@ module.exports = (req, res, next) => {
         next();
       });
     } catch (err) {
-      res.status(401).send({
-        errMsg: '토큰이 유효하지 않습니다(기간만료 등).',
-      });
+      throw new ErrorCustom(401, '토큰이 유효하지 않습니다.(기간만료 등)');
     }
   } catch (err) {
-    res.status(401).send({
-      errMsg: '로그인 후 사용하세요.',
-    });
+    throw new ErrorCustom(401, '로그인 후 사용 가능합니다.');
   }
 };
