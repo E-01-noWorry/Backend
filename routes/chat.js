@@ -3,7 +3,7 @@ const router = express.Router();
 const { Room, Chat, sequelize, Sequelize } = require('../models');
 const { Op } = Sequelize.Op;
 
-//미들웨어 쪽은 일단 추후에..
+//미들웨어 쪽은 일단 추후에..ddddd
 
 //룸 검색 검색은 title, hashtag 정보 둘 중하나라도 있으면 검색된다
 router.get('/search', async (req, res) => {
