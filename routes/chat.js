@@ -1,8 +1,9 @@
-const router = require('.');
-const { Room, Chat, sequelize, Sequelize } = require('../modles');
+const express = require('express');
+const router = express.Router();
+const { Room, Chat, sequelize, Sequelize } = require('../models');
 const { Op } = Sequelize.Op;
 
-//미들웨어 쪽은 일단 추후에..
+//미들웨어 쪽은 일단 추후에..ddddd
 
 //룸 검색 검색은 title, hashtag 정보 둘 중하나라도 있으면 검색된다
 router.get('/search', async (req, res) => {
@@ -107,7 +108,7 @@ router.get('/:roomId', async (req, res) => {
       //userId가 hostId거나 roomUserId에 존재한다면 조회해라
       loadChat = await Chats.findAll({ where: { roomId: Number(roomId) } });
     }
-    let chatingRooms = await Rooms.findAll({
+    let chatingRooms = await Room.findAll({
       //옆에 뜨는 내가 접속한 채팅방 목록인듯?
       where: {
         [Op.or]: [
