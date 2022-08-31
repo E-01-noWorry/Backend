@@ -16,8 +16,6 @@ module.exports = () => {
       // accessToken, refreshToken : 로그인 성공 후 카카오가 보내준 토큰
       // profile: 카카오가 보내준 유저 정보. profile의 정보를 바탕으로 회원가입
       async (accessToken, refreshToken, profile, done) => {
-        console.log(accessToken, "토큰확인111")
-        console.log(refreshToken, "토큰확인222")
 
         try {
           const exUser = await User.findOne({//db에서 가입이력 조사
@@ -34,7 +32,6 @@ module.exports = () => {
             snsId: profile.id,
             provider: 'kakao'
           })
-          console.log(newUser, '뉴유저')
           done(null, newUser)
         }} catch(error) {
           done(error)
