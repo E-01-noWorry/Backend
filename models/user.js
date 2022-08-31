@@ -15,14 +15,14 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'userKey',
         sourceKey: 'userKey',
       });
-      this.hasMany(models.Room, {
-        foreignKey: 'userKey',
-        sourceKey: 'userKey',
-      });
-      this.hasMany(models.Chat, {
-        foreignKey: 'userKey',
-        sourceKey: 'userKey',
-      });
+      // this.hasMany(models.Room, {
+      //   foreignKey: 'userKey',
+      //   sourceKey: 'userKey',
+      // });
+      // this.hasMany(models.Chat, {
+      //   foreignKey: 'userKey',
+      //   sourceKey: 'userKey',
+      // });
     }
   }
   User.init(
