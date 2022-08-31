@@ -6,6 +6,9 @@ const session = require('express-session');
 const passport = require('passport');
 const passportConfig = require('./passport');
 
+
+const webSocket = require("./socket");
+
 require('dotenv').config();
 const port = process.env.PORT;
 
@@ -15,7 +18,7 @@ const cors = require('cors');
 app.use(
   cors({
     origin: true, // 출처 허용 옵션
-    withCredentials: true, // 사용자 인증이 필요한 리소스(쿠키 ..등) 접근F
+    withCredentials: true, // 사용자 인증이 필요한 리소스(쿠키 ..등) 접근
   })
 );
 

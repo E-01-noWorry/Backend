@@ -2,16 +2,16 @@
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Chat extends Model {
-    static associate(models) {
-      this.belongsTo(models.User, {
-        foreignKey: 'userKey',
-        targetKey: 'userKey',
-      });
-      this.belongsTo(models.Room, {
-        foreignKey: 'roomKey',
-        targetKey: 'roomKey',
-      });
-    }
+    // static associate(models) {
+    //   this.belongsTo(models.User, {
+    //     foreignKey: 'userKey',
+    //     targetKey: 'userKey',
+    //   });
+    //   this.belongsTo(models.Room, {
+    //     foreignKey: 'roomKey',
+    //     targetKey: 'roomKey',
+    //   });
+    // }
   }
   Chat.init(
     {
@@ -20,10 +20,16 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         primaryKey: true,
       },
+      roomKey: DataTypes.STRING,
+      userId: DataTypes.STRING,
+      userNickname: DataTypes.STRING,
+      chat: DataTypes.STRING,
+      userImg: DataTypes.STRING,
     },
     {
+      timestamp: true,
       sequelize,
-      modelName: 'Chat',
+      modelName: "Chats",
     }
   );
   return Chat;
