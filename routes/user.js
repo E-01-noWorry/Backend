@@ -79,7 +79,7 @@ const kakaoCallback = (req, res, next) => {
       { failureRedirect: '/user/login' },//실패하면 '/user/login''로 돌아감.
       (err, user, info) => {
         if (err) return next(err);
-        res.redirect('/')
+        // res.redirect('/')
 
         const { userKey, nickname } = user;
         const token = jwt.sign({ userKey: user.userKey }, process.env.SECRET_KEY, { expiresIn: '6h' }); //토큰 만료 6시간 설정
