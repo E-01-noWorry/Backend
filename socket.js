@@ -1,13 +1,6 @@
 const app = require('./app');
 require('fs');
-const {
-  images,
-  Chats,
-  Rooms,
-  users,
-  sequelize,
-  Sequelize,
-} = require('./models');
+const { images, Chat, Room, users, sequelize, Sequelize } = require('./models');
 // require('socket.io-client')('https://');
 require('http').createServer(app);
 
@@ -23,13 +16,13 @@ module.exports = (server, app) => {
     //서버에 연결되면 아래 코드 실행
     //채팅방 접속시
     socket.on('join-room', async (roomId, userId) => {
-      const enterRoom = await Rooms.findOne({
+      const enterRoom = await Room.findOne({
         where: { rommId: roomId },
       });
       const enterUser = await users.findOne({
         where: { userId: userId },
       });
-      const entermsg = await Chats.findOne({
+      const entermsg = await Chat.findOne({
         where: {
           roomId: roomId,
           chat: enterUser.dataValues.nickname + '님이 입장하셨습니다.',
@@ -37,7 +30,7 @@ module.exports = (server, app) => {
       });
       socket.join(enterRoom.title);
       if (!entermsg) {
-        await Chats.create({
+        await Chat.create({
           userNickname: 'system',
           userId: 'system',
           roomId: roomId,
@@ -58,9 +51,9 @@ module.exports = (server, app) => {
         enterRoom.roomUserId.push(Number(userId));
         enterRoom.roomUserNickname.push(enterUser.dataValues.nickname);
         let roomUserNum = enterRoom.roomUserNickname.length + 1;
-        enterRoom.roomUserImg.push(userImageURL.userImageURL);
+        enterRoom.roomUserImg.push(UserImageURL.userImageURL);
 
-        await Rooms.update(
+        await Room.update(
           {
             roomUserId: enterRoom.dataValues.roomUserId,
             roomUserImg: enterRoom.dataValues.roomUserImg,
@@ -77,8 +70,8 @@ module.exports = (server, app) => {
     socket.on('chat_message', async (messageChat, userId, roomId) => {
       const chatUser = await users.findOne({ where: { userId: userId } });
       const userImg = await images.findOne({ where: { userId: userId } });
-      const room = await Rooms.findOne({ where: { roomId: roomId } });
-      await Chats.create({
+      const room = await Room.findOne({ where: { roomId: roomId } });
+      await Chat.create({
         userNickname: chatUser.dataValues.nickname,
         useId: userId,
         roomId: roomId,
@@ -99,12 +92,12 @@ module.exports = (server, app) => {
 
     //채팅방 나가기
     socket.on('leave-room', async (roomId, userId) => {
-      const leaveRoom = await Rooms.findOne({
+      const leaveRoom = await Room.findOne({
         where: { roomId: roomId },
       });
       const leaveUser = await users.findOne({ where: { userId: userId } });
       const userImageURL = await images.findOne({ where: { userId: userId } });
-      const leavemsg = await Chats.findOne({
+      const leavemsg = await Chat.findOne({
         where: {
           roomId: roomId,
           chat: leaveUser.dataValues.nickname + '님이 퇴장하셨습니다.',
@@ -112,7 +105,7 @@ module.exports = (server, app) => {
       });
 
       if (!leavemsg) {
-        await Chats.create({
+        await Chat.create({
           userNickname: 'system',
           userId: 'system',
           roomId: roomId,
@@ -128,7 +121,7 @@ module.exports = (server, app) => {
         leaveRoom.dataValues.roomUserId.length === 0
       ) {
         //유저가 0명이면
-        await Rooms.destory({ whre: { roomId: roomId } });
+        await Room.destory({ whre: { roomId: roomId } });
       } else if (leaveRoom.dataValues.hostId === userId) {
         //host만 남아있으면 host정보만 남긴다
 
@@ -144,7 +137,7 @@ module.exports = (server, app) => {
         );
         let roomUserNum = roomUsersId.length + 1;
 
-        await Rooms.uupdate(
+        await Room.update(
           {
             hostId: leaveRoom.dataValues.roomUserId[0],
             hostNickname: leaveRoom.dataValues.roomUserNickname[0],
@@ -169,7 +162,7 @@ module.exports = (server, app) => {
           (roomUsersImg) => roomUsersImg !== userImageURL.userImageURL
         );
         let roomUserNum = roomUsersId.length + 1;
-        await Rooms.update(
+        await Room.update(
           {
             roomUserId: roomUsersId,
             roomUserNickname: roomUsersNickname,
