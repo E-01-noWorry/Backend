@@ -79,6 +79,7 @@ const kakaoCallback = (req, res, next) => {
       { failureRedirect: '/' },//실패하면 '/'로 돌아감.
       (err, user, info) => {
         if (err) return next(err);
+        res.redirect('/')
 
         const { userKey, nickname } = user;
         const token = jwt.sign({ userKey: user.userKey }, process.env.SECRET_KEY, { expiresIn: '6h' }); //토큰 만료 6시간 설정
@@ -109,6 +110,7 @@ const googleCallback = (req, res, next) => {
   {failureRedirect:'/'},
   (err, user, info) => {
     if(err) return next(err)
+    res.redirect('/')
 
     const { userKey, nickname } = user
     const token = jwt.sign({ userKey: user.userKey }, process.env.SECRET_KEY, { expiresIn: '6h' }); //토큰 만료 6시간 설정
