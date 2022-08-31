@@ -2,7 +2,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Rooms', {
-      roomId: {
+      roomKey: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
@@ -11,22 +11,13 @@ module.exports = {
       title: {
         type: Sequelize.STRING,
       },
-      hostId: {
-        type: Sequelize.STRING,
-      },
-      hostNickname: {
-        type: Sequelize.STRING,
-      },
-      hostImg: {
-        type: Sequelize.STRING,
-      },
       max: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
       },
       hashTag: {
         type: Sequelize.JSON,
       },
-      roomUserId: {
+      roomUserKeys: {
         type: Sequelize.JSON,
       },
       roomUserNickname: {
@@ -34,9 +25,6 @@ module.exports = {
       },
       roomUserNum: {
         type: Sequelize.INTEGER,
-      },
-      roomUserImg: {
-        type: Sequelize.JSON,
       },
       createdAt: {
         allowNull: false,
