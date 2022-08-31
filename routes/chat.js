@@ -1,5 +1,5 @@
 const router = require('.');
-const { Rooms, Chats, sequelize, Sequelize } = require('../modles');
+const { Room, Chat, sequelize, Sequelize } = require('../modles');
 const { Op } = Sequelize.Op;
 
 //미들웨어 쪽은 일단 추후에..
@@ -25,8 +25,8 @@ router.get('/search', async (req, res) => {
 
 //룸 해쉬태그 검색, 해쉬태그를 클릭하면 해당 해쉬태그가 포함된 채팅방만 보여줌
 router.get('/search/hashTag', async (req, res) => {
-  const queeryData = req.query;
-  const rooms = await Rooms.findAll({
+  const queryData = req.query;
+  const rooms = await Room.findAll({
     where: {
       hashTag: { [Op.substring]: queryData.search },
     },
@@ -53,7 +53,7 @@ router.get('/chat/:roomId', async (req, res) => {
 //룸 전체 조회
 router.get('/', async (req, res) => {
   try {
-    const allRoom = await Rooms.findAll({ order: [['createdAt', 'DESC']] }); //사실상 전체조회는 이 코드가 다임
+    const allRoom = await Room.findAll({ order: [['createdAt', 'DESC']] }); //사실상 전체조회는 이 코드가 다임
 
     let tags = []; //이 밑은 사람들이 태그 한것중 가장 많이 태그한 태그 3개를 가져와서 인기키워드로 보여주는 코드이다
     for (let i = 0; i < allRoom.length; i++) {
@@ -100,7 +100,7 @@ router.get('/:roomId', async (req, res) => {
   const { roomId } = req.params;
   const { userId, nickname, userImageURL } = res.locals;
   try {
-    let Room = await Rooms.findOne({ where: { roomId: Number(roomId) } });
+    let Room = await Room.findOne({ where: { roomId: Number(roomId) } });
     let loadChat = [];
 
     if (Room.roomUserId.includes(userId) || Room.hostId == userId) {
@@ -120,21 +120,19 @@ router.get('/:roomId', async (req, res) => {
 
     for (let i = 0; i < chatingRooms.length; i++) {
       //목록인데 자신이 지금 들어간 채팅방을 최상단에 위치하게 해주는 코드
-      let chatRomm = chatingRooms[i];
+      let chatRoom = chatingRooms[i];
       if (chatingRooms.roomId == roomId) {
         chatingRooms[i] = chatingRooms[0];
         chatingRooms[0] = chatRoom;
       }
     }
 
-    res
-      .status(200)
-      .send({
-        msg: '룸 상세조회에 성공했습니다',
-        chatingRooms,
-        Room,
-        loadChat,
-      }); //들어가있는 방 목록, 현재 접속 방, 채팅 정보를 보낸다
+    res.status(200).send({
+      msg: '룸 상세조회에 성공했습니다',
+      chatingRooms,
+      Room,
+      loadChat,
+    }); //들어가있는 방 목록, 현재 접속 방, 채팅 정보를 보낸다
   } catch (err) {
     res.status(400).send({
       msg: '룸 상세조회에 실패했습니다',
@@ -150,7 +148,7 @@ router.post('/', async (req, res) => {
   try {
     const { title, max, hashTag } = req.body; //제목, 최대인원, 해쉬태그 정보 받아온다
     const { userId, nickname, userImageURL } = res.locals;
-    const existRoom = await Rooms.findOne({
+    const existRoom = await Room.findOne({
       where: { title: title },
     });
 
@@ -158,7 +156,7 @@ router.post('/', async (req, res) => {
       return res.status(400).send({ msg: '이미 존재하는 방이름입니다.' });
     }
 
-    const newRoom = await Rooms.create({
+    const newRoom = await Room.create({
       max: max,
       hashTag: hashTag,
       title: title,
@@ -184,7 +182,7 @@ router.post('/:roomId', async (req, res) => {
   const { roomId } = req.params;
   const { userId } = res.locals;
 
-  let room = await Rooms.findOne({ where: { roomId: Number(roomId) } });
+  let room = await Room.findOne({ where: { roomId: Number(roomId) } });
 
   try {
     if (room.hostId == userId) {
@@ -217,8 +215,8 @@ router.delete('/:roomId', async (req, res) => {
   const room = await Room.findOne({ where: { roomId: Number(roomId) } });
 
   if (userId === room.hostId) {
-    await Chats.destory({ roomId: roomId });
-    await Rooms.destory({ roomId: roomId });
+    await Chat.destory({ roomId: roomId });
+    await Room.destory({ roomId: roomId });
   } else {
     //해당userId, nickname, userImgURL이 아닌 것들만 남긴다
     const roomUsersId = room.roomuserId.filter(
@@ -243,7 +241,7 @@ router.delete('/:roomId', async (req, res) => {
 //채팅방 인기순 정렬 (채팅방 인원많은 순으로)
 router.get('/search/populer', async (req, res) => {
   try {
-    const allRoom = await Rooms.findAll();
+    const allRoom = await Room.findAll();
     allRoom.sort((a, b) => b.roomUserId.length - a.roomUserId.length);
 
     return res.status(200).send({ allRoom, msg: '인기룸을 조회했습니다' });
