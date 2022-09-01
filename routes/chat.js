@@ -31,8 +31,9 @@ router.post('/', authMiddleware, async (req, res, next) => {
         roomKey: newRoom.roomKey,
         title: newRoom.title,
         max: newRoom.max,
+        currentPeople: 1,
         hashTag: newRoom.hashTag,
-        nickname: nickname,
+        host: nickname,
         userKey,
       },
     });
@@ -62,7 +63,7 @@ router.get('/', async (req, res, next) => {
           max: e.max,
           currentPeople: e.Participants.length,
           hashTag: e.hashTag,
-          nickname: e.User.nickname,
+          host: e.User.nickname,
           userKey: e.userKey,
         };
       }),
@@ -185,7 +186,7 @@ router.delete('/:roomKey', authMiddleware, async (req, res, next) => {
       });
       // 삭제니까 무슨 방 사라졌는지 줘야하나?
     } else {
-      await Participant.destroy({ where: { userKey } });
+      await Participant.destroy({ where: { userKey, roomKey } });
 
       return res.status(200).json({
         ok: true,
@@ -215,6 +216,10 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
       ],
     });
 
+    if (!room) {
+      throw new ErrorCustom(400, '해당 채팅방이 존재하지 않습니다.');
+    }
+
     const people = room.Participants.map((e) => {
       return { userKey: e.userKey, nickname: e.User.nickname };
     });
@@ -222,6 +227,7 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
     const loadChat = await Chat.findAll({
       where: { roomKey },
       attributes: ['chat', 'userKey'],
+      include: [{ model: User, attributes: ['nickname'] }],
     });
 
     return res.status(200).json({
@@ -231,8 +237,9 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
         roomKey: room.roomKey,
         title: room.title,
         max: room.max,
+        currentPeople: room.Participants.length,
         hashTag: room.hashTag,
-        nickname: room.User.nickname,
+        host: room.User.nickname,
         userKey: room.userKey,
       },
       Participants: people,
@@ -310,30 +317,30 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
 // });
 
 //룸 채팅 불러오기
-router.get('/chat/:roomId', async (req, res) => {
-  try {
-    const { postId } = req.params;
+// router.get('/chat/:roomId', async (req, res) => {
+//   try {
+//     const { postId } = req.params;
 
-    const Chats = await Chats.findAll({
-      where: { postId: postId },
-      order: [['cretedAt', 'DESC']],
-    });
-    res.status(200).send({ Chats, msg: '채팅을 불러왔습니다' });
-  } catch {
-    res.status(400).send({ msg: '채팅을 불러오지 못했습니다.' });
-  }
-});
+//     const Chats = await Chats.findAll({
+//       where: { postId: postId },
+//       order: [['cretedAt', 'DESC']],
+//     });
+//     res.status(200).send({ Chats, msg: '채팅을 불러왔습니다' });
+//   } catch {
+//     res.status(400).send({ msg: '채팅을 불러오지 못했습니다.' });
+//   }
+// });
 
-//채팅방 인기순 정렬 (채팅방 인원많은 순으로)
-router.get('/search/populer', async (req, res) => {
-  try {
-    const allRoom = await Room.findAll();
-    allRoom.sort((a, b) => b.roomUserId.length - a.roomUserId.length);
+// //채팅방 인기순 정렬 (채팅방 인원많은 순으로)
+// router.get('/search/populer', async (req, res) => {
+//   try {
+//     const allRoom = await Room.findAll();
+//     allRoom.sort((a, b) => b.roomUserId.length - a.roomUserId.length);
 
-    return res.status(200).send({ allRoom, msg: '인기룸을 조회했습니다' });
-  } catch (err) {
-    return res.status(400).send({ msg: '인기룸을 조회가 되지않았습니다' });
-  }
-});
+//     return res.status(200).send({ allRoom, msg: '인기룸을 조회했습니다' });
+//   } catch (err) {
+//     return res.status(400).send({ msg: '인기룸을 조회가 되지않았습니다' });
+//   }
+// });
 
 module.exports = router;
