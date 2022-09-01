@@ -1,7 +1,10 @@
 const express = require('express');
 const Router = require('./routes/index');
 const errorHandler = require('./advice/errorHandler');
-// const logger = require('./config/logger');
+const logger = require('./config/winston');
+// global.logger || (global.logger = require('./config/logger'));
+const morganMiddleware = require('./config/morganMiddleware2');
+// const morgan = require('morgan');
 
 const session = require('express-session');
 const passport = require('passport');
@@ -13,6 +16,14 @@ require('dotenv').config();
 const port = process.env.PORT;
 
 const app = express();
+
+// if (process.env.NODE_ENV === 'production') {
+//   app.use(morganMiddleware('combined')); // 배포환경이면
+// } else {
+//   app.use(morgan('dev', { stream: logger.stream })); // 개발환경이면
+// }
+// app.use(morgan('dev'));
+app.use(morganMiddleware);
 
 const cors = require('cors');
 app.use(
