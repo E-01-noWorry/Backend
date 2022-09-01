@@ -57,6 +57,17 @@ module.exports = {
       onDelete: 'CASCADE',
     });
 
+    await queryInterface.addColumn('Participants', 'userKey', {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'userKey',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+    });
+
     await queryInterface.addColumn('Comments', 'selectKey', {
       type: Sequelize.INTEGER,
       allowNull: false,
@@ -80,6 +91,17 @@ module.exports = {
     });
 
     await queryInterface.addColumn('Chats', 'roomKey', {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Rooms',
+        key: 'roomKey',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+    });
+
+    await queryInterface.addColumn('Participants', 'roomKey', {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
@@ -118,6 +140,11 @@ module.exports = {
     );
 
     await queryInterface.removeColumn(
+      'Participants', // name of Source model
+      'userKey' // key we want to remove
+    );
+
+    await queryInterface.removeColumn(
       'Comments', // name of Source model
       'selectKey' // key we want to remove
     );
@@ -129,6 +156,11 @@ module.exports = {
 
     await queryInterface.removeColumn(
       'Chats', // name of Source model
+      'roomKey' // key we want to remove
+    );
+
+    await queryInterface.removeColumn(
+      'Participants', // name of Source model
       'roomKey' // key we want to remove
     );
   },
