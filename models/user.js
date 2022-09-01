@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'userKey',
         sourceKey: 'userKey',
       });
+      this.hasMany(models.Participant, {
+        foreignKey: 'userKey',
+        sourceKey: 'userKey',
+      });
     }
   }
   User.init(

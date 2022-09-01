@@ -13,6 +13,7 @@ module.exports = (req, res, next) => {
     if (authType !== 'Bearer') {
       throw new ErrorCustom(401, '토큰 타입이 맞지 않습니다.');
     }
+
     try {
       const decoded = jwt.verify(authToken, process.env.SECRET_KEY);
 
@@ -25,7 +26,8 @@ module.exports = (req, res, next) => {
       });
       return;
     } catch (err) {
-      throw new ErrorCustom(401, '토큰이 유효하지 않습니다.(기간만료 등)');
+      next();
+      // throw new ErrorCustom(401, '토큰이 유효하지 않습니다.(기간만료 등)');
     }
   }
 

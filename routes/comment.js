@@ -37,6 +37,7 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
         commentKey: newComment.commentKey,
         comment: newComment.comment,
         nickname: nickname,
+        userKey,
       },
     });
   } catch (err) {
@@ -71,6 +72,7 @@ router.get('/:selectKey', async (req, res, next) => {
           commentKey: e.commentKey,
           comment: e.comment,
           nickname: e.User.nickname,
+          userKey: e.userKey,
         };
       }),
     });
@@ -113,6 +115,7 @@ router.put('/:commentKey', authMiddleware, async (req, res, next) => {
           commentKey: data.commentKey,
           comment: comment,
           nickname: nickname,
+          userKey,
         },
       });
     }
@@ -145,6 +148,7 @@ router.delete('/:commentKey', authMiddleware, async (req, res, next) => {
           commentKey: data.commentKey,
           comment: data.comment,
           nickname: nickname,
+          userKey,
         },
       });
     }
