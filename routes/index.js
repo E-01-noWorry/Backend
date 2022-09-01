@@ -11,5 +11,5 @@ router.use('/select', selectRouter);
 router.use('/', userRouter);
 router.use('/select/vote', voteRouter);
 router.use('/comment', commentRouter);
-router.use('/chat', chatRouter);
+router.use('/room', chatRouter);
 module.exports = router;
