@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Select, User } = require('../models');
+const { Select, User, Vote } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 // const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
@@ -9,12 +9,11 @@ const ErrorCustom = require('../advice/errorCustom');
 router.post('/', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
-    const { title, category, content, image, time, options } = req.body;
+    const { title, category, image, time, options } = req.body;
 
     if (
       title === '' ||
       category === '' ||
-      content === '' ||
       image === '' ||
       time === '' ||
       options === ''
@@ -24,13 +23,13 @@ router.post('/', authMiddleware, async (req, res, next) => {
 
     // 마감시간 계산 (db 저장할때 한국시간과 기본적으로 9시간 차이나서 +9를 해줌 +time은 사용자가 지정한 시간)
     const date = new Date();
-    // const deadLine = date.setHours(date.getHours() + 9 + time);
-    const deadLine = date.setMinutes(date.getMinutes() + 540 + time);
+    const deadLine = date.setHours(date.getHours() + 9 + time);
+    // const deadLine = date.setMinutes(date.getMinutes() + 540 + time);
 
     const data = await Select.create({
       title,
       category,
-      content,
+      content: null,
       image,
       deadLine,
       options,
@@ -60,9 +59,10 @@ router.post('/', authMiddleware, async (req, res, next) => {
 router.get('/', async (req, res, next) => {
   try {
     const datas = await Select.findAll({
-      include: [{ model: User, attributes: ['nickname'] }],
+      include: [{ model: User, attributes: ['nickname'] }, { model: Vote }],
       order: [['selectKey', 'DESC']],
     });
+    // console.log(datas[0].Votes.length);
 
     return res.status(200).json({
       ok: true,
@@ -75,6 +75,8 @@ router.get('/', async (req, res, next) => {
           deadLine: e.deadLine,
           completion: e.completion,
           nickname: e.User.nickname,
+          options: e.options,
+          total: e.Votes.length,
         };
       }),
     });
@@ -103,7 +105,6 @@ router.get('/:selectKey', async (req, res, next) => {
         selectKey: data.selectKey,
         title: data.title,
         category: data.category,
-        content: data.content,
         image: data.image,
         deadLine: data.deadLine,
         options: data.options,
