@@ -153,4 +153,41 @@ router.delete('/:selectKey', authMiddleware, async (req, res, next) => {
   }
 });
 
+// 선택글 모두 조회(무한 스크롤 offset-ver)
+router.get('/', async (req, res, next) => {
+  try {
+    let offset = 0;
+    const limit = 5;
+    const pageNum = req.query.page;
+
+    if (pageNum > 1) {
+      offset = limit * (pageNum - 1); //5 10
+    }
+
+    const datas = await Select.findAll({
+      include: [{ model: User, attributes: ['nickname'] }],
+      order: [['selectKey', 'DESC']],
+      offset: offset,
+      limit: limit,
+    });
+
+    return res.status(200).json({
+      ok: true,
+      msg: '선택글 모두 조회 성공',
+      result: datas.map((e) => {
+        return {
+          selectKey: e.selectKey,
+          title: e.title,
+          category: e.category,
+          deadLine: e.deadLine,
+          completion: e.completion,
+          nickname: e.User.nickname,
+        };
+      }),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
