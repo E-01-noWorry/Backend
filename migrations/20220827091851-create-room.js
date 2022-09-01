@@ -11,13 +11,19 @@ module.exports = {
       title: {
         type: Sequelize.STRING,
       },
-      keyword: {
-        type: Sequelize.JSON,
-      },
       max: {
         type: Sequelize.INTEGER,
       },
-      currentPeople: {
+      hashTag: {
+        type: Sequelize.JSON,
+      },
+      roomUserKeys: {
+        type: Sequelize.JSON,
+      },
+      roomUserNickname: {
+        type: Sequelize.JSON,
+      },
+      roomUserNum: {
         type: Sequelize.INTEGER,
       },
       createdAt: {
