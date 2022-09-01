@@ -20,16 +20,12 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         primaryKey: true,
       },
-      roomId: DataTypes.STRING,
-      userId: DataTypes.STRING,
-      userNickname: DataTypes.STRING,
       chat: DataTypes.STRING,
-      userImg: DataTypes.STRING,
     },
     {
       timestamp: true,
       sequelize,
-      modelName: "Chats",
+      modelName: 'Chat',
     }
   );
   return Chat;
