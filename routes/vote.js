@@ -18,6 +18,10 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
       throw new ErrorCustom(400, '해당 선택글이 존재하지 않습니다.');
     }
 
+    if (userKey === data.userKey) {
+      throw new ErrorCustom(400, '본인 글에는 투표할 수 없습니다.');
+    }
+
     // 투표했는지 확인
     const voteCheck = await Vote.findOne({
       where: { selectKey, userKey },
@@ -115,6 +119,21 @@ router.get('/:selectKey', isLoginMiddlware, async (req, res, next) => {
     } else {
       // 미들웨어를 거쳐서 로그인 유무 확인(로그인시)
       const userKey = user.userKey;
+
+      // 글작성자인지 확인
+      if (userKey === isSelect.userKey) {
+        return res.status(200).json({
+          ok: true,
+          msg: '선택지 비율 조회 성공',
+          result: {
+            1: (Math.round((count1 / total) * 100) / 100) * 100,
+            2: (Math.round((count2 / total) * 100) / 100) * 100,
+            3: (Math.round((count3 / total) * 100) / 100) * 100,
+            4: (Math.round((count4 / total) * 100) / 100) * 100,
+            total,
+          },
+        });
+      }
 
       const voteCheck = await Vote.findOne({
         where: { selectKey, userKey },
