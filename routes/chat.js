@@ -5,39 +5,20 @@ const { Room, Chat, User, Participant } = require('../models');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 
-//채팅방 생성
+// 채팅방 생성
 router.post('/', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
-    const { title, max, hashTag } = req.body; //제목, 최대인원, 해쉬태그 정보 받아온다
-
-    // const existRoom = await Room.findOne({
-    //   where: { title: title },
-    // });
-
-    // if (existRoom) {
-    //   return res.status(400).send({ msg: '이미 존재하는 방이름입니다.' });
-    // }
+    const { title, max, hashTag } = req.body;
 
     const newRoom = await Room.create({
       title,
       max,
       hashTag,
       userKey,
-
-      // hostNickname: nickname,
-      // hostId: userId,
-      // hostImg: userImageURL,
-      // createdAt: Date(),
-      // updatedAt: Date(),
-      // roomUserId: [], //roomUser정보는 여러 명이 들어올수있으니 배열로 만들어서 여러개를 저장할 수 있게한다
-      // roomUserNickname: [],
-      // roomUserNum: 1,
-      // roomUserImg: [],
     });
-    console.log(newRoom.roomKey);
 
-    // people에 호스트 하나 만들어주고 바로 채팅방 안으로 보여주는게 나을까 전체목록 보여주는게 나을까?
+    // Participant에 방금 생성한 유저 생성하고 바로 채팅방 안으로 들어가야함
     await Participant.create({
       userKey,
       roomKey: newRoom.roomKey,
@@ -47,10 +28,12 @@ router.post('/', authMiddleware, async (req, res, next) => {
       ok: true,
       msg: '채팅방 생성 성공',
       result: {
+        roomKey: newRoom.roomKey,
         title: newRoom.title,
         max: newRoom.max,
         hashTag: newRoom.hashTag,
         nickname: nickname,
+        userKey,
       },
     });
   } catch (err) {
@@ -64,10 +47,26 @@ router.get('/', async (req, res, next) => {
     const allRoom = await Room.findAll({
       include: [
         { model: User, attributes: ['nickname'] },
-        { model: Participant },
+        { model: Participant, attributes: ['userKey'] },
       ],
       order: [['roomKey', 'DESC']],
-    }); //사실상 전체조회는 이 코드가 다임
+    });
+
+    return res.status(200).json({
+      ok: true,
+      msg: '채팅방 전체 조회 성공',
+      result: allRoom.map((e) => {
+        return {
+          roomKey: e.roomKey,
+          title: e.title,
+          max: e.max,
+          currentPeople: e.Participants.length,
+          hashTag: e.hashTag,
+          nickname: e.User.nickname,
+          userKey: e.userKey,
+        };
+      }),
+    });
 
     // let tags = []; //이 밑은 사람들이 태그 한것중 가장 많이 태그한 태그 3개를 가져와서 인기키워드로 보여주는 코드이다
     // for (let i = 0; i < allRoom.length; i++) {
@@ -102,49 +101,176 @@ router.get('/', async (req, res, next) => {
     // delete tags[max2];
     // max3 = Object.keys(tags).find((key) => tags[key] === max3);
     // tags = [max, max2, max3];
-
-    return res.status(200).json({
-      ok: true,
-      msg: '채팅방 전체 조회 성공',
-      result: allRoom.map((e) => {
-        return {
-          title: e.title,
-          max: e.max,
-          // currentPeople: e.Participant.userKey,
-          hashTag: e.hashTag,
-          nickname: e.User.nickname,
-        };
-      }),
-    });
   } catch (err) {
     next(err);
   }
 });
 
-//채팅방 입장
+// 채팅방 입장
+// 호스트 유저는 방만들때 Participant에 생성했음
 router.post('/:roomKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { roomKey } = req.params;
 
-    let room = await Room.findOne({ where: { roomKey } });
+    const room = await Room.findOne({
+      where: { roomKey },
+      include: [
+        { model: User, attributes: ['nickname'] },
+        { model: Participant, attributes: ['userKey'] },
+      ],
+    });
 
-    // if (room.hostId == userId) {
-    //   res.status(200).send({ msg: '호스트가 입장했습니다.' });
-    //   return;
-    // }
-    // if (room.roomUsersId.includes(userId)) {
-    //   res.status(200).send({ msg: '채팅방에 등록된 유저입니다.' });
-    //   return;
-    // }
-    if (Number(room.max) < room.roomUserId.length) {
-      res.status(400).send({ errorMEssage: '입장 가능 인원을 초과했습니다.' });
-      return;
+    if (!room) {
+      throw new ErrorCustom(400, '해당 채팅방이 존재하지 않습니다.');
     }
 
-    // 데이터생성하고 입장
+    const users = room.Participants.map((e) => {
+      return e.userKey;
+    });
 
-    res.status(201).send({ msg: '입장 완료' });
+    if (users.includes(userKey)) {
+      return res.status(200).json({
+        ok: true,
+        msg: '채팅방 입장 성공',
+      });
+    }
+
+    if (room.Participants.length >= room.max) {
+      throw new ErrorCustom(400, '입장 가능 인원을 초과했습니다.');
+    } else {
+      const enterRoom = await Participant.create({
+        userKey,
+        roomKey: room.roomKey,
+      });
+
+      return res.status(200).json({
+        ok: true,
+        msg: '채팅방 입장 성공',
+      });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 채팅방 나가기
+// 나가는 유저가 호스트면 채팅방,채팅내용 삭제하고
+// 일반유저면 참가자 명단에서만 삭제
+router.delete('/:roomKey', authMiddleware, async (req, res, next) => {
+  try {
+    const { userKey, nickname } = res.locals.user;
+    const { roomKey } = req.params;
+
+    const room = await Room.findOne({
+      where: { roomKey },
+      include: [
+        { model: User, attributes: ['nickname'] },
+        { model: Participant, attributes: ['userKey'] },
+      ],
+    });
+
+    if (!room) {
+      throw new ErrorCustom(400, '해당 채팅방이 존재하지 않습니다.');
+    }
+
+    if (userKey === room.userKey) {
+      await Chat.destroy({ where: { roomKey } });
+      await Participant.destroy({ where: { roomKey } });
+      await Room.destroy({ where: { roomKey } });
+
+      return res.status(200).json({
+        ok: true,
+        msg: '채팅방 호스트가 나가 채팅방이 삭제 됩니다.',
+      });
+      // 삭제니까 무슨 방 사라졌는지 줘야하나?
+    } else {
+      await Participant.destroy({ where: { userKey } });
+
+      return res.status(200).json({
+        ok: true,
+        msg: '채팅방에서 나왔습니다.',
+      });
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 채팅방 상세조회(채팅방 정보, 참여 유저들 정보 보여주기)
+router.get('/:roomKey', authMiddleware, async (req, res, next) => {
+  try {
+    const { userKey, nickname } = res.locals.user;
+    const { roomKey } = req.params;
+
+    const room = await Room.findOne({
+      where: { roomKey },
+      include: [
+        { model: User, attributes: ['nickname'] },
+        {
+          model: Participant,
+          attributes: ['userKey'],
+          include: [{ model: User, attributes: ['nickname'] }],
+        },
+      ],
+    });
+
+    const people = room.Participants.map((e) => {
+      return { userKey: e.userKey, nickname: e.User.nickname };
+    });
+
+    const loadChat = await Chat.findAll({
+      where: { roomKey },
+      attributes: ['chat', 'userKey'],
+    });
+
+    return res.status(200).json({
+      ok: true,
+      msg: '채팅방 정보, 메세지 조회 성공',
+      result: {
+        roomKey: room.roomKey,
+        title: room.title,
+        max: room.max,
+        hashTag: room.hashTag,
+        nickname: room.User.nickname,
+        userKey: room.userKey,
+      },
+      Participants: people,
+      loadChat,
+    });
+
+    //
+
+    // if (Room.roomUserId.includes(userId) || Room.hostId == userId) {
+    //   //userId가 hostId거나 roomUserId에 존재한다면 조회해라
+    //   loadChat = await Chats.findAll({ where: { roomId: Number(roomId) } });
+    // }
+    // let chatingRooms = await Room.findAll({
+    //   //옆에 뜨는 내가 접속한 채팅방 목록인듯?
+    //   where: {
+    //     [Op.or]: [
+    //       { roomId: Number(roomId) }, // 해당 roomId가 있거나
+    //       { hostId: userId }, //host가 userId거나
+    //       { roomUserId: { [Op.substring]: userId } }, //해당 방에 userId가 포함되있거나
+    //     ],
+    //   },
+    // });
+
+    // for (let i = 0; i < chatingRooms.length; i++) {
+    //   //목록인데 자신이 지금 들어간 채팅방을 최상단에 위치하게 해주는 코드
+    //   let chatRoom = chatingRooms[i];
+    //   if (chatingRooms.roomId == roomId) {
+    //     chatingRooms[i] = chatingRooms[0];
+    //     chatingRooms[0] = chatRoom;
+    //   }
+    // }
+
+    // res.status(200).send({
+    //   msg: '룸 상세조회에 성공했습니다',
+    //   chatingRooms,
+    //   Room,
+    //   loadChat,
+    // }); //들어가있는 방 목록, 현재 접속 방, 채팅 정보를 보낸다
   } catch (err) {
     next(err);
   }
@@ -195,87 +321,6 @@ router.get('/chat/:roomId', async (req, res) => {
     res.status(200).send({ Chats, msg: '채팅을 불러왔습니다' });
   } catch {
     res.status(400).send({ msg: '채팅을 불러오지 못했습니다.' });
-  }
-});
-
-//룸 상세조회
-router.get('/:roomId', async (req, res) => {
-  const { roomId } = req.params;
-  const { userId, nickname, userImageURL } = res.locals;
-  try {
-    let Room = await Room.findOne({ where: { roomId: Number(roomId) } });
-    let loadChat = [];
-
-    if (Room.roomUserId.includes(userId) || Room.hostId == userId) {
-      //userId가 hostId거나 roomUserId에 존재한다면 조회해라
-      loadChat = await Chats.findAll({ where: { roomId: Number(roomId) } });
-    }
-    let chatingRooms = await Room.findAll({
-      //옆에 뜨는 내가 접속한 채팅방 목록인듯?
-      where: {
-        [Op.or]: [
-          { roomId: Number(roomId) }, // 해당 roomId가 있거나
-          { hostId: userId }, //host가 userId거나
-          { roomUserId: { [Op.substring]: userId } }, //해당 방에 userId가 포함되있거나
-        ],
-      },
-    });
-
-    for (let i = 0; i < chatingRooms.length; i++) {
-      //목록인데 자신이 지금 들어간 채팅방을 최상단에 위치하게 해주는 코드
-      let chatRoom = chatingRooms[i];
-      if (chatingRooms.roomId == roomId) {
-        chatingRooms[i] = chatingRooms[0];
-        chatingRooms[0] = chatRoom;
-      }
-    }
-
-    res.status(200).send({
-      msg: '룸 상세조회에 성공했습니다',
-      chatingRooms,
-      Room,
-      loadChat,
-    }); //들어가있는 방 목록, 현재 접속 방, 채팅 정보를 보낸다
-  } catch (err) {
-    res.status(400).send({
-      msg: '룸 상세조회에 실패했습니다',
-      chatingRooms,
-      Room,
-      loadChat,
-    });
-  }
-});
-
-//채팅방 나가기
-//나가는 유저가 호스트면 채팅방,채팅내용 삭제하고
-//아니면 filter로 나간 유저만 걸러내고 room정보 업대이트 한다
-router.delete('/:roomId', async (req, res) => {
-  const { roomId } = req.params;
-  const { userId, nickname, userImgURL } = res.locals.user;
-
-  const room = await Room.findOne({ where: { roomId: Number(roomId) } });
-
-  if (userId === room.hostId) {
-    await Chat.destory({ roomId: roomId });
-    await Room.destory({ roomId: roomId });
-  } else {
-    //해당userId, nickname, userImgURL이 아닌 것들만 남긴다
-    const roomUsersId = room.roomuserId.filter(
-      (roomUsersId) => roomUsersId != userId
-    );
-    const roomUsersNickname = room.roomUserNickname.filter(
-      (roomUserNickname) => roomUserNickname != nickname
-    );
-    const roomUsersImg = room.roomUsersImg.filter(
-      (roomUsersImg) => roomUsersImg != userImgURL
-    );
-    const roomUserNum = roomUsersId.length + 1;
-    await room.update({
-      roomuserId: roomUsersId,
-      roomUserNickname: roomUsersNickname,
-      roomUserImg: roomUsersImg,
-      roomUserNum: roomUserNum,
-    });
   }
 });
 
