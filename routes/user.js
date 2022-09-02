@@ -53,7 +53,7 @@ router.post('/user/login', async (req, res, next) => {
 
   const user = await User.findOne({ where: { userId } });
   if (!user || !bcrypt.compareSync(password, user.password)) {
-    throw new ErrorCustom(400, '이미 사용중인 아이디입니다.');
+    throw new ErrorCustom(400, '아이디 또는 패스워드가 잘못되었습니다.');
   }
 
   const token = jwt.sign({ userKey: user.userKey }, process.env.SECRET_KEY, {
