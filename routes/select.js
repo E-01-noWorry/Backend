@@ -128,13 +128,28 @@ router.get('/category/:category', async (req, res, next) => {
     const { category } = req.params;
 
     const data = await Select.findAll({
-      where: { [Op.or]: [{ category: { [Op.like]: `%${category}%` } }] },
+      where: { [Op.or]: [{ category: { [Op.like]: `%${category}%` }, }] },
+      include: [{ model: User, attributes: ['nickname'] }, { model: Vote }],
     });
 
     if (!data) {
       throw new ErrorCustom(400, '해당 카테고리에 글이 존재하지 않습니다.');
     }
-    res.status(200).json({ data });
+    res.status(200).json({ 
+      msg: '카테고리 조회 성공',
+      result: data.map((c) => {
+        return {
+          selectKey: c.selectKey,
+          title: c.title,
+          category: c.category,
+          deadLine: c.deadLine,
+          completion: c.completion,
+          nickname: c.User.nickname,
+          options: c.options,
+          total: c.Votes.length,
+        }
+      })
+    });
   } catch (err) {
     next(err);
   }
