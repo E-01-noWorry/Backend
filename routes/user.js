@@ -8,7 +8,7 @@ const { User } = require('../models');
 const passport = require('passport');
 
 //회원가입
-router.post('/user/signup', async (req, res) => {
+router.post('/user/signup', async (req, res, next) => {
   try {
     const { userId, nickname, password, confirm } = req.body;
 
@@ -41,7 +41,7 @@ router.post('/user/signup', async (req, res) => {
     await User.create({ userId, nickname, password: pwHash });
     res.status(201).send({ msg: '회원가입에 성공하였습니다.' });
   } catch (error) {
-    // next(error);
+    next(error);
   }
 });
 
