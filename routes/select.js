@@ -154,7 +154,7 @@ router.delete('/:selectKey', authMiddleware, async (req, res, next) => {
 });
 
 // 선택글 모두 조회(무한 스크롤 offset-ver)
-router.get('/?page=1', async (req, res, next) => {
+router.get('/select/?page=1', async (req, res, next) => {
   try {
     let offset = 0;
     const limit = 5;
