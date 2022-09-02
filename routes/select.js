@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { Select, User, Vote } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
-// const { Op } = require('sequelize');
+const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
+const { format } = require('mysql2');
+// const PoolCluster = require('mysql2/typings/mysql/lib/PoolCluster');
 
 // 선택글 작성
 router.post('/', authMiddleware, async (req, res, next) => {
@@ -59,9 +61,19 @@ router.post('/', authMiddleware, async (req, res, next) => {
 // 선택글 모두 조회
 router.get('/', async (req, res, next) => {
   try {
+    let offset = 0;
+    const limit = 5;
+    const pageNum = req.query.page;
+
+    if (pageNum > 1) {
+      offset = limit * (pageNum - 1); //5 10
+    }
+
     const datas = await Select.findAll({
       include: [{ model: User, attributes: ['nickname'] }, { model: Vote }],
       order: [['selectKey', 'DESC']],
+      offset: offset,
+      limit: limit,
     });
     // console.log(datas[0].Votes.length);
 
@@ -81,6 +93,48 @@ router.get('/', async (req, res, next) => {
         };
       }),
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+//선택글 정렬(인기순)
+router.get('/:filter', async (req, res, next) => {
+  try {
+    const datas = await Select.findAll({
+      include: [{ model: Vote }],
+    });
+    const popular = datas.map((e) => ({
+      total: e.Votes.length,
+      selectKey: e.selectKey,
+    }));
+
+    popular.sort(function (a, b) {
+      return b.total - a.total;
+    });
+
+    res.status(201).send({
+      msg: '인기글이 조회되었습니다.',
+      data: popular,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+//선택글 카테고리별 조회
+router.get('/:category', async (req, res, next) => {
+  try {
+    const { category } = req.params;
+
+    const data = await Select.findAll({
+      where: { [Op.or]: [{ category: { [Op.like]: `%${category}%` } }] },
+    });
+
+    if (!data) {
+      throw new ErrorCustom(400, '해당 카테고리에 글이 존재하지 않습니다.');
+    }
+    res.status(200).json({ data });
   } catch (err) {
     next(err);
   }
