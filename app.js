@@ -1,7 +1,8 @@
 const express = require('express');
 const Router = require('./routes/index');
 const errorHandler = require('./advice/errorHandler');
-// const logger = require('./config/logger');
+const logger = require('./config/winston');
+const morganMiddleware = require('./config/morganMiddleware');
 
 const session = require('express-session');
 const passport = require('passport');
@@ -13,6 +14,8 @@ require('dotenv').config();
 const port = process.env.PORT;
 
 const app = express();
+
+app.use(morganMiddleware);
 
 const cors = require('cors');
 app.use(
@@ -43,12 +46,10 @@ app.use(passport.session());
 
 app.use('/api', Router);
 app.get('/', (req, res) => {
-  // logger.info('GET /');
   res.status(200).json({ massage: '연동 잘 됨.' });
 });
 app.use(errorHandler);
 
 app.listen(port, () => {
-  console.log(port, '포트로 서버 오픈');
-  // logger.info(`${port} 포트로 서버가 열렸어요!`);
+  console.log(port, '포트로 서버가 열렸어요!');
 });
