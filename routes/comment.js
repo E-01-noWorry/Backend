@@ -29,6 +29,9 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
       selectKey,
       userKey,
     });
+    newComment.updatedAt = newComment.updatedAt.setHours(
+      newComment.updatedAt.getHours() + 9
+    );
 
     return res.status(200).json({
       ok: true,
@@ -38,6 +41,7 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
         comment: newComment.comment,
         nickname: nickname,
         userKey,
+        time: newComment.updatedAt,
       },
     });
   } catch (err) {
@@ -73,6 +77,7 @@ router.get('/:selectKey', async (req, res, next) => {
           comment: e.comment,
           nickname: e.User.nickname,
           userKey: e.userKey,
+          time: e.updatedAt,
         };
       }),
     });
@@ -108,6 +113,10 @@ router.put('/:commentKey', authMiddleware, async (req, res, next) => {
     } else {
       await Comment.update({ comment }, { where: { commentKey, userKey } });
 
+      const updateComment = await Comment.findOne({
+        where: { commentKey },
+      });
+
       return res.status(200).json({
         ok: true,
         msg: '댓글 수정 성공',
@@ -116,6 +125,7 @@ router.put('/:commentKey', authMiddleware, async (req, res, next) => {
           comment: comment,
           nickname: nickname,
           userKey,
+          time: updateComment.updatedAt,
         },
       });
     }

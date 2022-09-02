@@ -1,13 +1,13 @@
 const express = require('express');
 const Router = require('./routes/index');
 const errorHandler = require('./advice/errorHandler');
+// const logger = require('./config/logger');
 
 const session = require('express-session');
 const passport = require('passport');
 const passportConfig = require('./passport');
 
-
-const webSocket = require("./socket");
+const webSocket = require('./socket');
 
 require('dotenv').config();
 const port = process.env.PORT;
@@ -43,10 +43,12 @@ app.use(passport.session());
 
 app.use('/api', Router);
 app.get('/', (req, res) => {
+  // logger.info('GET /');
   res.status(200).json({ massage: '연동 잘 됨.' });
 });
 app.use(errorHandler);
 
 app.listen(port, () => {
-  console.log(port, '포트로 서버가 열렸어요!');
+  console.log(port, '포트로 서버 오픈');
+  // logger.info(`${port} 포트로 서버가 열렸어요!`);
 });
