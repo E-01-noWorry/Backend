@@ -113,7 +113,7 @@ router.get('/filter', async (req, res, next) => {
       return b.total - a.total;
     });
 
-    res.status(201).send({
+    res.status(201).json({
       msg: '인기글이 조회되었습니다.',
       data: popular,
     });
