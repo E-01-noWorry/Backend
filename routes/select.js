@@ -101,12 +101,28 @@ router.get('/', async (req, res, next) => {
 //선택글 정렬(인기순)
 router.get('/filter', async (req, res, next) => {
   try {
+    let offset = 0;
+    const limit = 5;
+    const pageNum = req.query.page;
+
+    if (pageNum > 1) {
+      offset = limit * (pageNum - 1); //5 10
+    }
+
     const datas = await Select.findAll({
-      include: [{ model: Vote }],
+      include: [{ model: User, attributes: ['nickname'] }, { model: Vote }],
+      offset: offset,
+      limit: limit,
     });
     const popular = datas.map((e) => ({
       total: e.Votes.length,
       selectKey: e.selectKey,
+      title: e.title,
+      category: e.category,
+      deadLine: e.deadLine,
+      completion: e.completion,
+      nickname: e.User.nickname,
+      options: e.options,
     }));
 
     popular.sort(function (a, b) {
@@ -115,7 +131,7 @@ router.get('/filter', async (req, res, next) => {
 
     res.status(201).json({
       msg: '인기글이 조회되었습니다.',
-      data: popular,
+      data: popular
     });
   } catch (err) {
     next(err);
@@ -125,17 +141,27 @@ router.get('/filter', async (req, res, next) => {
 //선택글 카테고리별 조회
 router.get('/category/:category', async (req, res, next) => {
   try {
+    let offset = 0;
+    const limit = 5;
+    const pageNum = req.query.page;
+
+    if (pageNum > 1) {
+      offset = limit * (pageNum - 1); //5 10
+    }
+
     const { category } = req.params;
 
     const data = await Select.findAll({
-      where: { [Op.or]: [{ category: { [Op.like]: `%${category}%` }, }] },
+      where: { [Op.or]: [{ category: { [Op.like]: `%${category}%` } }] },
       include: [{ model: User, attributes: ['nickname'] }, { model: Vote }],
+      offset: offset,
+      limit: limit,
     });
 
     if (!data) {
       throw new ErrorCustom(400, '해당 카테고리에 글이 존재하지 않습니다.');
     }
-    res.status(200).json({ 
+    res.status(200).json({
       msg: '카테고리 조회 성공',
       result: data.map((c) => {
         return {
@@ -147,8 +173,8 @@ router.get('/category/:category', async (req, res, next) => {
           nickname: c.User.nickname,
           options: c.options,
           total: c.Votes.length,
-        }
-      })
+        };
+      }),
     });
   } catch (err) {
     next(err);
