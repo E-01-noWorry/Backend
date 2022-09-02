@@ -8,7 +8,7 @@ const { User } = require('../models');
 const passport = require('passport');
 
 //회원가입
-router.post('/user/signup', async (req, res) => {
+router.post('/user/signup', async (req, res, next) => {
   try {
     const { userId, nickname, password, confirm } = req.body;
 
@@ -33,9 +33,7 @@ router.post('/user/signup', async (req, res) => {
       where: { [Op.or]: { userId } },
     });
     if (exitUsers.length) {
-      return res
-        .status(400)
-        .send({ errMsg: '이미 사용중인 아이디입니다.' });
+      return res.status(400).send({ errMsg: '이미 사용중인 아이디입니다.' });
     }
 
     const salt = await bcrypt.genSalt(10); //기본이 10, 숫자가 높을 수록 연산 시간과 보안이 높아짐.
@@ -76,13 +74,17 @@ const kakaoCallback = (req, res, next) => {
   try {
     passport.authenticate(
       'kakao',
-      { failureRedirect: '/user/login' },//실패하면 '/user/login''로 돌아감.
+      { failureRedirect: '/user/login' }, //실패하면 '/user/login''로 돌아감.
       (err, user, info) => {
         if (err) return next(err);
         // res.redirect('/')
 
         const { userKey, nickname } = user;
-        const token = jwt.sign({ userKey: user.userKey }, process.env.SECRET_KEY, { expiresIn: '6h' }); //토큰 만료 6시간 설정
+        const token = jwt.sign(
+          { userKey: user.userKey },
+          process.env.SECRET_KEY,
+          { expiresIn: '6h' }
+        ); //토큰 만료 6시간 설정
         console.log(token, '토큰 확인333');
 
         result = {
@@ -90,7 +92,9 @@ const kakaoCallback = (req, res, next) => {
           token,
           nickname,
         };
-        res.status(201).json({ user: result, msg:'카카오 로그인에 성공하였습니다.' });
+        res
+          .status(201)
+          .json({ user: result, msg: '카카오 로그인에 성공하였습니다.' });
       }
     )(req, res, next);
   } catch (err) {
@@ -106,28 +110,37 @@ router.get('/auth/kakao/callback', kakaoCallback);
 //구글로그인
 const googleCallback = (req, res, next) => {
   try {
-    passport.authenticate('google',
-  {failureRedirect:'/'},
-  (err, user, info) => {
-    if(err) return next(err)
-    res.redirect('/')
+    passport.authenticate(
+      'google',
+      { failureRedirect: '/' },
+      (err, user, info) => {
+        if (err) return next(err);
+        res.redirect('/');
 
-    const { userKey, nickname } = user
-    const token = jwt.sign({ userKey: user.userKey }, process.env.SECRET_KEY, { expiresIn: '6h' }); //토큰 만료 6시간 설정
+        const { userKey, nickname } = user;
+        const token = jwt.sign(
+          { userKey: user.userKey },
+          process.env.SECRET_KEY,
+          { expiresIn: '6h' }
+        ); //토큰 만료 6시간 설정
 
-    result = { userKey, token, nickname}
-    res.status(201).send({ user: result, msg:'구글 로그인에 성공하였습니다.' });
-
-  })(req, res, next)
-}catch(err) {
-  res.status(400).send({ errMsg: '구글 로그인에 실패하였습니다.' });
-
-}
-}
+        result = { userKey, token, nickname };
+        res
+          .status(201)
+          .send({ user: result, msg: '구글 로그인에 성공하였습니다.' });
+      }
+    )(req, res, next);
+  } catch (err) {
+    res.status(400).send({ errMsg: '구글 로그인에 실패하였습니다.' });
+  }
+};
 
 //로그인페이지로 이동
-router.get("/auth/google", passport.authenticate("google", {scope:["profile", "email"]}));//프로필과 이메일 정보를 받음.
+router.get(
+  '/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+); //프로필과 이메일 정보를 받음.
 //구글 서버 로그인이 되면, redicrect url을 통해 요청 재전달
-router.get("/auth/google/callback", googleCallback)
+router.get('/auth/google/callback', googleCallback);
 
 module.exports = router;
