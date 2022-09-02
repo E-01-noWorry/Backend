@@ -99,7 +99,7 @@ router.get('/', async (req, res, next) => {
 });
 
 //선택글 정렬(인기순)
-router.get('/:filter', async (req, res, next) => {
+router.get('/filter', async (req, res, next) => {
   try {
     const datas = await Select.findAll({
       include: [{ model: Vote }],
@@ -113,7 +113,7 @@ router.get('/:filter', async (req, res, next) => {
       return b.total - a.total;
     });
 
-    res.status(201).send({
+    res.status(201).json({
       msg: '인기글이 조회되었습니다.',
       data: popular,
     });
@@ -123,7 +123,7 @@ router.get('/:filter', async (req, res, next) => {
 });
 
 //선택글 카테고리별 조회
-router.get('/:category', async (req, res, next) => {
+router.get('/category/:category', async (req, res, next) => {
   try {
     const { category } = req.params;
 
