@@ -29,6 +29,9 @@ io.on('connection', (socket) => {
     // 해당 채팅방 입장
     socket.join(enterUser.Room.title);
 
+    // 지금은 api에서 참가자 디비를 만들어서 입장했다는 chat을 찾아보고 처음인지 재방문인지 확인하는데
+    // api에서 참가자 디비를 만들지 않고, 소캣통신에 들어오면 참가자를 만든다면, 참가자 정보를 찾아서 처음인지 재방문인지 알수가 있음
+    // 하지만 위와 같이 하면 결국 채팅방title, 유저nickname을 알기위해 추가적으로 디비에 접근을 해야하는 문제가 생김(그냥 지금처럼 입장chat을 검색해서 처음인지 확인하는게 나을까요?)
     const enterMsg = await Chat.findOne({
       where: {
         roomKey,
@@ -47,7 +50,7 @@ io.on('connection', (socket) => {
       socket
         .to(enterUser.Room.title)
         .emit('welcome', { nickname: enterUser.User.nickname });
-      // 닉네임보다 chat: `${enterUser.User.nickname}님이 입장했습니다.`를 보내주면 낫지 않을까?
+      // 닉네임보다 message: `${enterUser.User.nickname}님이 입장했습니다.`를 보내주면 낫지 않을까? 그럼 프론트에서 바로 message를 띄우면 될것같은데
     }
     // 재입장이라면 아무것도 없음
   });
@@ -66,6 +69,7 @@ io.on('connection', (socket) => {
         { model: Room, attributes: ['title'] },
       ],
     });
+    // 채팅 보내주기
     socket.to(chatUser.Room.title).emit('message', {
       message,
       roomKey,
@@ -100,7 +104,7 @@ io.on('connection', (socket) => {
       socket
         .to(leaveUser.Room.title)
         .emit('bye', { nickname: leaveUser.User.nickname });
-      // 닉네임보다 chat: `${leaveUser.User.nickname}님이 퇴장했습니다.`를 보내주면 낫지 않을까?
+      // 닉네임보다 message: `${leaveUser.User.nickname}님이 퇴장했습니다.`를 보내주면 낫지 않을까?
     }
   });
 });
