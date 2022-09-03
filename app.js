@@ -17,6 +17,12 @@ const app = express();
 
 app.use(morganMiddleware);
 
+//
+const path = require('path');
+
+app.use(express.static(path.join(__dirname, 'src')));
+//
+
 const cors = require('cors');
 app.use(
   cors({
@@ -50,6 +56,12 @@ app.get('/', (req, res) => {
 });
 app.use(errorHandler);
 
+//
 app.listen(port, () => {
   console.log(port, '포트로 서버가 열렸어요!');
 });
+
+// webSocket(server, app);
+//
+
+module.exports = app;
