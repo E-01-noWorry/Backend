@@ -17,11 +17,6 @@ module.exports = (server, app) => {
   });
   app.set('socket.io', io);
 
-  // 프, 백 모두 데이터를 넘겨주고 받을때 객체로 줄테니까 받을땐 data / 보내줄땐 param 이라는 변수에 담아서 받자마자 구조화할당으로 나눠서 변수를 쓰면 좋지 않을까?
-  // ex)data = {roomKey, userKey, msg} / param = {roomKey:3, userKey:2, msg:"안녕"}
-  // api명세를 보니까 leave-room -> leaveRoom 처럼 카멜케이스 하면 좋을것같음
-  // 채팅 주고 받기도  chat_message와 message가 있는데 하나통일하면 좋을것같음
-
   // 소캣 연결
   io.on('connection', (socket) => {
     console.log('a user connected');
@@ -64,12 +59,8 @@ module.exports = (server, app) => {
         // 관리자 환영메세지 보내기
         let param = { nickname: enterUser.User.nickname };
         io.to(enterUser.Room.title).emit('welcome', param);
-        // 닉네임보다 message: `${enterUser.User.nickname}님이 입장했습니다.`를 보내주면 낫지 않을까? 그럼 프론트에서 바로 message를 띄우면 될것같은데
       } else {
         // 재입장이라면 아무것도 없음
-        // let param = { nickname: enterUser.User.nickname };
-        // console.log('재입장임');
-        // socket.emit('welcome', param);
       }
     });
 
@@ -82,9 +73,6 @@ module.exports = (server, app) => {
         userKey,
         chat: message,
       });
-      // const date = new Date();
-      // newChat.createdAt = date.setHours(date.getHours() + 9);
-      // console.log(newChat.createdAt);
       const chatUser = await Participant.findOne({
         where: { roomKey, userKey },
         include: [
@@ -117,30 +105,30 @@ module.exports = (server, app) => {
           { model: Room, attributes: ['title', 'userKey'] },
         ],
       });
-      console.log('나간 사람 :', leaveUser.Room.userKey);
+      console.log('나간 사람 :', leaveUser.userKey);
 
       // 호스트가 나갔을 때
       if (userKey === leaveUser.Room.userKey) {
         console.log('바이 호스트');
         let param = { nickname: leaveUser.User.nickname };
         socket.broadcast.to(leaveUser.Room.title).emit('byeHost', param);
-        // 호스트가 나간거니까 api로 채팅방의 참가자, 채팅, 채팅방 자체를 삭제해버림
-        // byeHost로 통신이 되면 거기 안에 있는 사람들에게 알림을 띄우고 채팅방 목록으로 강제이동해주면 방폭파 느낌이 나지 않을까?
       } else {
+        console.log('바이');
         // 일반유저가 나갔을 때(호스트X)
         await Chat.create({
           roomKey,
           userKey: 12, // 관리자 유저키
           chat: `${leaveUser.User.nickname}님이 퇴장했습니다.`,
         });
-        await Chat.destroy({
-          roomKey,
-          userKey: 12, // 관리자 유저키
-          chat: `${leaveUser.User.nickname}님이 입장했습니다.`,
-        });
+        // await Chat.destroy({
+        //   where: {
+        //     roomKey,
+        //     userKey: 12, // 관리자 유저키
+        //     chat: `${leaveUser.User.nickname}님이 입장했습니다.`,
+        //   },
+        // });
         let param = { nickname: leaveUser.User.nickname };
         io.to(leaveUser.Room.title).emit('bye', param);
-        // 닉네임보다 message: `${leaveUser.User.nickname}님이 퇴장했습니다.`를 보내주면 낫지 않을까?
       }
     });
   });
