@@ -69,13 +69,13 @@
         let num = 0;
         // let param = { roomKey: 2, userKey: 5 };
 
-        socket.emit('join-room', (param = { roomKey: 2, userKey: name }));
+        socket.emit('join-room', (param = { roomKey: 2, userKey: 1 }));
 
         $('select').change(() => {
           socket.emit('leave-room', (param = { roomKey: 2, userKey: 1 }));
           num++;
           num = num % 2;
-          socket.emit('join-room', (param = { roomKey: 6, userKey: 5 }));
+          socket.emit('join-room', (param = { roomKey: 6, userKey: 1 }));
         });
 
         $('form').submit(() => {
