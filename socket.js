@@ -36,7 +36,7 @@ module.exports = (server, app) => {
           { model: Room, attributes: ['title'] },
         ],
       });
-      console.log(enterUser);
+      // console.log(enterUser);
       // 해당 채팅방 입장
       // socket.join(enterUser.Room.title);
       console.log('방들어옴');
@@ -51,7 +51,7 @@ module.exports = (server, app) => {
           chat: `${enterUser.User.nickname}님이 입장했습니다.`,
         },
       });
-      console.log(enterMsg);
+      // console.log(enterMsg);
       // 처음입장이라면
       if (!enterMsg) {
         console.log('처음입장');
@@ -101,16 +101,19 @@ module.exports = (server, app) => {
     // 채팅방 나가기(채팅방에서 아에 퇴장)
     socket.on('leave-room', async (data) => {
       let { roomKey, userKey } = data;
-      const leaveUser = await await Participant.findOne({
+      console.log('leave' + roomKey, userKey);
+      const leaveUser = await Participant.findOne({
         where: { roomKey, userKey },
         include: [
           { model: User, attributes: ['nickname'] },
           { model: Room, attributes: ['title', 'userKey'] },
         ],
       });
+      console.log('나간 사람 :', leaveUser.Room.userKey);
 
       // 호스트가 나갔을 때
       if (userKey === leaveUser.Room.userKey) {
+        console.log('바이 호스트');
         let param = { nickname: leaveUser.User.nickname };
         io.emit('byeHost', param);
         // 호스트가 나간거니까 api로 채팅방의 참가자, 채팅, 채팅방 자체를 삭제해버림
