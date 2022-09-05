@@ -3,7 +3,7 @@ const socket = require('socket.io');
 const http = require('http');
 const { Room, Chat, User, Participant } = require('./models');
 const { param } = require('./routes');
-// require('socket.io-client')('https://');
+// require('socket.io-client')('http://localhost:3000');
 const server = http.createServer(app);
 
 // ------------------채팅 소캣 부분만 한번 만져봄(여기서부터) ----------------
@@ -63,12 +63,13 @@ module.exports = (server, app) => {
         console.log('메세지 만듬?');
         // 관리자 환영메세지 보내기
         let param = { nickname: enterUser.User.nickname };
-        socket.to(enterUser.Room.title).emit('welcome', param);
+        socket.emit('welcome', param);
         // 닉네임보다 message: `${enterUser.User.nickname}님이 입장했습니다.`를 보내주면 낫지 않을까? 그럼 프론트에서 바로 message를 띄우면 될것같은데
       } else {
         // 재입장이라면 아무것도 없음
+        let param = { nickname: enterUser.User.nickname };
         console.log('재입장임');
-        socket.to(enterUser.Room.title).emit('welcome', param);
+        socket.emit('welcome', param);
       }
     });
 
@@ -93,7 +94,7 @@ module.exports = (server, app) => {
       console.log(param);
       console.log(chatUser.Room.title);
 
-      socket.to(chatUser.Room.title).emit('message', param);
+      socket.emit('message', param);
       console.log('메세지 보냄');
     });
 
