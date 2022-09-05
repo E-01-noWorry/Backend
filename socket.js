@@ -2,6 +2,7 @@ const app = require('./app');
 const socket = require('socket.io');
 const http = require('http');
 const { Room, Chat, User, Participant } = require('./models');
+const { param } = require('./routes');
 // require('socket.io-client')('https://');
 const server = http.createServer(app);
 
@@ -23,8 +24,11 @@ module.exports = (server, app) => {
 
   // 소캣 연결
   io.on('connection', (socket) => {
+    console.log('a user connected');
     // 채팅방 목록? 접속(입장전)
-    socket.on('join-room', async (roomKey, userKey) => {
+    socket.on('join-room', async (data) => {
+      let { roomKey, userKey } = data;
+      console.log('join-room');
       const enterUser = await Participant.findOne({
         where: { roomKey, userKey },
         include: [
@@ -32,8 +36,10 @@ module.exports = (server, app) => {
           { model: Room, attributes: ['title'] },
         ],
       });
+      console.log(enterUser.User.nickname);
       // 해당 채팅방 입장
       socket.join(enterUser.Room.title);
+      console.log('방들어옴');
 
       // 지금은 api에서 참가자 디비를 만들어서 입장했다는 chat을 찾아보고 처음인지 재방문인지 확인하는데
       // api에서 참가자 디비를 만들지 않고, 소캣통신에 들어오면 참가자를 만든다면, 참가자 정보를 찾아서 처음인지 재방문인지 알수가 있음
@@ -45,30 +51,37 @@ module.exports = (server, app) => {
           chat: `${enterUser.User.nickname}님이 입장했습니다.`,
         },
       });
+      console.log(enterMsg);
       // 처음입장이라면
       if (!enterMsg) {
-        await Chat.creat({
+        console.log('처음입장');
+        await Chat.create({
           roomKey,
           userKey: 12, // 관리자 유저키
           chat: `${enterUser.User.nickname}님이 입장했습니다.`,
         });
+        console.log('메세지 만듬?');
         // 관리자 환영메세지 보내기
-        socket
-          .to(enterUser.Room.title)
-          .emit('welcome', { nickname: enterUser.User.nickname });
+        let param = { nickname: enterUser.User.nickname };
+        socket.to(enterUser.Room.title).emit('welcome', param);
         // 닉네임보다 message: `${enterUser.User.nickname}님이 입장했습니다.`를 보내주면 낫지 않을까? 그럼 프론트에서 바로 message를 띄우면 될것같은데
+      } else {
+        // 재입장이라면 아무것도 없음
+        console.log('재입장임');
+        socket.to(enterUser.Room.title).emit('welcome', param);
       }
-      // 재입장이라면 아무것도 없음
     });
 
     // 채팅 받아서 저장하고, 그 채팅 보내서 보여주기
-    socket.on('chat_message', async (message, roomKey, userKey) => {
-      await Chat.creat({
+    socket.on('chat_message', async (data) => {
+      let { message, roomKey, userKey } = data;
+      console.log(message, roomKey, userKey);
+      await Chat.create({
         roomKey,
         userKey,
         chat: message,
       });
-      const chatUser = await await Participant.findOne({
+      const chatUser = await Participant.findOne({
         where: { roomKey, userKey },
         include: [
           { model: User, attributes: ['nickname'] },
@@ -76,11 +89,12 @@ module.exports = (server, app) => {
         ],
       });
       // 채팅 보내주기
-      socket.to(chatUser.Room.title).emit('message', {
-        message,
-        roomKey,
-        nickname: chatUser.User.nickname,
-      });
+      let param = { message, roomKey, nickname: chatUser.User.nickname };
+      console.log(param);
+      console.log(chatUser.Room.title);
+
+      socket.to(chatUser.Room.title).emit('message', param);
+      console.log('메세지 보냄');
     });
 
     // 채팅방 나가기(채팅방에서 아에 퇴장)
@@ -102,7 +116,7 @@ module.exports = (server, app) => {
         // byeHost로 통신이 되면 거기 안에 있는 사람들에게 알림을 띄우고 채팅방 목록으로 강제이동해주면 방폭파 느낌이 나지 않을까?
       } else {
         // 일반유저가 나갔을 때(호스트X)
-        await Chat.creat({
+        await Chat.create({
           roomKey,
           userKey: 12, // 관리자 유저키
           chat: `${leaveUser.User.nickname}님이 퇴장했습니다.`,
