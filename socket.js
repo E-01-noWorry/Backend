@@ -67,9 +67,9 @@ module.exports = (server, app) => {
         // 닉네임보다 message: `${enterUser.User.nickname}님이 입장했습니다.`를 보내주면 낫지 않을까? 그럼 프론트에서 바로 message를 띄우면 될것같은데
       } else {
         // 재입장이라면 아무것도 없음
-        let param = { nickname: enterUser.User.nickname };
-        console.log('재입장임');
-        socket.emit('welcome', param);
+        // let param = { nickname: enterUser.User.nickname };
+        // console.log('재입장임');
+        // socket.emit('welcome', param);
       }
     });
 
