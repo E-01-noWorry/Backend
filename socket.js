@@ -1,10 +1,9 @@
-const app = require('./app');
+// const app = require('./app');
 const socket = require('socket.io');
-const http = require('http');
+// const http = require('http');
 const { Room, Chat, User, Participant } = require('./models');
-const { param } = require('./routes');
 // require('socket.io-client')('http://localhost:3000');
-const server = http.createServer(app);
+// const server = http.createServer(app);
 
 // ------------------채팅 소캣 부분만 한번 만져봄(여기서부터) ----------------
 
@@ -20,10 +19,10 @@ module.exports = (server, app) => {
   // 소캣 연결
   io.on('connection', (socket) => {
     console.log('a user connected');
+
     // 채팅방 목록? 접속(입장전)
     socket.on('join-room', async (data) => {
       let { roomKey, userKey } = data;
-      console.log('join-room');
       const enterUser = await Participant.findOne({
         where: { roomKey, userKey },
         include: [
@@ -31,14 +30,13 @@ module.exports = (server, app) => {
           { model: Room, attributes: ['title'] },
         ],
       });
-      // console.log(enterUser);
+
       // 해당 채팅방 입장
       socket.join(enterUser.Room.title);
-      console.log('방들어옴');
 
-      // 지금은 api에서 참가자 디비를 만들어서 입장했다는 chat을 찾아보고 처음인지 재방문인지 확인하는데
-      // api에서 참가자 디비를 만들지 않고, 소캣통신에 들어오면 참가자를 만든다면, 참가자 정보를 찾아서 처음인지 재방문인지 알수가 있음
-      // 하지만 위와 같이 하면 결국 채팅방title, 유저nickname을 알기위해 추가적으로 디비에 접근을 해야하는 문제가 생김(그냥 지금처럼 입장chat을 검색해서 처음인지 확인하는게 나을까요?)
+      // 지금은 api에서 참가자 디비를 만들어서 입장을 하고 Chat에서 처음인지 재방문인지 확인하는데
+      // api에서 참가자 디비를 만들지 않고, 소캣통신에 들어오고나서 참가자 정보 유무로 처음인지 재방문인지 확인하고 참가자를 만든다면, 방대한 Chat에 접근 안해도됨+입장퇴장메세지 잘보여줌
+      // 하지만 위와 같이 하면 결국 채팅방title, 유저nickname을 알기위해 추가적으로 디비테이블에 접근을 해야하는 문제가 생김(무엇이 더 효율적일까?)
       const enterMsg = await Chat.findOne({
         where: {
           roomKey,
@@ -46,16 +44,15 @@ module.exports = (server, app) => {
           chat: `${enterUser.User.nickname}님이 입장했습니다.`,
         },
       });
-      // console.log(enterMsg);
-      // 처음입장이라면
+
+      // 처음입장이라면 환영 메세지가 없을테니
       if (!enterMsg) {
-        console.log('처음입장');
         await Chat.create({
           roomKey,
           userKey: 12, // 관리자 유저키
           chat: `${enterUser.User.nickname}님이 입장했습니다.`,
         });
-        console.log('메세지 만듬?');
+
         // 관리자 환영메세지 보내기
         let param = { nickname: enterUser.User.nickname };
         io.to(enterUser.Room.title).emit('welcome', param);
@@ -67,7 +64,6 @@ module.exports = (server, app) => {
     // 채팅 받아서 저장하고, 그 채팅 보내서 보여주기
     socket.on('chat_message', async (data) => {
       let { message, roomKey, userKey } = data;
-      console.log(message, roomKey, userKey);
       const newChat = await Chat.create({
         roomKey,
         userKey,
@@ -80,24 +76,21 @@ module.exports = (server, app) => {
           { model: Room, attributes: ['title'] },
         ],
       });
+
       // 채팅 보내주기
       let param = {
         message,
         roomKey,
+        userKey: chatUser.userKey,
         nickname: chatUser.User.nickname,
-        time: newChat.createdAt,
+        time: newChat.createdAt, // (9시간 차이나는 시간)
       };
-      console.log(param);
-      console.log(chatUser.Room.title);
-
       io.to(chatUser.Room.title).emit('message', param);
-      console.log('메세지 보냄');
     });
 
     // 채팅방 나가기(채팅방에서 아에 퇴장)
     socket.on('leave-room', async (data) => {
       let { roomKey, userKey } = data;
-      console.log('leave' + roomKey, userKey);
       const leaveUser = await Participant.findOne({
         where: { roomKey, userKey },
         include: [
@@ -105,15 +98,12 @@ module.exports = (server, app) => {
           { model: Room, attributes: ['title', 'userKey'] },
         ],
       });
-      console.log('나간 사람 :', leaveUser.userKey);
 
       // 호스트가 나갔을 때
       if (userKey === leaveUser.Room.userKey) {
-        console.log('바이 호스트');
         let param = { nickname: leaveUser.User.nickname };
         socket.broadcast.to(leaveUser.Room.title).emit('byeHost', param);
       } else {
-        console.log('바이');
         // 일반유저가 나갔을 때(호스트X)
         await Chat.create({
           roomKey,
