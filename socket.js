@@ -63,7 +63,7 @@ module.exports = (server, app) => {
         console.log('메세지 만듬?');
         // 관리자 환영메세지 보내기
         let param = { nickname: enterUser.User.nickname };
-        io.to(enterUser.Room.title).emit('welcome', param);
+        io.to(roomKey).emit('welcome', param);
         // 닉네임보다 message: `${enterUser.User.nickname}님이 입장했습니다.`를 보내주면 낫지 않을까? 그럼 프론트에서 바로 message를 띄우면 될것같은데
       } else {
         // 재입장이라면 아무것도 없음
@@ -94,7 +94,7 @@ module.exports = (server, app) => {
       console.log(param);
       console.log(chatUser.Room.title);
 
-      io.to(chatUser.Room.title).emit('message', param);
+      io.to(roomKey).emit('message', param);
       console.log('메세지 보냄');
     });
 
@@ -115,7 +115,7 @@ module.exports = (server, app) => {
       if (userKey === leaveUser.Room.userKey) {
         console.log('바이 호스트');
         let param = { nickname: leaveUser.User.nickname };
-        socket.broadcast.to(leaveUser.Room.title).emit('byeHost', param);
+        socket.broadcast.to(roomKey).emit('byeHost', param);
         // 호스트가 나간거니까 api로 채팅방의 참가자, 채팅, 채팅방 자체를 삭제해버림
         // byeHost로 통신이 되면 거기 안에 있는 사람들에게 알림을 띄우고 채팅방 목록으로 강제이동해주면 방폭파 느낌이 나지 않을까?
       } else {
@@ -125,8 +125,13 @@ module.exports = (server, app) => {
           userKey: 12, // 관리자 유저키
           chat: `${leaveUser.User.nickname}님이 퇴장했습니다.`,
         });
+        await Chat.destroy({
+          roomKey,
+          userKey: 12, // 관리자 유저키
+          chat: `${leaveUser.User.nickname}님이 입장했습니다.`,
+        });
         let param = { nickname: leaveUser.User.nickname };
-        io.to(leaveUser.Room.title).emit('bye', param);
+        io.to(roomKey).emit('bye', param);
         // 닉네임보다 message: `${leaveUser.User.nickname}님이 퇴장했습니다.`를 보내주면 낫지 않을까?
       }
     });
