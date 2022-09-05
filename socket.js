@@ -77,11 +77,14 @@ module.exports = (server, app) => {
     socket.on('chat_message', async (data) => {
       let { message, roomKey, userKey } = data;
       console.log(message, roomKey, userKey);
-      await Chat.create({
+      const newChat = await Chat.create({
         roomKey,
         userKey,
         chat: message,
       });
+      // const date = new Date();
+      // newChat.createdAt = date.setHours(date.getHours() + 9);
+      // console.log(newChat.createdAt);
       const chatUser = await Participant.findOne({
         where: { roomKey, userKey },
         include: [
@@ -90,7 +93,12 @@ module.exports = (server, app) => {
         ],
       });
       // 채팅 보내주기
-      let param = { message, roomKey, nickname: chatUser.User.nickname };
+      let param = {
+        message,
+        roomKey,
+        nickname: chatUser.User.nickname,
+        time: newChat.createdAt,
+      };
       console.log(param);
       console.log(chatUser.Room.title);
 
