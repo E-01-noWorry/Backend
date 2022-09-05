@@ -67,18 +67,19 @@
         const socket = io();
         let room = ['room1', 'room2'];
         let num = 0;
+        // let param = { roomKey: 2, userKey: 5 };
 
-        socket.emit('join-room', 2, 5);
+        socket.emit('join-room', (param = { roomKey: 2, userKey: name }));
 
         $('select').change(() => {
-          socket.emit('leave-room', 2, 5);
+          socket.emit('leave-room', (param = { roomKey: 2, userKey: name }));
           num++;
           num = num % 2;
-          socket.emit('join-room', 6, 5);
+          socket.emit('join-room', (param = { roomKey: 6, userKey: name }));
         });
 
         $('form').submit(() => {
-          param = { message: $('#m').val(), roomKey: 2, userKey: 5 };
+          param = { message: $('#m').val(), roomKey: 2, userKey: name };
           socket.emit('chat_message', param);
           $('#m').val('');
           return false;
