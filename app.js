@@ -8,6 +8,7 @@ const session = require('express-session');
 const passport = require('passport');
 const passportConfig = require('./passport');
 
+// const { server } = require('./socket');
 const webSocket = require('./socket');
 
 require('dotenv').config();
@@ -57,11 +58,11 @@ app.get('/', (req, res) => {
 app.use(errorHandler);
 
 //
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(port, '포트로 서버가 열렸어요!');
 });
 
-// webSocket(server, app);
+webSocket(server, app);
 //
 
 module.exports = app;
