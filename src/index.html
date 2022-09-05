@@ -72,10 +72,10 @@
         socket.emit('join-room', (param = { roomKey: 2, userKey: name }));
 
         $('select').change(() => {
-          socket.emit('leave-room', (param = { roomKey: 2, userKey: name }));
+          socket.emit('leave-room', (param = { roomKey: 2, userKey: 1 }));
           num++;
           num = num % 2;
-          socket.emit('join-room', (param = { roomKey: 6, userKey: name }));
+          socket.emit('join-room', (param = { roomKey: 6, userKey: 5 }));
         });
 
         $('form').submit(() => {
@@ -95,6 +95,12 @@
         socket.on('bye', (num, name) => {
           $('#messages').append(
             $('<li>').text(name + '    leaved ' + room[num] + ' :(')
+          );
+        });
+
+        socket.on('byeHost', (data) => {
+          $('#messages').append(
+            $('<li>').text(data.nickname + '    leaved ' + ' :(')
           );
         });
 
