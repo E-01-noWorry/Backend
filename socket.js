@@ -112,7 +112,7 @@ module.exports = (server, app) => {
       // 호스트가 나갔을 때
       if (userKey === leaveUser.Room.userKey) {
         let param = { nickname: leaveUser.User.nickname };
-        io.to(leaveUser.Room.title).emit('byeHost', param);
+        io.emit('byeHost', param);
         // 호스트가 나간거니까 api로 채팅방의 참가자, 채팅, 채팅방 자체를 삭제해버림
         // byeHost로 통신이 되면 거기 안에 있는 사람들에게 알림을 띄우고 채팅방 목록으로 강제이동해주면 방폭파 느낌이 나지 않을까?
       } else {
@@ -123,7 +123,7 @@ module.exports = (server, app) => {
           chat: `${leaveUser.User.nickname}님이 퇴장했습니다.`,
         });
         let param = { nickname: leaveUser.User.nickname };
-        io.to(leaveUser.Room.title).emit('bye', param);
+        io.emit('bye', param);
         // 닉네임보다 message: `${leaveUser.User.nickname}님이 퇴장했습니다.`를 보내주면 낫지 않을까?
       }
     });
