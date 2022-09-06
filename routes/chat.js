@@ -226,7 +226,7 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
 
     const loadChat = await Chat.findAll({
       where: { roomKey },
-      attributes: ['chat', 'userKey'],
+      attributes: ['chat', 'userKey', 'createdAt'],
       include: [{ model: User, attributes: ['nickname'] }],
     });
 
