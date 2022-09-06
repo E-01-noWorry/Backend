@@ -12,7 +12,6 @@ const options = {
   key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
   cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
 };
-app.use(express.static('public'));
 
 const session = require('express-session');
 const passport = require('passport');
@@ -25,6 +24,7 @@ require('dotenv').config();
 const port = process.env.PORT;
 
 const app = express();
+app.use(express.static('public'));
 
 app.use(morganMiddleware);
 
@@ -41,7 +41,6 @@ app.use(
     withCredentials: true, // 사용자 인증이 필요한 리소스(쿠키 ..등) 접근
   })
 );
-app.use(express.static('public'));
 
 passportConfig();
 
