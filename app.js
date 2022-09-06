@@ -3,15 +3,15 @@ const Router = require('./routes/index');
 const errorHandler = require('./advice/errorHandler');
 const logger = require('./config/winston');
 const morganMiddleware = require('./config/morganMiddleware');
-// const fs = require('fs');
-// const http = require('http');
-// const https = require('https');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
 
-// const options = {
-//   ca: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain.pem'),
-//   key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
-//   cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
-// };
+const options = {
+  ca: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain.pem'),
+  key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
+};
 
 const session = require('express-session');
 const passport = require('passport');
@@ -67,15 +67,15 @@ app.get('/', (req, res) => {
 app.use(errorHandler);
 
 //
-const server = app.listen(port, () => {
-  console.log(port, '포트로 서버가 열렸어요!');
-});
+// const server = app.listen(port, () => {
+//   console.log(port, '포트로 서버가 열렸어요!');
+// });
 
 webSocket(server, app);
 //
 
-// http.createServer(app).listen(3000);
-// https.createServer(options, app).listen(443);
+http.createServer(app).listen(3000);
+https.createServer(options, app).listen(443);
 
 //
 
