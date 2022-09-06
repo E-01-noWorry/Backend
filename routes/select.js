@@ -4,59 +4,66 @@ const { Select, User, Vote } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
+const upload = require('../middlewares/multer');
 const { format } = require('mysql2');
 // const PoolCluster = require('mysql2/typings/mysql/lib/PoolCluster');
 
 // 선택글 작성
-router.post('/', authMiddleware, async (req, res, next) => {
-  try {
-    const { userKey, nickname } = res.locals.user;
-    const { title, category, image, time, options } = req.body;
+router.post(
+  '/',
+  authMiddleware,
+  upload.array('image', 4),
+  async (req, res, next) => {
+    try {
+      const { userKey, nickname } = res.locals.user;
+      const { title, category, time, options } = req.body;
+      const image = req.files;
 
-    if (
-      title === '' ||
-      category === '' ||
-      image === '' ||
-      time === '' ||
-      options === ''
-    ) {
-      throw new ErrorCustom(400, '항목들을 모두 입력해주세요.');
+      if (title === '' || category === '' || time === '' || options === '') {
+        throw new ErrorCustom(400, '항목들을 모두 입력해주세요.');
+      }
+
+      // 이미지는 들어가면 최소 2개이상(선택지갯수에 맞게), 없을수도 있음
+      let location = [];
+      if (image !== undefined) {
+        location = image.map((e) => e.location);
+      }
+
+      const date = new Date();
+      const deadLine = date.setHours(date.getHours() + time);
+
+      const data = await Select.create({
+        title,
+        category,
+        content: null,
+        image: location,
+        deadLine,
+        options,
+        userKey,
+        completion: false,
+        finalChoice: 0,
+      });
+
+      // db 저장시간과 보여지는 시간이 9시간 차이가 나서 보여주는것은 9시간을 더한것을 보여준다. 이후 db에서 가져오는 dealine은 정상적인 한국시간
+      data.deadLine = date.setHours(date.getHours() + 9);
+
+      return res.status(200).json({
+        ok: true,
+        msg: '선택글 작성 성공',
+        result: {
+          selectKey: data.selectKey,
+          title: data.title,
+          category: data.category,
+          deadLine: data.deadLine,
+          completion: data.completion,
+          nickname: nickname,
+        },
+      });
+    } catch (err) {
+      next(err);
     }
-
-    const date = new Date();
-    const deadLine = date.setHours(date.getHours() + time);
-
-    const data = await Select.create({
-      title,
-      category,
-      content: null,
-      image,
-      deadLine,
-      options,
-      userKey,
-      completion: false,
-      finalChoice: 0,
-    });
-
-    // db 저장시간과 보여지는 시간이 9시간 차이가 나서 보여주는것은 9시간을 더한것을 보여준다. 이후 db에서 가져오는 dealine은 정상적인 한국시간
-    data.deadLine = date.setHours(date.getHours() + 9);
-
-    return res.status(200).json({
-      ok: true,
-      msg: '선택글 작성 성공',
-      result: {
-        selectKey: data.selectKey,
-        title: data.title,
-        category: data.category,
-        deadLine: data.deadLine,
-        completion: data.completion,
-        nickname: nickname,
-      },
-    });
-  } catch (err) {
-    next(err);
   }
-});
+);
 
 // 선택글 모두 조회
 router.get('/', async (req, res, next) => {
