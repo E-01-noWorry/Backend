@@ -12,6 +12,7 @@ const options = {
   key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
   cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
 };
+app.use(express.static('public'));
 
 const session = require('express-session');
 const passport = require('passport');
