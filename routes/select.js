@@ -77,6 +77,8 @@ router.get('/', async (req, res, next) => {
     });
     // console.log(datas[0].Votes.length);
 
+    const now = new Date();
+
     return res.status(200).json({
       ok: true,
       msg: '선택글 모두 조회 성공',
@@ -86,7 +88,7 @@ router.get('/', async (req, res, next) => {
           title: e.title,
           category: e.category,
           deadLine: e.deadLine,
-          completion: e.completion,
+          completion: now > new Date(e.deadLine),
           nickname: e.User.nickname,
           options: e.options,
           total: e.Votes.length,
@@ -114,13 +116,16 @@ router.get('/filter', async (req, res, next) => {
       offset: offset,
       limit: limit,
     });
+
+    const now = new Date();
+
     const popular = datas.map((e) => ({
       total: e.Votes.length,
       selectKey: e.selectKey,
       title: e.title,
       category: e.category,
       deadLine: e.deadLine,
-      completion: e.completion,
+      completion: now > new Date(e.deadLine),
       nickname: e.User.nickname,
       options: e.options,
     }));
@@ -131,7 +136,7 @@ router.get('/filter', async (req, res, next) => {
 
     res.status(201).json({
       msg: '인기글이 조회되었습니다.',
-      data: popular
+      data: popular,
     });
   } catch (err) {
     next(err);
@@ -161,6 +166,9 @@ router.get('/category/:category', async (req, res, next) => {
     if (!data) {
       throw new ErrorCustom(400, '해당 카테고리에 글이 존재하지 않습니다.');
     }
+
+    const now = new Date();
+
     res.status(200).json({
       msg: '카테고리 조회 성공',
       result: data.map((c) => {
@@ -169,7 +177,7 @@ router.get('/category/:category', async (req, res, next) => {
           title: c.title,
           category: c.category,
           deadLine: c.deadLine,
-          completion: c.completion,
+          completion: now > new Date(c.deadLine),
           nickname: c.User.nickname,
           options: c.options,
           total: c.Votes.length,
@@ -194,6 +202,10 @@ router.get('/:selectKey', async (req, res, next) => {
       throw new ErrorCustom(400, '해당 선택글이 존재하지 않습니다.');
     }
 
+    // 현재 시간과 마감시간을 비교함(둘다 9시간 차이가 나서 바로 비교해도 됨)
+    const now = new Date();
+    const dead = new Date(data.deadLine);
+
     return res.status(200).json({
       ok: true,
       msg: '선택글 상세 조회 성공',
@@ -204,7 +216,7 @@ router.get('/:selectKey', async (req, res, next) => {
         image: data.image,
         deadLine: data.deadLine,
         options: data.options,
-        completion: data.completion,
+        completion: now > dead,
         userKey: data.userKey,
         nickname: data.User.nickname,
         finalChoice: data.finalChoice,
