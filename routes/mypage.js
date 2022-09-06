@@ -5,6 +5,7 @@ const authMiddleware = require('../middlewares/authMiddlware');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 
+// 마이페이지 포인트 조회
 router.get('/', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
@@ -21,6 +22,7 @@ router.get('/', authMiddleware, async (req, res, next) => {
   }
 });
 
+// 내가 작성한 선택글 조회
 router.get('/select', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
@@ -62,6 +64,7 @@ router.get('/select', authMiddleware, async (req, res, next) => {
   }
 });
 
+// 내가 투표한 선택글 조회
 router.get('/vote', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
@@ -92,7 +95,7 @@ router.get('/vote', authMiddleware, async (req, res, next) => {
     const now = new Date();
 
     res.status(200).json({
-      msg: '내가 작성한 선택글 조회 성공',
+      msg: '내가 투표한 선택글 조회 성공',
       result: datas.map((e) => {
         return {
           selectKey: e.Select.selectKey,
@@ -111,7 +114,8 @@ router.get('/vote', authMiddleware, async (req, res, next) => {
   }
 });
 
-router.get('/select', authMiddleware, async (req, res, next) => {
+// 내가 만든 채팅방 조회
+router.get('/room', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const pageNum = req.query.page;
@@ -126,22 +130,8 @@ router.get('/select', authMiddleware, async (req, res, next) => {
   }
 });
 
-router.get('/select', authMiddleware, async (req, res, next) => {
-  try {
-    const { userKey, nickname } = res.locals.user;
-    const pageNum = req.query.page;
-
-    let offset = 0;
-    const limit = 5;
-    if (pageNum > 1) {
-      offset = limit * (pageNum - 1); //5 10
-    }
-  } catch (err) {
-    next(err);
-  }
-});
-
-router.get('/select', authMiddleware, async (req, res, next) => {
+// 내가 들어가있는 채팅방 조회
+router.get('/enter', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const pageNum = req.query.page;
