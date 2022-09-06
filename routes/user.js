@@ -113,7 +113,7 @@ const googleCallback = (req, res, next) => {
   try {
     passport.authenticate(
       'google',
-      { failureRedirect: '/' },
+      { failureRedirect: '/user/login' }, //실패하면 '/user/login''로 돌아감.
       (err, user, info) => {
         if (err) return next(err);
         res.redirect('/');
