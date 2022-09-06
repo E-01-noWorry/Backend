@@ -4,6 +4,10 @@ const errorHandler = require('./advice/errorHandler');
 const logger = require('./config/winston');
 const morganMiddleware = require('./config/morganMiddleware');
 
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
+
 const session = require('express-session');
 const passport = require('passport');
 const passportConfig = require('./passport');
@@ -15,6 +19,13 @@ require('dotenv').config();
 const port = process.env.PORT;
 
 const app = express();
+
+const options = {
+  ca: fs.readFileSync('/etc/letsencrypt/live/jinyeop.shop/fullchain.pem'),
+  key: fs.readFileSync('/etc/letsencrypt/live/jinyeop.shop/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/jinyeop.shop/cert.pem'),
+};
+app.use(express.static('public'));
 
 app.use(morganMiddleware);
 
@@ -57,10 +68,13 @@ app.get('/', (req, res) => {
 });
 app.use(errorHandler);
 
-//
-const server = app.listen(port, () => {
-  console.log(port, '포트로 서버가 열렸어요!');
-});
+// //
+// const server = app.listen(port, () => {
+//   console.log(port, '포트로 서버가 열렸어요!');
+// });
+
+http.createServer(app).listen(3000);
+https.createServer(options, app).listen(443);
 
 webSocket(server, app);
 //
