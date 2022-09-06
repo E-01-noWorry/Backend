@@ -65,7 +65,7 @@ router.get('/:selectKey', async (req, res, next) => {
     const datas = await Comment.findAll({
       where: { selectKey },
       include: [{ model: User, attributes: ['nickname'] }],
-      order: [['commentKey', 'DESC']],
+      order: [['commentKey', 'ASC']],
     });
 
     return res.status(200).json({
