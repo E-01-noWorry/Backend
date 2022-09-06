@@ -5,8 +5,6 @@ const authMiddleware = require('../middlewares/authMiddlware');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 const upload = require('../middlewares/multer');
-const { format } = require('mysql2');
-// const PoolCluster = require('mysql2/typings/mysql/lib/PoolCluster');
 
 // 선택글 작성
 router.post(

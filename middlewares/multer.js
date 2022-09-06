@@ -1,16 +1,10 @@
 const multer = require('multer');
 const multerS3 = require('multer-s3');
-const aws = require('aws-sdk');
+const s3 = require('../config/s3');
 require('dotenv').config();
 const path = require('path');
 const ErrorCustom = require('../advice/errorCustom');
 // aws.config.loadFromPath(__dirname + '/../config/s3.json');
-
-const s3 = new aws.S3({
-  accessKeyId: process.env.S3_KEY_ID,
-  secretAccessKey: process.env.S3_SECRET_KEY,
-  region: 'ap-northeast-2',
-});
 
 // 이미지 파일 확장자명
 const allowedExtensions = [
