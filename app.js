@@ -7,12 +7,6 @@ const fs = require('fs');
 const http = require('http');
 const https = require('https');
 
-const options = {
-  ca: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain.pem'),
-  key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
-};
-
 const session = require('express-session');
 const passport = require('passport');
 const passportConfig = require('./passport');
@@ -24,6 +18,12 @@ require('dotenv').config();
 const port = process.env.PORT;
 
 const app = express();
+
+const options = {
+  ca: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain.pem'),
+  key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
+};
 app.use(express.static('public'));
 
 app.use(morganMiddleware);
@@ -72,11 +72,13 @@ app.use(errorHandler);
 //   console.log(port, '포트로 서버가 열렸어요!');
 // });
 
+http.createServer(app).listen(3000);
+https.createServer(options, app).listen(443);
+
 webSocket(server, app);
 //
 
-http.createServer(app).listen(3000);
-https.createServer(options, app).listen(443);
+
 
 //
 
