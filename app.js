@@ -8,9 +8,9 @@ const http = require('http');
 const https = require('https');
 
 const options = {
-  ca: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain2.pem'),
-  key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey2.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert2.pem'),
+  ca: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain.pem'),
+  key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
 };
 
 const session = require('express-session');
