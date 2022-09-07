@@ -108,6 +108,22 @@ router.get('/:selectKey', isLoginMiddlware, async (req, res, next) => {
     });
     let total = count1 + count2 + count3 + count4;
 
+    // 글이 마감되었는지 확인 마감되면 바로 투표결과 보여줌
+    const now = new Date();
+    if (now > new Date(isSelect.deadLine)) {
+      return res.status(200).json({
+        ok: true,
+        msg: '마감된 투표 조회 성공',
+        result: {
+          1: (Math.round((count1 / total) * 100) / 100) * 100,
+          2: (Math.round((count2 / total) * 100) / 100) * 100,
+          3: (Math.round((count3 / total) * 100) / 100) * 100,
+          4: (Math.round((count4 / total) * 100) / 100) * 100,
+          total,
+        },
+      });
+    }
+
     const user = res.locals.user;
     // 미들웨어를 거쳐서 로그인 유무 확인(비로그인시)
     if (!user) {
@@ -124,7 +140,7 @@ router.get('/:selectKey', isLoginMiddlware, async (req, res, next) => {
       if (userKey === isSelect.userKey) {
         return res.status(200).json({
           ok: true,
-          msg: '선택지 비율 조회 성공',
+          msg: '글작성자가 투표 조회 성공',
           result: {
             1: (Math.round((count1 / total) * 100) / 100) * 100,
             2: (Math.round((count2 / total) * 100) / 100) * 100,
