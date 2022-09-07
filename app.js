@@ -71,7 +71,7 @@ const server = app.listen(port, () => {
 
 //프론트 서버 오픈시 같이 오픈
 // http.createServer(app).listen(3000);
-// https.createServer(options, app).listen(443);
+// const server = https.createServer(options, app).listen(443);
 
 webSocket(server, app);
 
