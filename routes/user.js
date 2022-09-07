@@ -7,6 +7,7 @@ const { Op } = require('sequelize');
 const { User } = require('../models');
 const passport = require('passport');
 const ErrorCustom = require('../advice/errorCustom');
+const authMiddleware = require('../middlewares/authMiddlware');
 
 //회원가입
 router.post('/user/signup', async (req, res, next) => {
@@ -51,25 +52,25 @@ router.post('/user/login', async (req, res, next) => {
   try {
     const { userId, password } = req.body;
 
-  const user = await User.findOne({ where: { userId } });
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    throw new ErrorCustom(400, '아이디 또는 패스워드가 잘못되었습니다.');
+    const user = await User.findOne({ where: { userId } });
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+      throw new ErrorCustom(400, '아이디 또는 패스워드가 잘못되었습니다.');
+    }
+
+    const token = jwt.sign({ userKey: user.userKey }, process.env.SECRET_KEY, {
+      expiresIn: '6h',
+    }); //토큰 만료 6시간 설정
+    console.log(token, '토큰 확인');
+
+    res.status(200).json({
+      token,
+      nickname: user.nickname,
+      userKey: user.userKey,
+      msg: '로그인에 성공하였습니다.',
+    });
+  } catch (error) {
+    next(error);
   }
-
-  const token = jwt.sign({ userKey: user.userKey }, process.env.SECRET_KEY, {
-    expiresIn: '6h',
-  }); //토큰 만료 6시간 설정
-  console.log(token, '토큰 확인');
-
-  res.status(200).json({
-    token,
-    nickname: user.nickname,
-    userKey: user.userKey,
-    msg: '로그인에 성공하였습니다.',
-  });
-} catch (error) {
-  next(error)
-}
 });
 
 //카카오로그인
@@ -143,5 +144,21 @@ router.get(
 ); //프로필과 이메일 정보를 받음.
 //구글 서버 로그인이 되면, redicrect url을 통해 요청 재전달
 router.get('/auth/google/callback', googleCallback);
+
+//유저 닉네임 수정
+router.put('/user/:userKey', async (req, res) => {
+  try {
+    const { userKey } = req.params;
+
+    const { nickname } = req.body;
+
+    await User.update({ nickname }, { where: { userKey } });
+    return res
+      .status(201)
+      .json({ userKey, nickname, msg: '닉네임 변경이 완료되었습니다.' });
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router;
