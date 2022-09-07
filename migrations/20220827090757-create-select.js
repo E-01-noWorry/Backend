@@ -14,9 +14,6 @@ module.exports = {
       category: {
         type: Sequelize.STRING,
       },
-      content: {
-        type: Sequelize.STRING,
-      },
       deadLine: {
         type: Sequelize.DATE,
       },
@@ -27,12 +24,6 @@ module.exports = {
       image: {
         type: Sequelize.JSON,
         defaultValue: [],
-      },
-      finalChoice: {
-        type: Sequelize.INTEGER,
-      },
-      completion: {
-        type: Sequelize.BOOLEAN,
       },
       createdAt: {
         allowNull: false,
