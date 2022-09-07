@@ -26,12 +26,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       title: DataTypes.STRING,
       category: DataTypes.STRING,
-      content: DataTypes.STRING,
       deadLine: DataTypes.DATE,
       options: DataTypes.JSON,
       image: DataTypes.JSON,
-      finalChoice: DataTypes.INTEGER,
-      completion: DataTypes.BOOLEAN,
     },
     {
       sequelize,
