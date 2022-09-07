@@ -20,6 +20,7 @@
   "homepage": "https://github.com/E-01-noWorry/Backend#readme",
   "dependencies": {
     "bcrypt": "^5.0.1",
+    "cookie-session": "^2.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",

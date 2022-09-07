@@ -7,7 +7,7 @@ const morganMiddleware = require('./config/morganMiddleware');
 // const http = require('http');
 // const https = require('https');
 
-const session = require('express-session');
+const session = require('cookie-session');
 const passport = require('passport');
 const passportConfig = require('./passport');
 
