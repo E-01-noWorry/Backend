@@ -73,8 +73,8 @@ app.use(errorHandler);
 //   console.log(port, '포트로 서버가 열렸어요!');
 // });
 
-const server = http.createServer(app).listen(3000);
-https.createServer(options, app).listen(443);
+http.createServer(app).listen(3000);
+const server = https.createServer(options, app).listen(443);
 
 webSocket(server, app);
 //
