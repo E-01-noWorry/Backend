@@ -109,7 +109,8 @@ router.get('/:selectKey', isLoginMiddlware, async (req, res, next) => {
     let total = count1 + count2 + count3 + count4;
 
     // 글이 마감되었는지 확인 마감되면 바로 투표결과 보여줌
-    const now = new Date();
+    let now = new Date();
+    now = now.setHours(now.getHours() + 9);
     if (now > new Date(isSelect.deadLine)) {
       return res.status(200).json({
         ok: true,
