@@ -12,7 +12,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { title, category, image, time, options } = req.body;
-    
+
     if (
       title === '' ||
       category === '' ||
@@ -26,9 +26,25 @@ router.post('/', authMiddleware, async (req, res, next) => {
     const date = new Date();
     const deadLine = date.setHours(date.getHours() + time);
 
-    let point = 0
-    let selectPoint = await User.findOne({where: {userKey}})
-      await selectPoint.update({point})
+    // 생성 1시간 쿨타임 구현
+    // const cooltime = date.setHours(date.getHours() - 2); // 왜 2시간인지는 모르겠네;; 배포하면 또 달라질듯
+
+    // const oneHour = await Select.findOne({
+    //   where: {
+    //     userKey,
+    //     createdAt: { [Op.gt]: new Date(cooltime) },
+    //   },
+    //   attributes: ['createdAt'],
+    // });
+
+    // if (oneHour) {
+    //   throw new ErrorCustom(400, '선택글은 1시간에 1번만 작성 가능합니다.');
+    // }
+    //
+
+    let point = 0;
+    let selectPoint = await User.findOne({ where: { userKey } });
+    await selectPoint.update({ point });
     console.log(point, '11');
     console.log(selectPoint, '22');
 
@@ -41,7 +57,6 @@ router.post('/', authMiddleware, async (req, res, next) => {
       options,
       userKey,
     });
-
 
     // let point = await User.findOne({where: {userKey}})
     //   await point.update({point:point+3})
@@ -60,7 +75,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
         deadLine: data.deadLine,
         completion: false,
         nickname: nickname,
-        selectPoint:point+3
+        selectPoint: point + 3,
       },
     });
   } catch (err) {
