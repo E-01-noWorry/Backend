@@ -36,8 +36,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
       userKey,
     });
 
-    //게시글 생성시 +3점씩 포인트 지급//
-
+    //선택글 생성시 +3점씩 포인트 지급
     let selectPoint = await User.findOne({ where: { userKey } });
     await selectPoint.update({ point: selectPoint.point + 3 });
 
@@ -227,7 +226,6 @@ router.get('/:selectKey', async (req, res, next) => {
         completion: now > dead,
         userKey: data.userKey,
         nickname: data.User.nickname,
-        finalChoice: data.finalChoice,
       },
     });
   } catch (err) {
