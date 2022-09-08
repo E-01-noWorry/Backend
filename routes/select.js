@@ -40,8 +40,6 @@ router.post('/', authMiddleware, async (req, res, next) => {
     let point = 0
     let selectPoint = await User.findOne({where: {userKey}})
       await selectPoint.update({point:selectPoint.point+3})
-    console.log(point, '11');
-    console.log(selectPoint.point, '22');
 
     // db 저장시간과 보여지는 시간이 9시간 차이가 나서 보여주는것은 9시간을 더한것을 보여준다. 이후 db에서 가져오는 dealine은 정상적인 한국시간
     data.deadLine = date.setHours(date.getHours() + 9);
