@@ -56,6 +56,8 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
       });
       let total = count1 + count2 + count3 + count4;
 
+      //투표시 +1 포인트 부여
+      
       return res.status(200).json({
         ok: true,
         msg: '선택지 투표 성공',

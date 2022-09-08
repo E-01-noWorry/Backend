@@ -12,7 +12,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { title, category, image, time, options } = req.body;
-
+    
     if (
       title === '' ||
       category === '' ||
@@ -37,6 +37,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
     });
 
     //게시글 생성시 +3점씩 포인트 지급//
+
     let selectPoint = await User.findOne({ where: { userKey } });
     await selectPoint.update({ point: selectPoint.point + 3 });
 
