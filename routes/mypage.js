@@ -41,7 +41,8 @@ router.get('/select', authMiddleware, async (req, res, next) => {
       limit: limit,
     });
 
-    const now = new Date();
+    let now = new Date();
+    now = now.setHours(now.getHours() + 9);
 
     res.status(200).json({
       msg: '내가 작성한 선택글 조회 성공',
@@ -91,7 +92,8 @@ router.get('/vote', authMiddleware, async (req, res, next) => {
       limit: limit,
     });
 
-    const now = new Date();
+    let now = new Date();
+    now = now.setHours(now.getHours() + 9);
 
     res.status(200).json({
       msg: '내가 투표한 선택글 조회 성공',

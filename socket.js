@@ -2,7 +2,7 @@
 const socket = require('socket.io');
 // const http = require('http');
 const { Room, Chat, User, Participant } = require('./models');
-// require('socket.io-client')('http://localhost:3000');
+// require('socket.io-client')('https://localhost:3000');
 // const server = http.createServer(app);
 
 // ------------------채팅 소캣 부분만 한번 만져봄(여기서부터) ----------------

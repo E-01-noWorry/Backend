@@ -59,8 +59,12 @@
       <input id="m" autocomplete="off" />
       <button>Send</button>
     </form>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <!-- 개발환경 -->
+    <!-- <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script> -->
+    <!-- 배포환경인데 배포하면 이거 지울거임 -->
+    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
       $(() => {
         const name = prompt('What your name');
@@ -69,7 +73,7 @@
         let num = 0;
         // let param = { roomKey: 2, userKey: 5 };
 
-        socket.emit('join-room', (param = { roomKey: 2, userKey: 1 }));
+        socket.emit('join-room', (param = { roomKey: 2, userKey: name }));
 
         $('select').change(() => {
           socket.emit('leave-room', (param = { roomKey: 2, userKey: 1 }));
@@ -79,7 +83,11 @@
         });
 
         $('form').submit(() => {
-          param = { message: $('#m').val(), roomKey: 2, userKey: name };
+          param = {
+            message: $('#m').val(),
+            roomKey: 2,
+            userKey: parseInt(name),
+          };
           socket.emit('chat_message', param);
           $('#m').val('');
           return false;
@@ -104,9 +112,9 @@
           );
         });
 
-        socket.on('welcome', (num, name) => {
+        socket.on('welcome', (data) => {
           $('#messages').append(
-            $('<li>').text(name + '    joined ' + room[num] + ':)')
+            $('<li>').text(data.nickname + '    joined ' + room[num] + ':)')
           );
         });
       });
