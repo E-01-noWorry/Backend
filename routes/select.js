@@ -77,7 +77,9 @@ router.get('/', async (req, res, next) => {
     });
     // console.log(datas[0].Votes.length);
 
-    const now = new Date();
+    let now = new Date();
+    now = now.setHours(now.getHours() + 9);
+    console.log(now);
 
     return res.status(200).json({
       ok: true,
