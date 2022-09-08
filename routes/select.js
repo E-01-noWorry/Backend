@@ -7,6 +7,7 @@ const ErrorCustom = require('../advice/errorCustom');
 const { format } = require('mysql2');
 // const PoolCluster = require('mysql2/typings/mysql/lib/PoolCluster');
 
+// 머지 테스트
 // 선택글 작성
 router.post('/', authMiddleware, async (req, res, next) => {
   try {
