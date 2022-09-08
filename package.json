@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/E-01-noWorry/Backend#readme",
   "dependencies": {
-    "aws-sdk": "^2.1211.0",
     "bcrypt": "^5.0.1",
     "cookie-session": "^2.0.0",
     "cors": "^2.8.5",
@@ -29,7 +28,6 @@
     "https": "^1.0.0",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
-    "multer-s3": "^2.10.0",
     "mysql2": "^2.3.3",
     "nodemon": "^2.0.19",
     "passport": "^0.6.0",

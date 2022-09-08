@@ -12,7 +12,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { title, category, image, time, options } = req.body;
-
+    
     if (
       title === '' ||
       category === '' ||
@@ -26,6 +26,12 @@ router.post('/', authMiddleware, async (req, res, next) => {
     const date = new Date();
     const deadLine = date.setHours(date.getHours() + time);
 
+    let point = 0
+    let selectPoint = await User.findOne({where: {userKey}})
+      await selectPoint.update({point})
+    console.log(point, '11');
+    console.log(selectPoint, '22');
+
     const data = await Select.create({
       title,
       category,
@@ -34,9 +40,12 @@ router.post('/', authMiddleware, async (req, res, next) => {
       deadLine,
       options,
       userKey,
-      completion: false,
-      finalChoice: 0,
     });
+
+
+    // let point = await User.findOne({where: {userKey}})
+    //   await point.update({point:point+3})
+    // console.log(point, '22');
 
     // db 저장시간과 보여지는 시간이 9시간 차이가 나서 보여주는것은 9시간을 더한것을 보여준다. 이후 db에서 가져오는 dealine은 정상적인 한국시간
     data.deadLine = date.setHours(date.getHours() + 9);
@@ -49,8 +58,9 @@ router.post('/', authMiddleware, async (req, res, next) => {
         title: data.title,
         category: data.category,
         deadLine: data.deadLine,
-        completion: data.completion,
+        completion: false,
         nickname: nickname,
+        selectPoint:point+3
       },
     });
   } catch (err) {
