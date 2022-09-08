@@ -79,7 +79,6 @@ router.get('/', async (req, res, next) => {
 
     let now = new Date();
     now = now.setHours(now.getHours() + 9);
-    console.log(now);
 
     return res.status(200).json({
       ok: true,
@@ -119,7 +118,8 @@ router.get('/filter', async (req, res, next) => {
       limit: limit,
     });
 
-    const now = new Date();
+    let now = new Date();
+    now = now.setHours(now.getHours() + 9);
 
     const popular = datas.map((e) => ({
       total: e.Votes.length,
@@ -169,7 +169,8 @@ router.get('/category/:category', async (req, res, next) => {
       throw new ErrorCustom(400, '해당 카테고리에 글이 존재하지 않습니다.');
     }
 
-    const now = new Date();
+    let now = new Date();
+    now = now.setHours(now.getHours() + 9);
 
     res.status(200).json({
       msg: '카테고리 조회 성공',
@@ -205,7 +206,8 @@ router.get('/:selectKey', async (req, res, next) => {
     }
 
     // 현재 시간과 마감시간을 비교함(둘다 9시간 차이가 나서 바로 비교해도 됨)
-    const now = new Date();
+    let now = new Date();
+    now = now.setHours(now.getHours() + 9);
     const dead = new Date(data.deadLine);
 
     return res.status(200).json({
