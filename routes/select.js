@@ -7,7 +7,6 @@ const ErrorCustom = require('../advice/errorCustom');
 const { format } = require('mysql2');
 // const PoolCluster = require('mysql2/typings/mysql/lib/PoolCluster');
 
-// 머지 테스트
 // 선택글 작성
 router.post('/', authMiddleware, async (req, res, next) => {
   try {
@@ -35,9 +34,11 @@ router.post('/', authMiddleware, async (req, res, next) => {
       deadLine,
       options,
       userKey,
-      completion: false,
-      finalChoice: 0,
     });
+
+    //게시글 생성시 +3점씩 포인트 지급//
+    let selectPoint = await User.findOne({ where: { userKey } });
+    await selectPoint.update({ point: selectPoint.point + 3 });
 
     // db 저장시간과 보여지는 시간이 9시간 차이가 나서 보여주는것은 9시간을 더한것을 보여준다. 이후 db에서 가져오는 dealine은 정상적인 한국시간
     data.deadLine = date.setHours(date.getHours() + 9);
@@ -50,8 +51,9 @@ router.post('/', authMiddleware, async (req, res, next) => {
         title: data.title,
         category: data.category,
         deadLine: data.deadLine,
-        completion: data.completion,
+        completion: false,
         nickname: nickname,
+        selectPoint: selectPoint.point,
       },
     });
   } catch (err) {
@@ -78,7 +80,8 @@ router.get('/', async (req, res, next) => {
     });
     // console.log(datas[0].Votes.length);
 
-    const now = new Date();
+    let now = new Date();
+    now = now.setHours(now.getHours() + 9);
 
     return res.status(200).json({
       ok: true,
@@ -118,7 +121,8 @@ router.get('/filter', async (req, res, next) => {
       limit: limit,
     });
 
-    const now = new Date();
+    let now = new Date();
+    now = now.setHours(now.getHours() + 9);
 
     const popular = datas.map((e) => ({
       total: e.Votes.length,
@@ -168,7 +172,8 @@ router.get('/category/:category', async (req, res, next) => {
       throw new ErrorCustom(400, '해당 카테고리에 글이 존재하지 않습니다.');
     }
 
-    const now = new Date();
+    let now = new Date();
+    now = now.setHours(now.getHours() + 9);
 
     res.status(200).json({
       msg: '카테고리 조회 성공',
@@ -204,7 +209,8 @@ router.get('/:selectKey', async (req, res, next) => {
     }
 
     // 현재 시간과 마감시간을 비교함(둘다 9시간 차이가 나서 바로 비교해도 됨)
-    const now = new Date();
+    let now = new Date();
+    now = now.setHours(now.getHours() + 9);
     const dead = new Date(data.deadLine);
 
     return res.status(200).json({
