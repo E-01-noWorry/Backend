@@ -5,6 +5,7 @@ const authMiddleware = require('../middlewares/authMiddlware');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 const upload = require('../middlewares/multer');
+const schedule = require('node-schedule');
 
 // 선택글 작성
 router.post(
@@ -48,11 +49,51 @@ router.post(
       const data = await Select.create({
         title,
         category,
-        content: null,
         image: location,
         deadLine,
-        options:options.split(","),
+        options: options.split(','),
         userKey,
+        compeltion: false,
+      });
+
+      // 스케줄러로 마감시간이 되면 compeltion true로 바꾸고, 최다선택지 투표한 사람 포인트 적립
+      let now2 = new Date();
+      const compeltionTime = now2.setHours(now2.getHours() + parseInt(time));
+
+      schedule.scheduleJob(compeltionTime, async () => {
+        console.time('code_measure');
+        console.log('디비 변경됨');
+        await data.update({ compeltion: true });
+
+        const compeltionVote = await Vote.findAll({
+          where: { selectKey: data.selectKey },
+          include: [{ model: User }],
+        });
+        const count = [0, 0, 0, 0];
+        compeltionVote.map((e) => {
+          if (e.choice === 1) {
+            ++count[0];
+          } else if (e.choice === 2) {
+            ++count[1];
+          } else if (e.choice === 3) {
+            ++count[2];
+          } else if (e.choice === 4) {
+            ++count[3];
+          }
+        });
+        const maxVote = Math.max(count[0], count[1], count[2], count[3]);
+        for (let i = 0; i < 4; i++) {
+          if (count[i] === maxVote) {
+            const choiceUser = await Vote.findAll({
+              where: { selectKey: data.selectKey, choice: i + 1 },
+              include: [{ model: User }],
+            });
+            choiceUser.map((e) => {
+              e.User.update({ point: e.User.point + 3 });
+            });
+          }
+        }
+        console.timeEnd('code_measure');
       });
 
       //선택글 생성시 +3점씩 포인트 지급
@@ -98,10 +139,6 @@ router.get('/', async (req, res, next) => {
       offset: offset,
       limit: limit,
     });
-    // console.log(datas[0].Votes.length);
-
-    let now = new Date();
-    now = now.setHours(now.getHours() + 9);
 
     return res.status(200).json({
       ok: true,
@@ -112,7 +149,7 @@ router.get('/', async (req, res, next) => {
           title: e.title,
           category: e.category,
           deadLine: e.deadLine,
-          completion: now > new Date(e.deadLine),
+          completion: e.compeltion,
           nickname: e.User.nickname,
           options: e.options,
           total: e.Votes.length,
@@ -141,16 +178,13 @@ router.get('/filter', async (req, res, next) => {
       limit: limit,
     });
 
-    let now = new Date();
-    now = now.setHours(now.getHours() + 9);
-
     const popular = datas.map((e) => ({
       total: e.Votes.length,
       selectKey: e.selectKey,
       title: e.title,
       category: e.category,
       deadLine: e.deadLine,
-      completion: now > new Date(e.deadLine),
+      completion: e.compeltion,
       nickname: e.User.nickname,
       options: e.options,
     }));
@@ -192,9 +226,6 @@ router.get('/category/:category', async (req, res, next) => {
       throw new ErrorCustom(400, '해당 카테고리에 글이 존재하지 않습니다.');
     }
 
-    let now = new Date();
-    now = now.setHours(now.getHours() + 9);
-
     res.status(200).json({
       msg: '카테고리 조회 성공',
       result: data.map((c) => {
@@ -203,7 +234,7 @@ router.get('/category/:category', async (req, res, next) => {
           title: c.title,
           category: c.category,
           deadLine: c.deadLine,
-          completion: now > new Date(c.deadLine),
+          completion: e.compeltion,
           nickname: c.User.nickname,
           options: c.options,
           total: c.Votes.length,
@@ -228,11 +259,6 @@ router.get('/:selectKey', async (req, res, next) => {
       throw new ErrorCustom(400, '해당 선택글이 존재하지 않습니다.');
     }
 
-    // 현재 시간과 마감시간을 비교함(둘다 9시간 차이가 나서 바로 비교해도 됨)
-    let now = new Date();
-    now = now.setHours(now.getHours() + 9);
-    const dead = new Date(data.deadLine);
-
     return res.status(200).json({
       ok: true,
       msg: '선택글 상세 조회 성공',
@@ -243,7 +269,7 @@ router.get('/:selectKey', async (req, res, next) => {
         image: data.image,
         deadLine: data.deadLine,
         options: data.options,
-        completion: now > dead,
+        completion: data.compeltion,
         userKey: data.userKey,
         nickname: data.User.nickname,
       },

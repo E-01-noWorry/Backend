@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
       deadLine: DataTypes.DATE,
       options: DataTypes.JSON,
       image: DataTypes.JSON,
+      compeltion: DataTypes.BOOLEAN,
     },
     {
       sequelize,
