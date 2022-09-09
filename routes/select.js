@@ -6,6 +6,10 @@ const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 const upload = require('../middlewares/multer');
 
+//
+const schedule = require('node-schedule');
+//
+
 // 선택글 작성
 router.post(
   '/',
@@ -51,8 +55,18 @@ router.post(
         content: null,
         image: location,
         deadLine,
-        options:options.split(","),
+        options: options.split(','),
         userKey,
+      });
+      console.log(data);
+
+      let date2 = new Date();
+      const deadLine2 = date2.setSeconds(date2.getSeconds() + parseInt(time));
+      console.log(new Date(deadLine2));
+
+      schedule.scheduleJob(deadLine2, async () => {
+        console.log('디비 변경됨');
+        await data.update({ title: '10초뒤 변경' });
       });
 
       //선택글 생성시 +3점씩 포인트 지급
