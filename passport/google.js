@@ -30,9 +30,9 @@ module.exports = () => {
             });
             done(null, newUSer);
           }
-        } catch (err) {
+        } catch (error) {
           console.error(error);
-          done(err);
+          done(error);
         }
       }
     )
