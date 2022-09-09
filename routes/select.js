@@ -57,16 +57,15 @@ router.post(
         deadLine,
         options: options.split(','),
         userKey,
+        compeltion: false,
       });
-      console.log(data);
 
       let date2 = new Date();
-      const deadLine2 = date2.setSeconds(date2.getSeconds() + parseInt(time));
-      console.log(new Date(deadLine2));
+      const deadLine2 = date2.setMinutes(date2.getMinutes() + parseInt(time));
 
       schedule.scheduleJob(deadLine2, async () => {
         console.log('디비 변경됨');
-        await data.update({ title: '10초뒤 변경' });
+        await data.update({ compeltion: true });
       });
 
       //선택글 생성시 +3점씩 포인트 지급
