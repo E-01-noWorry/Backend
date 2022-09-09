@@ -28,7 +28,7 @@ router.post(
       }
 
       const date = new Date();
-      const deadLine = date.setHours(date.getHours() + time);
+      const deadLine = date.setHours(date.getHours() + parseInt(time));
 
       //   생성 1시간 쿨타임 구현
       // const cooltime = date.setHours(date.getHours() - 2); // 왜 2시간인지는 모르겠네;; 배포하면 또 달라질듯
@@ -51,7 +51,7 @@ router.post(
         content: null,
         image: location,
         deadLine,
-        options,
+        options:options.split(","),
         userKey,
       });
 
