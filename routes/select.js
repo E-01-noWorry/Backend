@@ -4,78 +4,82 @@ const { Select, User, Vote } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
-const { format } = require('mysql2');
-// const PoolCluster = require('mysql2/typings/mysql/lib/PoolCluster');
+const upload = require('../middlewares/multer');
 
 // 선택글 작성
-router.post('/', authMiddleware, async (req, res, next) => {
-  try {
-    const { userKey, nickname } = res.locals.user;
-    const { title, category, image, time, options } = req.body;
+router.post(
+  '/',
+  authMiddleware,
+  upload.array('image', 4),
+  async (req, res, next) => {
+    try {
+      const { userKey, nickname } = res.locals.user;
+      const { title, category, time, options } = req.body;
+      const image = req.files;
 
-    if (
-      title === '' ||
-      category === '' ||
-      image === '' ||
-      time === '' ||
-      options === ''
-    ) {
-      throw new ErrorCustom(400, '항목들을 모두 입력해주세요.');
+      if (title === '' || category === '' || time === '' || options === '') {
+        throw new ErrorCustom(400, '항목들을 모두 입력해주세요.');
+      }
+
+      // 이미지는 들어가면 최소 2개이상(선택지갯수에 맞게), 없을수도 있음
+      let location = [];
+      if (image !== undefined) {
+        location = image.map((e) => e.location);
+      }
+
+      const date = new Date();
+      const deadLine = date.setHours(date.getHours() + time);
+
+      //   생성 1시간 쿨타임 구현
+      // const cooltime = date.setHours(date.getHours() - 2); // 왜 2시간인지는 모르겠네;; 배포하면 또 달라질듯
+
+      // const oneHour = await Select.findOne({
+      //   where: {
+      //     userKey,
+      //     createdAt: { [Op.gt]: new Date(cooltime) },
+      //   },
+      //   attributes: ['createdAt'],
+      // });
+
+      // if (oneHour) {
+      //   throw new ErrorCustom(400, '선택글은 1시간에 1번만 작성 가능합니다.');
+      // }
+
+      const data = await Select.create({
+        title,
+        category,
+        content: null,
+        image: location,
+        deadLine,
+        options,
+        userKey,
+      });
+
+      //선택글 생성시 +3점씩 포인트 지급
+      let selectPoint = await User.findOne({ where: { userKey } });
+      await selectPoint.update({ point: selectPoint.point + 3 });
+
+      // db 저장시간과 보여지는 시간이 9시간 차이가 나서 보여주는것은 9시간을 더한것을 보여준다. 이후 db에서 가져오는 dealine은 정상적인 한국시간
+      data.deadLine = date.setHours(date.getHours() + 9);
+
+      return res.status(200).json({
+        ok: true,
+        msg: '선택글 작성 성공',
+        result: {
+          selectKey: data.selectKey,
+          title: data.title,
+          category: data.category,
+          deadLine: data.deadLine,
+          completion: false,
+          nickname: nickname,
+          selectPoint: selectPoint.point,
+        },
+      });
+    } catch (err) {
+      next(err);
     }
-
-    const date = new Date();
-    const deadLine = date.setHours(date.getHours() + time);
-
-    // 생성 1시간 쿨타임 구현
-    // const cooltime = date.setHours(date.getHours() - 2); // 왜 2시간인지는 모르겠네;; 배포하면 또 달라질듯
-
-    // const oneHour = await Select.findOne({
-    //   where: {
-    //     userKey,
-    //     createdAt: { [Op.gt]: new Date(cooltime) },
-    //   },
-    //   attributes: ['createdAt'],
-    // });
-
-    // if (oneHour) {
-    //   throw new ErrorCustom(400, '선택글은 1시간에 1번만 작성 가능합니다.');
-    // }
-    //
-
-    const data = await Select.create({
-      title,
-      category,
-      content: null,
-      image,
-      deadLine,
-      options,
-      userKey,
-    });
-
-    //선택글 생성시 +3점씩 포인트 지급
-    let selectPoint = await User.findOne({ where: { userKey } });
-    await selectPoint.update({ point: selectPoint.point + 3 });
-
-    // db 저장시간과 보여지는 시간이 9시간 차이가 나서 보여주는것은 9시간을 더한것을 보여준다. 이후 db에서 가져오는 dealine은 정상적인 한국시간
-    data.deadLine = date.setHours(date.getHours() + 9);
-
-    return res.status(200).json({
-      ok: true,
-      msg: '선택글 작성 성공',
-      result: {
-        selectKey: data.selectKey,
-        title: data.title,
-        category: data.category,
-        deadLine: data.deadLine,
-        completion: false,
-        nickname: nickname,
-        selectPoint: selectPoint.point,
-      },
-    });
-  } catch (err) {
-    next(err);
   }
-});
+);
 
 // 선택글 모두 조회
 router.get('/', async (req, res, next) => {
