@@ -59,10 +59,10 @@ router.post(
         compeltion: false,
       });
 
-      let date2 = new Date();
-      const deadLine2 = date2.setSeconds(date2.getSeconds() + parseInt(time));
+      let now2 = new Date();
+      const compeltionTime = now2.setHours(now2.getHours() + parseInt(time));
 
-      schedule.scheduleJob(deadLine2, async () => {
+      schedule.scheduleJob(compeltionTime, async () => {
         console.time('code_measure');
         console.log('디비 변경됨');
         await data.update({ compeltion: true });
