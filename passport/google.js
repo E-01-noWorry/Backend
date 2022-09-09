@@ -31,7 +31,6 @@ module.exports = () => {
             done(null, newUSer);
           }
         } catch (error) {
-          console.error(error);
           done(error);
         }
       }
