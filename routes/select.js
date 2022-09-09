@@ -52,7 +52,6 @@ router.post(
       const data = await Select.create({
         title,
         category,
-        content: null,
         image: location,
         deadLine,
         options: options.split(','),
@@ -61,11 +60,42 @@ router.post(
       });
 
       let date2 = new Date();
-      const deadLine2 = date2.setMinutes(date2.getMinutes() + parseInt(time));
+      const deadLine2 = date2.setSeconds(date2.getSeconds() + parseInt(time));
 
       schedule.scheduleJob(deadLine2, async () => {
+        console.time('code_measure');
         console.log('디비 변경됨');
         await data.update({ compeltion: true });
+
+        const compeltionVote = await Vote.findAll({
+          where: { selectKey: data.selectKey },
+          include: [{ model: User }],
+        });
+        const count = [0, 0, 0, 0];
+        compeltionVote.map((e) => {
+          if (e.choice === 1) {
+            ++count[0];
+          } else if (e.choice === 2) {
+            ++count[1];
+          } else if (e.choice === 3) {
+            ++count[2];
+          } else if (e.choice === 4) {
+            ++count[3];
+          }
+        });
+        const maxVote = Math.max(count[0], count[1], count[2], count[3]);
+        for (let i = 0; i < 4; i++) {
+          if (count[i] === maxVote) {
+            const choiceUser = await Vote.findAll({
+              where: { selectKey: data.selectKey, choice: i + 1 },
+              include: [{ model: User }],
+            });
+            choiceUser.map((e) => {
+              e.User.update({ point: e.User.point + 3 });
+            });
+          }
+        }
+        console.timeEnd('code_measure');
       });
 
       //선택글 생성시 +3점씩 포인트 지급
