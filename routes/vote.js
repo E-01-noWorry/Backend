@@ -56,7 +56,7 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
       });
       let total = count1 + count2 + count3 + count4;
 
-      //투표시 +1 포인트 부여
+      //선택글 투표시 +1점씩 포인트 지급
       let votePoint = await User.findOne({ where:{userKey}})
       await votePoint.update({ point: votePoint.point + 1})
 
