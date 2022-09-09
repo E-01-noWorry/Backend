@@ -30,8 +30,6 @@ app.use(morganMiddleware);
 
 const path = require('path');
 
-app.use(express.static(path.join(__dirname, 'src')));
-
 const cors = require('cors');
 app.use(
   cors({
