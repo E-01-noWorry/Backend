@@ -24,6 +24,10 @@ router.post('/', authMiddleware, async (req, res, next) => {
       roomKey: newRoom.roomKey,
     });
 
+    //채팅방 생성시 +3점씩 포인트 지급
+    let roomPoint = await User.findOne({where:{userKey}})
+    await roomPoint.update({point:roomPoint.point + 3})
+
     return res.status(200).json({
       ok: true,
       msg: '채팅방 생성 성공',
@@ -35,6 +39,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
         hashTag: newRoom.hashTag,
         host: nickname,
         userKey,
+        roomPoint:roomPoint.point
       },
     });
   } catch (err) {
