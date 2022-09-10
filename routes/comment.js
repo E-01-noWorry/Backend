@@ -167,4 +167,42 @@ router.delete('/:commentKey', authMiddleware, async (req, res, next) => {
   }
 });
 
+
+// 대댓글 작성
+router.post('/:selectKey/:commentKey', authMiddleware, async (req, res, next) => {
+  try {
+    const { userKey, nickname } = res.locals.user;
+    const { selectKey } = req.params.selectKey;
+    const { commentKey } = req.params.commentKey;
+    const { comment } = req.body;
+    if (comment === '') {
+      throw new ErrorCustom(400, '대댓글을 입력해주세요.');
+    }
+
+    const selectData = await Select.findOne({ where: { selectKey } });
+    const commentData = await Comment.findOne({ where: { commentKey } });
+
+    if(!selectData) {
+      throw new ErrorCustom(400, '해당 글이 존재하지 않습니다.'); //게시글 확인
+    }
+
+    if(!commentData) {
+      throw new ErrorCustom(400, '해당 댓글이 존재하지 않습니다.'); //댓글 확인
+    }
+
+    //먼저 할건 commentKey가 부모인지 아닌지 확인 부모면 1 아니면 0 값을 가지고 있다
+    const parent = await Comment.findOne({ where: { parent : commentKey.parent }}); //문법 맞는지 확인
+
+    if(parent === 0) { //부모가 아니니까 이제 부모로 만들어줘야겠지
+      parent = 1;
+    }
+
+
+
+  }catch(error) {
+
+  }
+});
+
+
 module.exports = router;

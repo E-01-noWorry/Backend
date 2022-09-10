@@ -128,6 +128,7 @@ router.get('/', async (req, res, next) => {
     let offset = 0;
     const limit = 5;
     const pageNum = req.query.page;
+    console.log(pageNum);
 
     if (pageNum > 1) {
       offset = limit * (pageNum - 1); //5 10
