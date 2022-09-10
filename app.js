@@ -3,9 +3,9 @@ const Router = require('./routes/index');
 const errorHandler = require('./advice/errorHandler');
 const logger = require('./config/winston');
 const morganMiddleware = require('./config/morganMiddleware');
-const fs = require('fs');
-const http = require('http');
-const https = require('https');
+// const fs = require('fs');
+// const http = require('http');
+// const https = require('https');
 
 const session = require('cookie-session');
 const passport = require('passport');
@@ -19,12 +19,12 @@ const port = process.env.PORT;
 
 const app = express();
 
-const options = {
-  ca: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain.pem'),
-  key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
-};
-app.use(express.static('public'));
+// const options = {
+//   ca: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain.pem'),
+//   key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
+//   cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
+// };
+// app.use(express.static('public'));
 
 app.use(morganMiddleware);
 
@@ -65,13 +65,13 @@ app.get('/', (req, res) => {
 });
 app.use(errorHandler);
 
-// const server = app.listen(port, () => {
-//   console.log(port, '포트로 서버가 열렸어요!');
-// });
+const server = app.listen(port, () => {
+  console.log(port, '포트로 서버가 열렸어요!');
+});
 
-//프론트 서버 오픈시 같이 오픈
-http.createServer(app).listen(3000);
-const server = https.createServer(options, app).listen(443);
+// //프론트 서버 오픈시 같이 오픈
+// http.createServer(app).listen(3000);
+// const server = https.createServer(options, app).listen(443);
 
 webSocket(server, app);
 
