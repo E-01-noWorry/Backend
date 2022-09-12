@@ -47,6 +47,43 @@ router.post('/', authMiddleware, async (req, res, next) => {
   }
 });
 
+//채팅방 검색은 title, hashtag 정보 둘 중하나라도 있으면 검색된다
+router.get('/search', async (req, res) => {
+  try {
+    const queryData = req.query.search;
+    console.log(queryData);
+  
+  
+    const searchResult = await Room.findAll({ //
+      where: {
+        [Op.or]: [
+          { title: { [Op.like]: `${queryData}` } },
+          { hashTag: { [Op.substring]: `${queryData}` } },
+        ],
+      },
+    });
+    
+    if(!queryData) {
+      return res.status(400).json({
+        ok: false,
+        errMsg: '검색어를 입력해주십시오'
+      })
+    }
+
+    if(searchResult.length == 0){ 
+      return res.status(400).json({
+        ok: false,
+        errMsg: '입력하신 정보와 일치하는 검색결과가 없습니다'
+      })
+    }
+    
+    res.status(200).send({ msg: '룸 검색완료', searchResult});
+  } catch(err) {
+    next(err)
+  }
+});
+
+
 // 채팅방 전체 조회
 router.get('/', async (req, res, next) => {
   try {
@@ -73,44 +110,12 @@ router.get('/', async (req, res, next) => {
         };
       }),
     });
-
-    // let tags = []; //이 밑은 사람들이 태그 한것중 가장 많이 태그한 태그 3개를 가져와서 인기키워드로 보여주는 코드이다
-    // for (let i = 0; i < allRoom.length; i++) {
-    //   const room = allRoom[i];
-    //   for (let l = 0; l < room.hashTag.length; l++) {
-    //     const hashtag = room.hashTag[l];
-    //     tags.push(hashtag);
-    //   }
-    // }
-
-    // tags = tags.reduce((accu, curr) => {
-    //   accu[curr] = (accu[curr] || 0) + 1;
-    //   return accu;
-    // }, {});
-    // let max = 0;
-    // let max2 = 0;
-    // let max3 = 0;
-    // for (let j = 0; j < Object.values(tags).length; j++) {
-    //   if (max < Object.values(tags)[j]) {
-    //     max = Object.values(tags)[j];
-    //   }
-    //   if (max2 < Object.values(tags)[j] < max) {
-    //     max2 = Object.values(tags)[j];
-    //   }
-    //   if (max3 < Object.values(tags)[j] < max2) {
-    //     max3 = Object.values(tags)[j];
-    //   }
-    // }
-    // max = Object.keys(tags).find((key) => tags[key] === max);
-    // delete tags[max];
-    // max2 = Object.keys(tags).find((key) => tags[key] === max2);
-    // delete tags[max2];
-    // max3 = Object.keys(tags).find((key) => tags[key] === max3);
-    // tags = [max, max2, max3];
   } catch (err) {
     next(err);
   }
 });
+
+
 
 // 채팅방 입장
 // 호스트 유저는 방만들때 Participant에 생성했음
@@ -250,64 +255,13 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
       Participants: people,
       loadChat,
     });
-
-    //
-
-    // if (Room.roomUserId.includes(userId) || Room.hostId == userId) {
-    //   //userId가 hostId거나 roomUserId에 존재한다면 조회해라
-    //   loadChat = await Chats.findAll({ where: { roomId: Number(roomId) } });
-    // }
-    // let chatingRooms = await Room.findAll({
-    //   //옆에 뜨는 내가 접속한 채팅방 목록인듯?
-    //   where: {
-    //     [Op.or]: [
-    //       { roomId: Number(roomId) }, // 해당 roomId가 있거나
-    //       { hostId: userId }, //host가 userId거나
-    //       { roomUserId: { [Op.substring]: userId } }, //해당 방에 userId가 포함되있거나
-    //     ],
-    //   },
-    // });
-
-    // for (let i = 0; i < chatingRooms.length; i++) {
-    //   //목록인데 자신이 지금 들어간 채팅방을 최상단에 위치하게 해주는 코드
-    //   let chatRoom = chatingRooms[i];
-    //   if (chatingRooms.roomId == roomId) {
-    //     chatingRooms[i] = chatingRooms[0];
-    //     chatingRooms[0] = chatRoom;
-    //   }
-    // }
-
-    // res.status(200).send({
-    //   msg: '룸 상세조회에 성공했습니다',
-    //   chatingRooms,
-    //   Room,
-    //   loadChat,
-    // }); //들어가있는 방 목록, 현재 접속 방, 채팅 정보를 보낸다
   } catch (err) {
     next(err);
   }
 });
 
-//미들웨어 쪽은 일단 추후에..ddddd
 
-// //룸 검색 검색은 title, hashtag 정보 둘 중하나라도 있으면 검색된다
-// router.get('/search', async (req, res) => {
-//   const queryData = req.query;
-//   const searchResult = await searchRoom.findAll({
-//     where: {
-//       [Op.or]: [
-//         //substring은 sql의 like문법으로 앞뒤다짜르고 검색한 값만 가져옴
-//         { title: { [Op.substring]: queryData.search } },
-//         { hashTag: { [Op.substring]: queryData.search } },
-//       ],
-//     },
-//     order: [
-//       //검색한 값이 존재한다면 결과값 생성 순서대로 내림차순 정렬
-//       [{ title: { [Op.substring]: queryData.search } }, 'cretedAt', 'DESC'],
-//     ],
-//   });
-//   res.status(200).send({ msg: '룸 검색완료', searchResult });
-// });
+
 
 // //룸 해쉬태그 검색, 해쉬태그를 클릭하면 해당 해쉬태그가 포함된 채팅방만 보여줌
 // router.get('/search/hashTag', async (req, res) => {
@@ -336,16 +290,5 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
 //   }
 // });
 
-// //채팅방 인기순 정렬 (채팅방 인원많은 순으로)
-// router.get('/search/populer', async (req, res) => {
-//   try {
-//     const allRoom = await Room.findAll();
-//     allRoom.sort((a, b) => b.roomUserId.length - a.roomUserId.length);
-
-//     return res.status(200).send({ allRoom, msg: '인기룸을 조회했습니다' });
-//   } catch (err) {
-//     return res.status(400).send({ msg: '인기룸을 조회가 되지않았습니다' });
-//   }
-// });
 
 module.exports = router;
