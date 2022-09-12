@@ -1,25 +1,21 @@
 'use strict';
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Comment extends Model {
+  class Recomment extends Model {
     static associate(models) {
       this.belongsTo(models.User, {
         foreignKey: 'userKey',
         targetKey: 'userKey',
       });
-      this.belongsTo(models.Select, {
-        foreignKey: 'selectKey',
-        targetKey: 'selectKey',
-      });
-      this.hasMany(models.Recomment, {
+      this.belongsTo(models.Comment, {
         foreignKey: 'commentKey',
-        sourceKey: 'commentKey',
+        targetKey: 'commentKey',
       });
     }
   }
-  Comment.init(
+  Recomment.init(
     {
-      commentKey: {
+      recommentKey: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
@@ -28,8 +24,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'Comment',
+      modelName: 'Recomment',
     }
   );
-  return Comment;
+  return Recomment;
 };
