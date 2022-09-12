@@ -23,9 +23,24 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
       }
   
       const newComment = await Recomment.create({
-        comment,
-        selectKey,
+        recomment,
+        commentKey,
         userKey,
+      });
+      newComment.updatedAt = newComment.updatedAt.setHours(
+        newComment.updatedAt.getHours() + 9
+      );
+
+      return res.status(200).json({
+        ok: true,
+        msg: '댓글 작성 성공',
+        result: {  
+          RecommentKey: newComment.RecommentKey,
+          recomment: newComment.recomment,
+          nickname: nickname,
+          userKey,
+          time: newComment.updatedAt,
+        },
       });
   
     }catch(err) {
