@@ -9,11 +9,10 @@ admin.initializeApp({
 const express = require('express');
 const router = express.Router();
 
-router.get('/', async (req, res, next) => {
+router.get('/push', async (req, res, next) => {
   try {
     let target_token =
-    //   'e5p9Ul2BRc-MgZHP8Dx_wB:APA91bG9pnGqSJQLGrazz3tq0JkPKJlTY5cHmylMiR8dAdGAdKi9o_rf9y55H1mmvvAgHj0ZKjZyk23Q_trNrmgQx1A6h3LaoADdlPV-kX5czoDnL1F-gc2DOZJucEmf4To6hje4AfHl'; // 작동안되는 토큰
-    //target_token은 푸시 메시지를 받을 디바이스의 토큰값입니다
+      'c5s2m7Mf4Zk:APA91bEfxFDvDUeyLmsyaLwGbF49lzmpG0a7IulSl7el5-4itV7yy5dbWuTYmA5OzpNpN0N-xgVmIwQzYy21tIgDL377wWjD4lGS_TzOk1ody93HIFvn11m9a1XKGJ-svtFWqeQJE5Zf';
 
     let message = {
       data: {
@@ -23,6 +22,7 @@ router.get('/', async (req, res, next) => {
       },
       token: target_token,
     };
+    console.log(message);
 
     admin
       .messaging()
