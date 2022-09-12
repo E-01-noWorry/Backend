@@ -25,8 +25,8 @@ router.post('/', authMiddleware, async (req, res, next) => {
     });
 
     //채팅방 생성시 +3점씩 포인트 지급
-    let roomPoint = await User.findOne({where:{userKey}})
-    await roomPoint.update({point:roomPoint.point + 3})
+    let roomPoint = await User.findOne({ where: { userKey } });
+    await roomPoint.update({ point: roomPoint.point + 3 });
 
     return res.status(200).json({
       ok: true,
@@ -39,7 +39,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
         hashTag: newRoom.hashTag,
         host: nickname,
         userKey,
-        roomPoint:roomPoint.point
+        roomPoint: roomPoint.point,
       },
     });
   } catch (err) {
@@ -48,41 +48,51 @@ router.post('/', authMiddleware, async (req, res, next) => {
 });
 
 //채팅방 검색은 title, hashtag 정보 둘 중하나라도 있으면 검색된다
-router.get('/search', async (req, res) => {
+router.get('/search', async (req, res, next) => {
   try {
-    const queryData = req.query.search;
-    console.log(queryData);
-  
-  
-    const searchResult = await Room.findAll({ //
+    const { searchWord } = req.query;
+
+    const searchResult = await Room.findAll({
       where: {
         [Op.or]: [
-          { title: { [Op.like]: `${queryData}` } },
-          { hashTag: { [Op.substring]: `${queryData}` } },
+          { title: { [Op.like]: `%${searchWord}%` } },
+          { hashTag: { [Op.substring]: `%${searchWord}%` } },
         ],
       },
+      include: [
+        { model: User, attributes: ['nickname'] },
+        { model: Participant, attributes: ['userKey'] },
+      ],
+      order: [['roomKey', 'DESC']],
     });
-    
-    if(!queryData) {
-      return res.status(400).json({
-        ok: false,
-        errMsg: '검색어를 입력해주십시오'
-      })
+
+    if (!searchWord) {
+      throw new ErrorCustom(400, '검색어를 입력해주세요.');
     }
 
-    if(searchResult.length == 0){ 
-      return res.status(400).json({
-        ok: false,
-        errMsg: '입력하신 정보와 일치하는 검색결과가 없습니다'
-      })
+    if (searchResult.length == 0) {
+      throw new ErrorCustom(400, '키워드와 일치하는 검색결과가 없습니다.');
     }
-    
-    res.status(200).send({ msg: '룸 검색완료', searchResult});
-  } catch(err) {
-    next(err)
+
+    return res.status(200).json({
+      ok: true,
+      msg: '채팅방 검색 조회 성공',
+      result: searchResult.map((e) => {
+        return {
+          roomKey: e.roomKey,
+          title: e.title,
+          max: e.max,
+          currentPeople: e.Participants.length,
+          hashTag: e.hashTag,
+          host: e.User.nickname,
+          userKey: e.userKey,
+        };
+      }),
+    });
+  } catch (err) {
+    next(err);
   }
 });
-
 
 // 채팅방 전체 조회
 router.get('/', async (req, res, next) => {
@@ -114,8 +124,6 @@ router.get('/', async (req, res, next) => {
     next(err);
   }
 });
-
-
 
 // 채팅방 입장
 // 호스트 유저는 방만들때 Participant에 생성했음
@@ -260,9 +268,6 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
   }
 });
 
-
-
-
 // //룸 해쉬태그 검색, 해쉬태그를 클릭하면 해당 해쉬태그가 포함된 채팅방만 보여줌
 // router.get('/search/hashTag', async (req, res) => {
 //   const queryData = req.query;
@@ -289,6 +294,5 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
 //     res.status(400).send({ msg: '채팅을 불러오지 못했습니다.' });
 //   }
 // });
-
 
 module.exports = router;
