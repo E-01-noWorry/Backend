@@ -122,6 +122,35 @@ module.exports = (server, app) => {
         io.to(leaveUser.Room.title).emit('bye', param);
       }
     });
+
+    // 채팅방의 사람들 정보 주기
+    socket.on('showUsers', async (data) => {
+      let { roomKey, userKey } = data;
+      const allUsers = await Participant.findAll({
+        where: { roomKey },
+        include: [{ model: User, attributes: ['nickname', 'point'] }],
+      });
+
+      let param = allUsers.map((e) => {
+        return {
+          userKey: e.userKey,
+          nickname: e.User.nickname,
+          point: e.User.point,
+        };
+      });
+      io.to(userKey).emit('showUsers', param);
+    });
+
+    // 추천하기
+    socket.on('recommend', async (data) => {
+      // 여기서 유저키는 추천 받은 사람의 유저키
+      let { roomKey, userKey } = data;
+      const recommendUser = await User.findOne({ where: { userKey } });
+      await recommendUser.update({ point: recommendUser.point + 3 });
+
+      let param = { msg: '호스트로 부터 추천을 받았습니다.' };
+      io.to(userKey).emit('recommend', param);
+    });
   });
 };
 
