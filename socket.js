@@ -131,6 +131,7 @@ module.exports = (server, app) => {
         where: { roomKey },
         include: [{ model: User, attributes: ['nickname', 'point'] }],
       });
+      console.log(allUsers);
 
       let param = allUsers.map((e) => {
         return {
@@ -139,6 +140,7 @@ module.exports = (server, app) => {
           point: e.User.point,
         };
       });
+      console.log(param);
       io.to(userKey).emit('showUsers', param);
     });
 
