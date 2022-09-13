@@ -129,6 +129,7 @@ module.exports = (server, app) => {
       console.log(data);
       
       let { roomKey, userKey } = data;
+      const room = await Room.findOne({ where: roomKey });
       const allUsers = await Participant.findAll({
         where: { roomKey },
         include: [{ model: User, attributes: ['nickname', 'point'] }],
@@ -142,7 +143,7 @@ module.exports = (server, app) => {
         };
       });
       console.log(param);
-      io.to(userKey).emit('receive', param);
+      io.to(room.title).emit('receive', param);
     });
 
     // 추천하기
