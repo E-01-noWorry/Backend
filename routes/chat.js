@@ -51,6 +51,15 @@ router.post('/', authMiddleware, async (req, res, next) => {
 //채팅방 검색은 title, hashtag 정보 둘 중하나라도 있으면 검색된다
 router.get('/search', async (req, res, next) => {
   try {
+    let offset = 0;
+    const limit = 5;
+    const pageNum = req.query.page;
+    console.log(pageNum);
+
+    if (pageNum > 1) {
+      offset = limit * (pageNum - 1); //5 10
+    }
+
     const { searchWord } = req.query;
 
     const searchResult = await Room.findAll({
@@ -65,6 +74,8 @@ router.get('/search', async (req, res, next) => {
         { model: Participant, attributes: ['userKey'] },
       ],
       order: [['roomKey', 'DESC']],
+      offset:offset,
+      limit:limit,
     });
 
     if (!searchWord) {
