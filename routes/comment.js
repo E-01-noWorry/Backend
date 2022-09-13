@@ -53,6 +53,15 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
 // 해당 게시물 댓글 모두 조회
 router.get('/:selectKey', async (req, res, next) => {
   try {
+    let offset = 0;
+    const limit = 5;
+    const pageNum = req.query.page;
+    console.log(pageNum);
+
+    if (pageNum > 1) {
+      offset = limit * (pageNum - 1); //5 10
+    }
+
     const { selectKey } = req.params;
 
     const data = await Select.findOne({
@@ -67,6 +76,8 @@ router.get('/:selectKey', async (req, res, next) => {
       where: { selectKey },
       include: [{ model: User, attributes: ['nickname'] }],
       order: [['commentKey', 'ASC']],
+      offset:offset,
+      limit:limit
     });
 
     return res.status(200).json({
