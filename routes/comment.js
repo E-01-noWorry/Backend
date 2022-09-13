@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { Select, User, Comment } = require('../models');
+const { Select, User, Comment, Recomment } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const ErrorCustom = require('../advice/errorCustom');
-const { RoboMaker } = require('aws-sdk');
 
 // 댓글 작성
 router.post('/:selectKey', authMiddleware, async (req, res, next) => {
@@ -65,7 +64,13 @@ router.get('/:selectKey', async (req, res, next) => {
 
     const datas = await Comment.findAll({
       where: { selectKey },
-      include: [{ model: User, attributes: ['nickname'] }],
+      include: [
+        { model: User, attributes: ['nickname'] },
+        {
+          model: Recomment,
+          include: [{ model: User, attributes: ['nickname'] }],
+        },
+      ],
       order: [['commentKey', 'ASC']],
     });
 
@@ -79,6 +84,7 @@ router.get('/:selectKey', async (req, res, next) => {
           nickname: e.User.nickname,
           userKey: e.userKey,
           time: e.updatedAt,
+          recomment: e.Recomments,
         };
       }),
     });
