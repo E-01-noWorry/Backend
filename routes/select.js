@@ -51,7 +51,7 @@ router.post(
         category,
         image: location,
         deadLine,
-        options: options.split(','),
+        options: options.toString().split(','),
         userKey,
         compeltion: false,
       });
@@ -235,7 +235,7 @@ router.get('/category/:category', async (req, res, next) => {
           title: c.title,
           category: c.category,
           deadLine: c.deadLine,
-          completion: e.compeltion,
+          completion: c.compeltion,
           nickname: c.User.nickname,
           options: c.options,
           total: c.Votes.length,
