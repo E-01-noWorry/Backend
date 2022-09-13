@@ -71,12 +71,12 @@ module.exports = (server, app) => {
         roomKey,
         userKey,
         chat: message,
-        createdAt: now.format()
+        createdAt: now.format(),
       });
       const chatUser = await Participant.findOne({
         where: { roomKey, userKey },
         include: [
-          { model: User, attributes: ['nickname'] },
+          { model: User, attributes: ['nickname', 'point'] },
           { model: Room, attributes: ['title'] },
         ],
       });
@@ -87,6 +87,7 @@ module.exports = (server, app) => {
         roomKey,
         userKey: chatUser.userKey,
         nickname: chatUser.User.nickname,
+        point: chatUser.User.point,
         time: newChat.createdAt, // (9시간 차이나는 시간)
       };
 

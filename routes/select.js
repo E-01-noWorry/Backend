@@ -253,7 +253,7 @@ router.get('/:selectKey', async (req, res, next) => {
     const { selectKey } = req.params;
     const data = await Select.findOne({
       where: { selectKey },
-      include: [{ model: User, attributes: ['nickname'] }],
+      include: [{ model: User, attributes: ['nickname', 'point'] }],
     });
 
     if (!data) {
@@ -273,6 +273,7 @@ router.get('/:selectKey', async (req, res, next) => {
         completion: data.compeltion,
         userKey: data.userKey,
         nickname: data.User.nickname,
+        point: data.User.point,
       },
     });
   } catch (err) {

@@ -74,15 +74,15 @@ router.get('/:selectKey', async (req, res, next) => {
     const datas = await Comment.findAll({
       where: { selectKey },
       include: [
-        { model: User, attributes: ['nickname'] },
+        { model: User, attributes: ['nickname', 'point'] },
         {
           model: Recomment,
-          include: [{ model: User, attributes: ['nickname'] }],
+          include: [{ model: User, attributes: ['nickname', 'point'] }],
         },
       ],
       order: [['commentKey', 'ASC']],
-      offset:offset,
-      limit:limit
+      offset: offset,
+      limit: limit,
     });
 
     return res.status(200).json({
@@ -94,6 +94,7 @@ router.get('/:selectKey', async (req, res, next) => {
           comment: e.comment,
           nickname: e.User.nickname,
           userKey: e.userKey,
+          ponit: e.User.point,
           time: e.updatedAt,
           recomment: e.Recomments,
         };
