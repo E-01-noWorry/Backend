@@ -65,13 +65,11 @@ module.exports = (server, app) => {
     // 채팅 받아서 저장하고, 그 채팅 보내서 보여주기
     socket.on('chat_message', async (data) => {
       let { message, roomKey, userKey } = data;
-      const now = dayjs();
 
       const newChat = await Chat.create({
         roomKey,
         userKey,
-        chat: message,
-        createdAt: now.format(),
+        chat: message
       });
       const chatUser = await Participant.findOne({
         where: { roomKey, userKey },

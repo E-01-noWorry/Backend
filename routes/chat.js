@@ -4,6 +4,7 @@ const authMiddleware = require('../middlewares/authMiddlware');
 const { Room, Chat, User, Participant } = require('../models');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
+const dayjs = require('dayjs');
 
 // 채팅방 생성
 router.post('/', authMiddleware, async (req, res, next) => {
@@ -252,8 +253,12 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
     const people = room.Participants.map((e) => {
       return { userKey: e.userKey, nickname: e.User.nickname };
     });
+    const now = dayjs();
+    let recreatedAt = now.format();
+    console.log(recreatedAt, '확인')
+    console.log(typeof recreatedAt, '확인')
 
-    const loadChat = await Chat.findAll({
+    const loadChats = await Chat.findAll({
       where: { roomKey },
       attributes: ['chat', 'userKey', 'createdAt'],
       include: [{ model: User, attributes: ['nickname', 'point'] }],
@@ -272,7 +277,13 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
         userKey: room.userKey,
       },
       Participants: people,
-      loadChat,
+      loadChat:loadChats.map((l) => {
+        return {
+          chat:l.chat,
+          userKey:l.userKey,
+          createdAt:recreatedAt
+        }
+      }),
     });
   } catch (err) {
     next(err);
