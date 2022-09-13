@@ -4,6 +4,7 @@ const socket = require('socket.io');
 const { Room, Chat, User, Participant } = require('./models');
 // require('socket.io-client')('https://localhost:3000');
 // const server = http.createServer(app);
+const dayjs = require('dayjs');
 
 // ------------------채팅 소캣 부분만 한번 만져봄(여기서부터) ----------------
 
@@ -64,15 +65,18 @@ module.exports = (server, app) => {
     // 채팅 받아서 저장하고, 그 채팅 보내서 보여주기
     socket.on('chat_message', async (data) => {
       let { message, roomKey, userKey } = data;
+      const now = dayjs();
+
       const newChat = await Chat.create({
         roomKey,
         userKey,
         chat: message,
+        createdAt: now.format(),
       });
       const chatUser = await Participant.findOne({
         where: { roomKey, userKey },
         include: [
-          { model: User, attributes: ['nickname'] },
+          { model: User, attributes: ['nickname', 'point'] },
           { model: Room, attributes: ['title'] },
         ],
       });
@@ -83,6 +87,7 @@ module.exports = (server, app) => {
         roomKey,
         userKey: chatUser.userKey,
         nickname: chatUser.User.nickname,
+        point: chatUser.User.point,
         time: newChat.createdAt, // (9시간 차이나는 시간)
       };
 
@@ -126,6 +131,7 @@ module.exports = (server, app) => {
     // 채팅방의 사람들 정보 주기
     socket.on('showUsers', async (data) => {
       let { roomKey, userKey } = data;
+      const room = await Room.findOne({ where: roomKey });
       const allUsers = await Participant.findAll({
         where: { roomKey },
         include: [{ model: User, attributes: ['nickname', 'point'] }],
@@ -138,192 +144,23 @@ module.exports = (server, app) => {
           point: e.User.point,
         };
       });
-      io.to(userKey).emit('showUsers', param);
+      io.to(room.title).emit('receive', param);
     });
 
     // 추천하기
     socket.on('recommend', async (data) => {
+      console.log('recommend 받기 성공');
+      console.log(data);
       // 여기서 유저키는 추천 받은 사람의 유저키
       let { roomKey, userKey } = data;
+      const room = await Room.findOne({ where: roomKey });
       const recommendUser = await User.findOne({ where: { userKey } });
       await recommendUser.update({ point: recommendUser.point + 3 });
+      // console.log(recommendUser);
 
-      let param = { msg: '호스트로 부터 추천을 받았습니다.' };
-      io.to(userKey).emit('recommend', param);
+      let param = { userKey: recommendUser.userKey };
+      console.log(param);
+      io.to(room.title).emit('recommend', param);
     });
   });
 };
-
-// ------------------채팅 소캣 부분만 한번 만져봄(여기까지) ----------------
-
-// module.exports = (server, app) => {
-//   const io = require('socket.io')(server, {
-//     cors: {
-//       origin: ['http://', '*', 'https://'],
-//       credentials: true,
-//     },
-//   });
-//   app.set('io', io);
-//   io.on('connection', (socket) => {
-//     //서버에 연결되면 아래 코드 실행
-//     //채팅방 접속시
-//     socket.on('join-room', async (roomId, userId) => {
-//       const enterRoom = await Room.findOne({
-//         where: { rommId: roomId },
-//       });
-//       const enterUser = await users.findOne({
-//         where: { userId: userId },
-//       });
-//       const entermsg = await Chat.findOne({
-//         where: {
-//           roomId: roomId,
-//           chat: enterUser.dataValues.nickname + '님이 입장하셨습니다.',
-//         },
-//       });
-//       socket.join(enterRoom.title);
-//       if (!entermsg) {
-//         await Chat.create({
-//           userNickname: 'system',
-//           userId: 'system',
-//           roomId: roomId,
-//           chat: enterUser.dataValues.nickname + '님이 입장하셨습니다.',
-//           userImg: null,
-//         });
-//       }
-
-//       // 기존에없는 새로운 유저가 접속하면 정보를 저장하고 room정보 업데이트
-//       if (
-//         enterRoom.dataValues.hostId != Number(userId) &&
-//         !enterRoom.datavalues.roomUserId.includes(Number(userId))
-//       ) {
-//         let UserImageURL = await images.findOne({
-//           attributes: ['userImageURL'],
-//           where: { userId: userId },
-//         });
-//         enterRoom.roomUserId.push(Number(userId));
-//         enterRoom.roomUserNickname.push(enterUser.dataValues.nickname);
-//         let roomUserNum = enterRoom.roomUserNickname.length + 1;
-//         enterRoom.roomUserImg.push(UserImageURL.userImageURL);
-
-//         await Room.update(
-//           {
-//             roomUserId: enterRoom.dataValues.roomUserId,
-//             roomUserImg: enterRoom.dataValues.roomUserImg,
-//             roomUserNickname: enterRoom.dataValues.roomUserNickname,
-//             roomUserNum: roomUserNum,
-//           },
-//           { where: { roomId: roomId } }
-//         );
-//       }
-//       socket.to(enterRoom.title).emit('welcome', enterUser.dataValues.nickname);
-//     });
-
-//     //채팅 정보
-//     socket.on('chat_message', async (messageChat, userId, roomId) => {
-//       const chatUser = await users.findOne({ where: { userId: userId } });
-//       const userImg = await images.findOne({ where: { userId: userId } });
-//       const room = await Room.findOne({ where: { roomId: roomId } });
-//       await Chat.create({
-//         userNickname: chatUser.dataValues.nickname,
-//         useId: userId,
-//         roomId: roomId,
-//         chat: messageChat,
-//         userImg: userImg.dataValues.userImageURL,
-//       });
-
-//       socket
-//         .to(room.title)
-//         .emit(
-//           'message',
-//           messageChat,
-//           chatUser.dataValues.nickname,
-//           userImg.dataValues.userImageURL,
-//           roomId
-//         );
-//     });
-
-//     //채팅방 나가기
-//     socket.on('leave-room', async (roomId, userId) => {
-//       const leaveRoom = await Room.findOne({
-//         where: { roomId: roomId },
-//       });
-//       const leaveUser = await users.findOne({ where: { userId: userId } });
-//       const userImageURL = await images.findOne({ where: { userId: userId } });
-//       const leavemsg = await Chat.findOne({
-//         where: {
-//           roomId: roomId,
-//           chat: leaveUser.dataValues.nickname + '님이 퇴장하셨습니다.',
-//         },
-//       });
-
-//       if (!leavemsg) {
-//         await Chat.create({
-//           userNickname: 'system',
-//           userId: 'system',
-//           roomId: roomId,
-//           chat: leaveUser.dataValues.nickname + '님이 퇴장하셨습니다.',
-//           userImg: null,
-//         });
-//       }
-
-//       socket.to(leaveRoom.title).emit('bye', leaveUser.dataValues.nickname);
-
-//       if (
-//         leaveRoom.dataValues.hostId == userId &&
-//         leaveRoom.dataValues.roomUserId.length === 0
-//       ) {
-//         //유저가 0명이면
-//         await Room.destory({ whre: { roomId: roomId } });
-//       } else if (leaveRoom.dataValues.hostId === userId) {
-//         //host만 남아있으면 host정보만 남긴다
-
-//         let roomUsersId = leaveRoom.dataValues.roomUserId.filter(
-//           (roomUsersId) => roomUsersId !== leaveRoom.dataValues.roomUserId[0]
-//         );
-//         let roomUsersNickname = leaveRoom.dataValues.roomUserNickname.filter(
-//           (roomUsersNickname) =>
-//             roomUsersNickname !== leaveRoom.dataValues.roomUserNickname[0]
-//         );
-//         let roomUsersImg = leaveRoom.dataValues.roomUserImg.filter(
-//           (roomUsersImg) => roomUsersImg !== leaveRoom.dataValues.roomUserImg[0]
-//         );
-//         let roomUserNum = roomUsersId.length + 1;
-
-//         await Room.update(
-//           {
-//             hostId: leaveRoom.dataValues.roomUserId[0],
-//             hostNickname: leaveRoom.dataValues.roomUserNickname[0],
-//             hostImg: leaveRoom.dataValues.roomUserImg[0],
-//             roomUserId: roomUsersId,
-//             roomUserNickname: roomUsersNickname,
-//             roomUserImg: roomUsersImg,
-//             roomUserNum: roomUserNum,
-//           },
-//           { where: { roomId: roomId } }
-//         );
-//       } else {
-//         // user가 남았다면
-//         let roomUsersId = leaveRoom.dataValues.roomUserId.filter(
-//           (roomUsersId) => roomUsersId !== Number(userId)
-//         );
-//         let roomUsersNickname = leaveRoom.dataValues.roomUserNickname.filter(
-//           (roomUsersNickname) =>
-//             roomUsersNickname !== leaveUser.dataValues.nickname
-//         );
-//         let roomUsersImg = leaveRoom.dataValues.roomUserImg.filter(
-//           (roomUsersImg) => roomUsersImg !== userImageURL.userImageURL
-//         );
-//         let roomUserNum = roomUsersId.length + 1;
-//         await Room.update(
-//           {
-//             roomUserId: roomUsersId,
-//             roomUserNickname: roomUsersNickname,
-//             roomUserImg: roomUsersImg,
-//             roomUserNum: roomUserNum,
-//           },
-//           { where: { roomId: roomId } }
-//         );
-//       }
-//     });
-//   });
-// };

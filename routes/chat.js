@@ -97,12 +97,23 @@ router.get('/search', async (req, res, next) => {
 // 채팅방 전체 조회
 router.get('/', async (req, res, next) => {
   try {
+    let offset = 0;
+    const limit = 5;
+    const pageNum = req.query.page;
+    console.log(pageNum);
+
+    if (pageNum > 1) {
+      offset = limit * (pageNum - 1); //5 10
+    }
+
     const allRoom = await Room.findAll({
       include: [
         { model: User, attributes: ['nickname'] },
         { model: Participant, attributes: ['userKey'] },
       ],
       order: [['roomKey', 'DESC']],
+      offset: offset,
+      limit: limit,
     });
 
     return res.status(200).json({
@@ -245,7 +256,7 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
     const loadChat = await Chat.findAll({
       where: { roomKey },
       attributes: ['chat', 'userKey', 'createdAt'],
-      include: [{ model: User, attributes: ['nickname'] }],
+      include: [{ model: User, attributes: ['nickname', 'point'] }],
     });
 
     return res.status(200).json({

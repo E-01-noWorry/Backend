@@ -51,7 +51,7 @@ router.post(
         category,
         image: location,
         deadLine,
-        options: options.split(','),
+        options: options.toString().split(','),
         userKey,
         compeltion: false,
       });
@@ -235,7 +235,7 @@ router.get('/category/:category', async (req, res, next) => {
           title: c.title,
           category: c.category,
           deadLine: c.deadLine,
-          completion: e.compeltion,
+          completion: c.compeltion,
           nickname: c.User.nickname,
           options: c.options,
           total: c.Votes.length,
@@ -253,7 +253,7 @@ router.get('/:selectKey', async (req, res, next) => {
     const { selectKey } = req.params;
     const data = await Select.findOne({
       where: { selectKey },
-      include: [{ model: User, attributes: ['nickname'] }],
+      include: [{ model: User, attributes: ['nickname', 'point'] }],
     });
 
     if (!data) {
@@ -273,6 +273,7 @@ router.get('/:selectKey', async (req, res, next) => {
         completion: data.compeltion,
         userKey: data.userKey,
         nickname: data.User.nickname,
+        point: data.User.point,
       },
     });
   } catch (err) {

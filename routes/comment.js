@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Select, User, Comment } = require('../models');
+const { Select, User, Comment, Recomment } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const ErrorCustom = require('../advice/errorCustom');
 
@@ -52,6 +52,15 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
 // 해당 게시물 댓글 모두 조회
 router.get('/:selectKey', async (req, res, next) => {
   try {
+    let offset = 0;
+    const limit = 5;
+    const pageNum = req.query.page;
+    console.log(pageNum);
+
+    if (pageNum > 1) {
+      offset = limit * (pageNum - 1); //5 10
+    }
+
     const { selectKey } = req.params;
 
     const data = await Select.findOne({
@@ -64,8 +73,16 @@ router.get('/:selectKey', async (req, res, next) => {
 
     const datas = await Comment.findAll({
       where: { selectKey },
-      include: [{ model: User, attributes: ['nickname'] }],
+      include: [
+        { model: User, attributes: ['nickname', 'point'] },
+        {
+          model: Recomment,
+          include: [{ model: User, attributes: ['nickname', 'point'] }],
+        },
+      ],
       order: [['commentKey', 'ASC']],
+      offset: offset,
+      limit: limit,
     });
 
     return res.status(200).json({
@@ -77,7 +94,9 @@ router.get('/:selectKey', async (req, res, next) => {
           comment: e.comment,
           nickname: e.User.nickname,
           userKey: e.userKey,
+          ponit: e.User.point,
           time: e.updatedAt,
+          recomment: e.Recomments,
         };
       }),
     });
@@ -166,43 +185,5 @@ router.delete('/:commentKey', authMiddleware, async (req, res, next) => {
     next(err);
   }
 });
-
-
-// 대댓글 작성
-router.post('/:selectKey/:commentKey', authMiddleware, async (req, res, next) => {
-  try {
-    const { userKey, nickname } = res.locals.user;
-    const { selectKey } = req.params.selectKey;
-    const { commentKey } = req.params.commentKey;
-    const { comment } = req.body;
-    if (comment === '') {
-      throw new ErrorCustom(400, '대댓글을 입력해주세요.');
-    }
-
-    const selectData = await Select.findOne({ where: { selectKey } });
-    const commentData = await Comment.findOne({ where: { commentKey } });
-
-    if(!selectData) {
-      throw new ErrorCustom(400, '해당 글이 존재하지 않습니다.'); //게시글 확인
-    }
-
-    if(!commentData) {
-      throw new ErrorCustom(400, '해당 댓글이 존재하지 않습니다.'); //댓글 확인
-    }
-
-    //먼저 할건 commentKey가 부모인지 아닌지 확인 부모면 1 아니면 0 값을 가지고 있다
-    const parent = await Comment.findOne({ where: { parent : commentKey.parent }}); //문법 맞는지 확인
-
-    if(parent === 0) { //부모가 아니니까 이제 부모로 만들어줘야겠지
-      parent = 1;
-    }
-
-
-
-  }catch(error) {
-
-  }
-});
-
 
 module.exports = router;
