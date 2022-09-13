@@ -126,6 +126,8 @@ module.exports = (server, app) => {
     // 채팅방의 사람들 정보 주기
     socket.on('showUsers', async (data) => {
       console.log('showUsers 받기 성공');
+      console.log(data);
+      
       let { roomKey, userKey } = data;
       const allUsers = await Participant.findAll({
         where: { roomKey },
@@ -147,12 +149,15 @@ module.exports = (server, app) => {
     // 추천하기
     socket.on('recommend', async (data) => {
       console.log('recommend 받기 성공');
+      console.log(data);
       // 여기서 유저키는 추천 받은 사람의 유저키
       let { roomKey, userKey } = data;
       const recommendUser = await User.findOne({ where: { userKey } });
       await recommendUser.update({ point: recommendUser.point + 3 });
+      console.log(recommendUser);
 
       let param = { msg: '호스트로 부터 추천을 받았습니다.' };
+      console.log(param);
       io.to(userKey).emit('recommend', param);
     });
   });
