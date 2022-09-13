@@ -4,6 +4,7 @@ const socket = require('socket.io');
 const { Room, Chat, User, Participant } = require('./models');
 // require('socket.io-client')('https://localhost:3000');
 // const server = http.createServer(app);
+const dayjs = require('dayjs');
 
 // ------------------채팅 소캣 부분만 한번 만져봄(여기서부터) ----------------
 
@@ -64,10 +65,13 @@ module.exports = (server, app) => {
     // 채팅 받아서 저장하고, 그 채팅 보내서 보여주기
     socket.on('chat_message', async (data) => {
       let { message, roomKey, userKey } = data;
+      const now = dayjs();
+
       const newChat = await Chat.create({
         roomKey,
         userKey,
         chat: message,
+        createdAt: now.format()
       });
       const chatUser = await Participant.findOne({
         where: { roomKey, userKey },
