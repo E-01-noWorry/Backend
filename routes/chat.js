@@ -48,7 +48,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
   }
 });
 
-//채팅방 검색은 title, hashtag 정보 둘 중하나라도 있으면 검색된다
+// 채팅방 검색은 title, hashtag 정보 둘 중하나라도 있으면 검색된다
 router.get('/search', async (req, res, next) => {
   try {
     let offset = 0;
@@ -300,32 +300,5 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
     next(err);
   }
 });
-
-// //룸 해쉬태그 검색, 해쉬태그를 클릭하면 해당 해쉬태그가 포함된 채팅방만 보여줌
-// router.get('/search/hashTag', async (req, res) => {
-//   const queryData = req.query;
-//   const rooms = await Room.findAll({
-//     where: {
-//       hashTag: { [Op.substring]: queryData.search },
-//     },
-//     order: [['cretedAt', 'DESC']],
-//   });
-//   res.status(200).send({ msg: '룸 해쉬태그 검색완료', rooms });
-// });
-
-//룸 채팅 불러오기
-// router.get('/chat/:roomId', async (req, res) => {
-//   try {
-//     const { postId } = req.params;
-
-//     const Chats = await Chats.findAll({
-//       where: { postId: postId },
-//       order: [['cretedAt', 'DESC']],
-//     });
-//     res.status(200).send({ Chats, msg: '채팅을 불러왔습니다' });
-//   } catch {
-//     res.status(400).send({ msg: '채팅을 불러오지 못했습니다.' });
-//   }
-// });
 
 module.exports = router;

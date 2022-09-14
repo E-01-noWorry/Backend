@@ -5,7 +5,7 @@ const { User } = require('../models');
 
 module.exports = () => {
   passport.use(
-    new KaKaoStrategy(//KaKaoStrategy에서 인증전략 시행(카카오 서버에서 보내는 계정 정보가 들어있음.)
+    new KaKaoStrategy( //KaKaoStrategy에서 인증전략 시행(카카오 서버에서 보내는 계정 정보가 들어있음.)
       {
         clientID: process.env.CLIENT_ID, // 카카오 로그인에서 발급받은 REST API 키
         callbackURL: process.env.CALLBACK_URL, // 카카오 로그인 Redirect URI 경로
@@ -16,26 +16,29 @@ module.exports = () => {
       // accessToken, refreshToken : 로그인 성공 후 카카오가 보내준 토큰
       // profile: 카카오가 보내준 유저 정보. profile의 정보를 바탕으로 회원가입
       async (accessToken, refreshToken, profile, done) => {
-
         try {
-          const exUser = await User.findOne({//db에서 가입이력 조사
-              // 카카오 플랫폼에서 로그인 했고 & snsId필드에 카카오 아이디가 일치할경우
-          where : {snsId: profile.id, provider: 'kakao'}
-        })
-            // 이미 가입된 카카오 프로필이면 성공
-        if (exUser) {
-          done(null, exUser);
-          console.log(exUser, '카카오 로그인 성공!')
-        } else {
-          const newUser = await User.create({
-            nickname: profile.displayName,
-            snsId: profile.id,
-            provider: 'kakao'
-          })
-          done(null, newUser)
-        }} catch(error) {
-          done(error)
+          const exUser = await User.findOne({
+            //db에서 가입이력 조사
+            // 카카오 플랫폼에서 로그인 했고 & snsId필드에 카카오 아이디가 일치할경우
+            where: { snsId: profile.id, provider: 'kakao' },
+          });
+          // 이미 가입된 카카오 프로필이면 성공
+          if (exUser) {
+            done(null, exUser);
+            console.log(exUser, '카카오 로그인 성공!');
+          } else {
+            const newUser = await User.create({
+              nickname: profile.displayName,
+              snsId: profile.id,
+              provider: 'kakao',
+              point: 0,
+            });
+            done(null, newUser);
+          }
+        } catch (error) {
+          done(error);
         }
       }
-  ));
+    )
+  );
 };
