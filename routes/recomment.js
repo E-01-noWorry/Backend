@@ -82,7 +82,7 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
         msg: '대댓글 수정 성공',
         result: {
           recommentKey: recommentKey,
-          recomment,
+          recomment: recomment,
           nickname: nickname,
           userKey,
           updatedat: updateComment.updatedAt,
