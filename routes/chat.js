@@ -74,8 +74,8 @@ router.get('/search', async (req, res, next) => {
         { model: Participant, attributes: ['userKey'] },
       ],
       order: [['roomKey', 'DESC']],
-      offset:offset,
-      limit:limit,
+      offset: offset,
+      limit: limit,
     });
 
     if (!searchWord) {
@@ -266,8 +266,8 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
     });
     const now = dayjs();
     let recreatedAt = now.format();
-    console.log(recreatedAt, '확인')
-    console.log(typeof recreatedAt, '확인')
+    console.log(recreatedAt, '확인');
+    console.log(typeof recreatedAt, '확인');
 
     const loadChats = await Chat.findAll({
       where: { roomKey },
@@ -288,12 +288,16 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
         userKey: room.userKey,
       },
       Participants: people,
-      loadChat:loadChats.map((l) => {
+      loadChat: loadChats.map((l) => {
         return {
-          chat:l.chat,
-          userKey:l.userKey,
-          createdAt:recreatedAt
-        }
+          chat: l.chat,
+          userKey: l.userKey,
+          createdAt: recreatedAt,
+          User: {
+            nickname: l.User.nickname,
+            point: l.User.point,
+          },
+        };
       }),
     });
   } catch (err) {
