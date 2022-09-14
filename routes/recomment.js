@@ -38,7 +38,7 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
         recomment: newComment.comment,
         nickname: nickname,
         userKey,
-        updatedat: newComment.updatedAt
+        updateat: newComment.updatedAt
       },
     });
   } catch (err) {
@@ -85,7 +85,7 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
           recomment: recomment,
           nickname: nickname,
           userKey,
-          updatedat: updateComment.updatedAt,
+          updateat: updateComment.updatedAt,
         },
       });
     }
