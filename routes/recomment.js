@@ -34,11 +34,12 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
       ok: true,
       msg: '대댓글 작성 성공',
       result: {
-        commentKey: commentKey,
+        recommentKey: newComment.recommentKey,
+        commentKey: data.commentKey,
         recomment: newComment.comment,
         nickname: nickname,
         userKey,
-        updatedAt: newComment.updatedAt
+        updatedat: newComment.updatedAt
       },
     });
   } catch (err) {
@@ -46,7 +47,7 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
   }
 });
 
-// 해당 댓글 수정
+// 해당 대댓글 수정
 router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
@@ -61,6 +62,11 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
       where: { recommentKey },
     });
 
+    const commentdata = await Recomment.findOne({
+      where: { commentKey : data.commentKey },
+    });
+
+
     if (!data) {
       throw new ErrorCustom(400, '해당 대댓글이 존재하지 않습니다.');
     }
@@ -73,6 +79,7 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
         { where: { recommentKey, userKey } }
       );
 
+
       const updateComment = await Recomment.findOne({
         where: { recommentKey },
       });
@@ -81,11 +88,12 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
         ok: true,
         msg: '대댓글 수정 성공',
         result: {
-          recommentKey: recommentKey,
+          recommentKey: updateComment.recommentKey,
+          commentKey: commentdata.commentKey,
           recomment: recomment,
           nickname: nickname,
           userKey,
-          updatedAt: updateComment.updatedAt,
+          updateat: updateComment.updatedAt,
         },
       });
     }
