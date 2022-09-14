@@ -38,7 +38,7 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
         recomment: newComment.comment,
         nickname: nickname,
         userKey,
-        time: newComment.updatedAt
+        updatedAt: newComment.updatedAt
       },
     });
   } catch (err) {
@@ -81,11 +81,11 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
         ok: true,
         msg: '대댓글 수정 성공',
         result: {
-          recommentKey: data.recommentKey,
+          recommentKey: recommentKey,
           recomment,
           nickname: nickname,
           userKey,
-          time: updateComment.updatedAt,
+          updatedAt: updateComment.updatedAt,
         },
       });
     }
