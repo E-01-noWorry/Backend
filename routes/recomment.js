@@ -34,10 +34,11 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
       ok: true,
       msg: '대댓글 작성 성공',
       result: {
-        recommentKey: newComment.recommentKey,
+        commentKey: commentKey,
         recomment: newComment.comment,
         nickname: nickname,
         userKey,
+        time: newComment.updatedAt
       },
     });
   } catch (err) {
