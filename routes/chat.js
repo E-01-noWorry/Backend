@@ -292,7 +292,7 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
         return {
           chat: l.chat,
           userKey: l.userKey,
-          createdAt: recreatedAt,
+          createdAt: dayjs(l.createdAt).format(),
           User: {
             nickname: l.User.nickname,
             point: l.User.point,
