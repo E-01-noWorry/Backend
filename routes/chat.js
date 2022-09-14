@@ -264,10 +264,6 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
     const people = room.Participants.map((e) => {
       return { userKey: e.userKey, nickname: e.User.nickname };
     });
-    const now = dayjs();
-    let recreatedAt = now.format();
-    console.log(recreatedAt, '확인');
-    console.log(typeof recreatedAt, '확인');
 
     const loadChats = await Chat.findAll({
       where: { roomKey },
