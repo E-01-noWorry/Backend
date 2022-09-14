@@ -4,6 +4,7 @@ const authMiddleware = require('../middlewares/authMiddlware');
 const { Room, Chat, User, Participant } = require('../models');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
+const dayjs = require('dayjs');
 
 // 채팅방 생성
 router.post('/', authMiddleware, async (req, res, next) => {
@@ -50,6 +51,15 @@ router.post('/', authMiddleware, async (req, res, next) => {
 // 채팅방 검색은 title, hashtag 정보 둘 중하나라도 있으면 검색된다
 router.get('/search', async (req, res, next) => {
   try {
+    let offset = 0;
+    const limit = 5;
+    const pageNum = req.query.page;
+    console.log(pageNum);
+
+    if (pageNum > 1) {
+      offset = limit * (pageNum - 1); //5 10
+    }
+
     const { searchWord } = req.query;
 
     const searchResult = await Room.findAll({
@@ -64,6 +74,8 @@ router.get('/search', async (req, res, next) => {
         { model: Participant, attributes: ['userKey'] },
       ],
       order: [['roomKey', 'DESC']],
+      offset:offset,
+      limit:limit,
     });
 
     if (!searchWord) {
@@ -252,8 +264,12 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
     const people = room.Participants.map((e) => {
       return { userKey: e.userKey, nickname: e.User.nickname };
     });
+    const now = dayjs();
+    let recreatedAt = now.format();
+    console.log(recreatedAt, '확인')
+    console.log(typeof recreatedAt, '확인')
 
-    const loadChat = await Chat.findAll({
+    const loadChats = await Chat.findAll({
       where: { roomKey },
       attributes: ['chat', 'userKey', 'createdAt'],
       include: [{ model: User, attributes: ['nickname', 'point'] }],
@@ -272,7 +288,13 @@ router.get('/:roomKey', authMiddleware, async (req, res, next) => {
         userKey: room.userKey,
       },
       Participants: people,
-      loadChat,
+      loadChat:loadChats.map((l) => {
+        return {
+          chat:l.chat,
+          userKey:l.userKey,
+          createdAt:recreatedAt
+        }
+      }),
     });
   } catch (err) {
     next(err);
