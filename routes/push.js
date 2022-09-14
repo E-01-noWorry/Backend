@@ -12,7 +12,8 @@ const router = express.Router();
 router.get('/push', async (req, res, next) => {
   try {
     let target_token =
-      'c5s2m7Mf4Zk:APA91bEfxFDvDUeyLmsyaLwGbF49lzmpG0a7IulSl7el5-4itV7yy5dbWuTYmA5OzpNpN0N-xgVmIwQzYy21tIgDL377wWjD4lGS_TzOk1ody93HIFvn11m9a1XKGJ-svtFWqeQJE5Zf';
+      'cU2dRIWtxoo:APA91bGoifo8WSi25_NbTWCYmbLJtWzdRSwtlQtXoRhYGFNGAvS1yG73teSoOY3Vy2mBupbTWPV5svPvf2g-9XwRS4cu9rWUvcJJ5GJRMs4Hd3f9Mxz_cpJ8bWNiS7PR-GK-JwhFefBu'; // 크롬
+    // 'c5s2m7Mf4Zk:APA91bEfxFDvDUeyLmsyaLwGbF49lzmpG0a7IulSl7el5-4itV7yy5dbWuTYmA5OzpNpN0N-xgVmIwQzYy21tIgDL377wWjD4lGS_TzOk1ody93HIFvn11m9a1XKGJ-svtFWqeQJE5Zf'; // 엣지
 
     let message = {
       data: {
