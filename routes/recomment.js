@@ -34,10 +34,11 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
       ok: true,
       msg: '대댓글 작성 성공',
       result: {
-        recommentKey: newComment.recommentKey,
+        commentKey: commentKey,
         recomment: newComment.comment,
         nickname: nickname,
         userKey,
+        time: newComment.updatedAt
       },
     });
   } catch (err) {
@@ -50,7 +51,7 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { recommentKey } = req.params;
-    const { comment } = req.body;
+    const { recomment } = req.body;
 
     if (recomment === '') {
       throw new ErrorCustom(400, '대댓글을 입력해주세요.');
@@ -67,7 +68,10 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
     if (userKey !== data.userKey) {
       throw new ErrorCustom(400, '작성자가 다릅니다.');
     } else {
-      await Recomment.update({ comment }, { where: { recommentKey, userKey } });
+      await Recomment.update(
+        { comment: recomment },
+        { where: { recommentKey, userKey } }
+      );
 
       const updateComment = await Recomment.findOne({
         where: { recommentKey },
@@ -78,7 +82,7 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
         msg: '대댓글 수정 성공',
         result: {
           recommentKey: data.recommentKey,
-          comment: comment,
+          recomment,
           nickname: nickname,
           userKey,
           time: updateComment.updatedAt,
@@ -112,7 +116,7 @@ router.delete('/:recommentKey', authMiddleware, async (req, res, next) => {
         msg: '대댓글 삭제 성공',
         result: {
           recommentKey: data.recommentKey,
-          comment: data.comment,
+          recomment: data.comment,
           nickname: nickname,
           userKey,
         },
@@ -122,6 +126,5 @@ router.delete('/:recommentKey', authMiddleware, async (req, res, next) => {
     next(err);
   }
 });
-
 
 module.exports = router;
