@@ -27,6 +27,7 @@ module.exports = () => {
               snsId: profile.id,
               nickname: profile.displayName,
               provider: 'google',
+              point: 0,
             });
             done(null, newUSer);
           }
