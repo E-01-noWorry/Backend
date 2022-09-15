@@ -64,7 +64,8 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
       const total = totalcount(datas);
 
       function rate(i) {
-        return (Math.round((count[i] / total) * 10000) / 10000) * 100;
+      const num = (count[i] / total) * 100;
+      return Math.round(num * 100) / 100;
       }
 
       //선택글 투표시 +1점씩 포인트 지급
@@ -111,7 +112,8 @@ router.get('/:selectKey', isLoginMiddlware, async (req, res, next) => {
     const total = totalcount(datas);
 
     function rate(i) {
-      return (Math.round((count[i] / total) * 10000) / 10000) * 100;
+      const num = (count[i] / total) * 100;
+      return Math.round(num * 100) / 100;
     }
 
     // 글이 마감되었는지 확인 마감되면 바로 투표결과 보여줌
