@@ -131,6 +131,7 @@ router.delete('/:recommentKey', authMiddleware, async (req, res, next) => {
         ok: true,
         msg: '대댓글 삭제 성공',
         result: {
+          commentKey: data.commentKey,
           recommentKey: data.recommentKey,
           comment: data.comment,
           nickname: nickname,
