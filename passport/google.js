@@ -14,7 +14,6 @@ module.exports = () => {
         passReqToCallback: true,
       },
       async (request, accessToken, refreshToken, profile, done) => {
-        console.log(profile, '프로필 확인')
         try {
           const exUser = await User.findOne({
             where: {snsId: profile.id,
