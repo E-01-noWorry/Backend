@@ -14,11 +14,9 @@ module.exports = () => {
         passReqToCallback: true,
       },
       async (request, accessToken, refreshToken, profile, done) => {
-        console.log(profile, '프로필 확인')
         try {
           const exUser = await User.findOne({
             where: {snsId: profile.id,
-              nickname:profile.displayName,
             provider: 'google',}
           });
           // 이미 가입된 구글 프로필이면 성공
