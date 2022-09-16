@@ -27,10 +27,4 @@ module.exports = {
     host: '127.0.0.1',
     dialect: 'mysql',
   },
-  apps: [{
-    name: 'app',
-    script: '../app.js',
-    instances: 4,
-    exec_mode: 'cluster'
-    }]
 };
