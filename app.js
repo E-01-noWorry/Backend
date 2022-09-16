@@ -64,7 +64,7 @@ app.get('/', (req, res) => {
 app.use(errorHandler);
 
 // const server = app.listen(port, () => {
-//   console.log(port, '포트로 서버가 열렸어요!!');
+//   console.log(port, '포트로 서버가 열렸어요!');
 // });
 
 //프론트 서버 오픈시 같이 오픈
@@ -84,7 +84,7 @@ if (process.env.NODE_ENV == 'production') {
     const server = https.createServer(options, app).listen(443, () => {
       console.log('포트로 https 서버가 열렸어요!');
     });
-    return server;
+    webSocket(server, app);
   } catch (err) {
     console.log('HTTPS 서버가 실행되지 않습니다.');
     console.log(err);
@@ -93,9 +93,9 @@ if (process.env.NODE_ENV == 'production') {
   const server = app.listen(port, () => {
     console.log(port, '포트로 http 서버가 열렸어요!');
   });
-  return server;
+  webSocket(server, app);
 }
 
-webSocket(server, app);
+// webSocket(server, app);
 
 module.exports = app;
