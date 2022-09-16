@@ -19,12 +19,12 @@ const port = process.env.PORT;
 
 const app = express();
 
-const options = {
-  ca: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain.pem'),
-  key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
-};
-app.use(express.static('public'));
+// const options = {
+//   ca: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain.pem'),
+//   key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
+//   cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
+// };
+// app.use(express.static('public'));
 
 app.use(morganMiddleware);
 
@@ -59,7 +59,7 @@ app.use(passport.session());
 
 app.use('/api', Router);
 app.get('/', (req, res) => {
-  res.status(200).json({ massage: '연동 잘 됨2.' });
+  res.status(200).json({ massage: '연동 잘 됨.' });
 });
 app.use(errorHandler);
 
@@ -68,8 +68,33 @@ app.use(errorHandler);
 // });
 
 //프론트 서버 오픈시 같이 오픈
-http.createServer(app).listen(3000);
-const server = https.createServer(options, app).listen(443);
+// http.createServer(app).listen(3000);
+// const server = https.createServer(options, app).listen(443);
+
+if (process.env.NODE_ENV == 'production') {
+  try {
+    const options = {
+      ca: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain.pem'),
+      key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
+      cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
+    };
+    app.use(express.static('public'));
+
+    http.createServer(app).listen(3000);
+    const server = https.createServer(options, app).listen(443, () => {
+      console.log('포트로 https 서버가 열렸어요!');
+    });
+    return server;
+  } catch (err) {
+    console.log('HTTPS 서버가 실행되지 않습니다.');
+    console.log(err);
+  }
+} else {
+  const server = app.listen(port, () => {
+    console.log(port, '포트로 http 서버가 열렸어요!');
+  });
+  return server;
+}
 
 webSocket(server, app);
 
