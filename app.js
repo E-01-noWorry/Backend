@@ -59,7 +59,7 @@ app.use(passport.session());
 
 app.use('/api', Router);
 app.get('/', (req, res) => {
-  res.status(200).json({ massage: '연동 잘 됨.' });
+  res.status(200).json({ massage: '연동 잘 됨2.' });
 });
 app.use(errorHandler);
 
