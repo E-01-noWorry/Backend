@@ -64,7 +64,7 @@ app.get('/', (req, res) => {
 app.use(errorHandler);
 
 // const server = app.listen(port, () => {
-//   console.log(port, '포트로 서버가 열렸어요!');
+//   console.log(port, '포트로 서버가 열렸어요!!');
 // });
 
 //프론트 서버 오픈시 같이 오픈
