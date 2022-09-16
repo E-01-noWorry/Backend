@@ -31,7 +31,7 @@ router.post(
       const date = new Date();
       const deadLine = date.setHours(date.getHours() + parseInt(time));
 
-      //   생성 1시간 쿨타임 구현
+      //   생성 1시간 쿨타임 구현중
       // const cooltime = date.setHours(date.getHours() - 2); // 왜 2시간인지는 모르겠네;; 배포하면 또 달라질듯
 
       // const oneHour = await Select.findOne({
@@ -176,17 +176,18 @@ router.get('/filter', async (req, res, next) => {
     const datas = await Select.findAll({
       attributes: {
         include: [
-          [Sequelize.fn('COUNT', Sequelize.col('Votes.selectKey')), 'total']
-        ]
+          [Sequelize.fn('COUNT', Sequelize.col('Votes.selectKey')), 'total'],
+        ],
       },
       include: [
         { model: User, attributes: ['nickname'] },
         {
-        attributes: [],
-        model:Vote,
-        duplicating: false,
-        required: false
-      }],
+          attributes: [],
+          model: Vote,
+          duplicating: false,
+          required: false,
+        },
+      ],
       group: ['Select.selectKey'],
       order: [['total', 'DESC']],
       offset: offset,
@@ -194,7 +195,7 @@ router.get('/filter', async (req, res, next) => {
     });
 
     const popular = datas.map((e) => ({
-      total:e.dataValues.total,
+      total: e.dataValues.total,
       selectKey: e.selectKey,
       title: e.title,
       category: e.category,
