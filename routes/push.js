@@ -1,5 +1,4 @@
 const admin = require('firebase-admin');
-
 let serAccount = require('../config/firebase');
 
 admin.initializeApp({
@@ -8,13 +7,30 @@ admin.initializeApp({
 
 const express = require('express');
 const router = express.Router();
+const { User } = require('../models');
+const authMiddleware = require('../middlewares/authMiddlware');
 
+// 토큰 받아와서 저장
+router.post('/', authMiddleware, async (req, res, next) => {
+  try {
+    const { userKey } = res.locals.user;
+    const { deviceToken } = req.body;
+
+    await User.update({ deviceToken }, { where: { userKey } });
+
+    return res.status(200).json({
+      ok: true,
+      msg: '토큰 저장 성공',
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// 푸시 알림 보내기 임시
 router.get('/push', async (req, res, next) => {
   try {
-    let target_token =
-      'dS4qc2yHFas:APA91bGVpW3PYrF5_X4gAx7nFYq1G0vPzrjl1kj87A9J-aipdIO1XSniB73JQDFZur8ybWos_v5tT2JDsKfu6gG0oXAM7YZz-K4I4e3uk1sF_Y7Ea3RHT_e9aY1boHSbU8CCBtPai5II'; // 크롬
-    // 'c5s2m7Mf4Zk:APA91bEfxFDvDUeyLmsyaLwGbF49lzmpG0a7IulSl7el5-4itV7yy5dbWuTYmA5OzpNpN0N-xgVmIwQzYy21tIgDL377wWjD4lGS_TzOk1ody93HIFvn11m9a1XKGJ-svtFWqeQJE5Zf'; // 엣지
-    // 'fRv_0hmBtN4:APA91bGsfIDyyS1Une2sklZ_sXuYZJgeSVBSfWASo1U5woiXKXFAuDuopJk_YC_n1yItulHKiNJ-o3_K7XiwOX0H__P-mGI9IR4s2iD06uEoi7EKd19h3dWq6pemGxNPTxodJcZbi4X8'; // 맥북 크롬
+    let target_token = '';
 
     let message = {
       notification: {

@@ -54,8 +54,6 @@ app.use(passport.session());
 
 app.use('/api', Router);
 //
-const pushRouter = require('./routes/push');
-app.use('/', pushRouter);
 // app.get('/', (req, res) => {
 //   res.status(200).json({ massage: '연동 잘 됨.' });
 // });
