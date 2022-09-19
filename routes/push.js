@@ -1,6 +1,6 @@
 const admin = require('firebase-admin');
 
-let serAccount = require('../config/gomgom-5f801-firebase-adminsdk-qxfxg-50e5c1bebf.json');
+let serAccount = require('../config/firebase');
 
 admin.initializeApp({
   credential: admin.credential.cert(serAccount),
@@ -14,6 +14,7 @@ router.get('/push', async (req, res, next) => {
     let target_token =
       'dS4qc2yHFas:APA91bGVpW3PYrF5_X4gAx7nFYq1G0vPzrjl1kj87A9J-aipdIO1XSniB73JQDFZur8ybWos_v5tT2JDsKfu6gG0oXAM7YZz-K4I4e3uk1sF_Y7Ea3RHT_e9aY1boHSbU8CCBtPai5II'; // 크롬
     // 'c5s2m7Mf4Zk:APA91bEfxFDvDUeyLmsyaLwGbF49lzmpG0a7IulSl7el5-4itV7yy5dbWuTYmA5OzpNpN0N-xgVmIwQzYy21tIgDL377wWjD4lGS_TzOk1ody93HIFvn11m9a1XKGJ-svtFWqeQJE5Zf'; // 엣지
+    // 'fRv_0hmBtN4:APA91bGsfIDyyS1Une2sklZ_sXuYZJgeSVBSfWASo1U5woiXKXFAuDuopJk_YC_n1yItulHKiNJ-o3_K7XiwOX0H__P-mGI9IR4s2iD06uEoi7EKd19h3dWq6pemGxNPTxodJcZbi4X8'; // 맥북 크롬
 
     let message = {
       notification: {
@@ -21,6 +22,10 @@ router.get('/push', async (req, res, next) => {
         body: '데이터가 잘 가나요?',
       },
       token: target_token,
+      data: {
+        title: '포그라운드 알림',
+        body: '포그라운드 내용',
+      },
     };
     console.log(message);
 
