@@ -54,7 +54,7 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
         },
         webpush: {
           fcm_options: {
-            link: 'https://www.gomgom.site/',
+            link: 'www.naver.com',
           },
         },
       };
