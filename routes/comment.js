@@ -52,6 +52,11 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
           title: '포그라운드 알림',
           body: '포그라운드 내용',
         },
+        webpush: {
+          fcm_options: {
+            link: 'https://www.gomgom.site/',
+          },
+        },
       };
       console.log(message);
 
