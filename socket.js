@@ -69,15 +69,50 @@ module.exports = (server, app) => {
       const newChat = await Chat.create({
         roomKey,
         userKey,
-        chat: message
+        chat: message,
       });
       const chatUser = await Participant.findOne({
         where: { roomKey, userKey },
         include: [
           { model: User, attributes: ['nickname', 'point'] },
-          { model: Room, attributes: ['title'] },
+          {
+            model: Room,
+            attributes: ['title'],
+            include: [{ model: User, attributes: ['deviceToken'] }],
+          },
         ],
       });
+
+      if (chatUser.Room.User.deviceToken) {
+        let target_token = chatUser.Room.User.deviceToken;
+
+        const message = {
+          notification: {
+            title: '곰곰',
+            body: '채팅이 왔습니다.',
+          },
+          token: target_token,
+          data: {
+            title: '곰곰 알림',
+            body: '게시물에 댓글이 달렸습니다!',
+          },
+          webpush: {
+            fcm_options: {
+              link: '/',
+            },
+          },
+        };
+
+        admin
+          .messaging()
+          .send(message)
+          .then(function (response) {
+            console.log('Successfully sent push: : ', response);
+          })
+          .catch(function (err) {
+            console.log('Error Sending push!!! : ', err);
+          });
+      }
 
       // 채팅 보내주기
       let param = {

@@ -30,7 +30,6 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
       where: { selectKey },
       include: [{ model: User, attributes: ['deviceToken'] }],
     });
-    console.log(data.User.deviceToken);
 
     if (!data) {
       throw new ErrorCustom(400, '해당 선택글이 존재하지 않습니다.');
@@ -49,15 +48,15 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
     if (data.User.deviceToken) {
       let target_token = data.User.deviceToken;
 
-      let message = {
+      const message = {
         notification: {
           title: '곰곰',
-          body: '댓글이 달렸습니다.',
+          body: '게시물에 댓글이 달렸습니다.',
         },
         token: target_token,
         data: {
-          title: '포그라운드 알림',
-          body: '포그라운드 내용',
+          title: '곰곰 알림',
+          body: '게시물에 댓글이 달렸습니다!',
         },
         webpush: {
           fcm_options: {
@@ -65,16 +64,15 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
           },
         },
       };
-      console.log(message);
 
       admin
         .messaging()
         .send(message)
         .then(function (response) {
-          console.log('Successfully sent message: : ', response);
+          console.log('Successfully sent push: : ', response);
         })
         .catch(function (err) {
-          console.log('Error Sending message!!! : ', err);
+          console.log('Error Sending push!!! : ', err);
         });
     }
 
