@@ -49,10 +49,10 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
       let target_token = data.User.deviceToken;
 
       const message = {
-        notification: {
-          title: '곰곰',
-          body: '게시물에 댓글이 달렸습니다.',
-        },
+//         notification: {
+//           title: '곰곰',
+//           body: '게시물에 댓글이 달렸습니다.',
+//         },
         token: target_token,
         data: {
           title: '곰곰 알림',
