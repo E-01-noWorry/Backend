@@ -12,7 +12,7 @@ const selectSchema = Joi.object({
   title: Joi.string().required(),
   category: Joi.string().required(),
   time: Joi.number().required(),
-  options: Joi.array().required(),
+  options: Joi.string().required(),
 });
 
 // 선택글 작성
