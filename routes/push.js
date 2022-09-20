@@ -30,8 +30,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 // 푸시 알림 보내기 임시
 router.get('/push', async (req, res, next) => {
   try {
-    let target_token =
-      'cGo0cTgcoZcS1c6k1e2DUT:APA91bHdT0rTLAaGLebyh0iTmYI9idDm18qp4BHHL3iuK8wA5I3nLeX7b2gWMqdF9al76sJjzYshwDzdV4aqNgLppQh3ao6PFKM0lUX8icO0aL5uMQ2Wo0ZaiYM5hsJz843k798FF9j0';
+    let target_token = '';
 
     let message = {
       notification: {
