@@ -3,6 +3,7 @@ const router = express.Router();
 const { User, Comment, Recomment } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const ErrorCustom = require('../advice/errorCustom');
+const Joi = require("joi");
 const recommentSchema = Joi.object({
   comment: Joi.string().required(),
 });
