@@ -11,15 +11,10 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { commentKey } = req.params;
-    const { comment } = req.body;
-    const resultSchema = recommentSchema.validate({comment});
-
-    if (resultSchema.error) {
-      throw new ErrorCustom(400, '댓글을 입력해주세요.');
+    const { comment } = await recommentSchema.validateAsync(req.body);
 
     if (comment === '') {
       throw new ErrorCustom(400, '대댓글을 입력해주세요.');
-
     }
 
     const data = await Comment.findOne({ where: { commentKey } });
@@ -104,11 +99,8 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { recommentKey } = req.params;
-    const { comment } = req.body;
-
-    const resultSchema = recommentSchema.validate({comment});
-
-    if (resultSchema.error) {
+    const { comment } = await recommentSchema.validateAsync(req.body);
+    
     if (comment === '') {
       throw new ErrorCustom(400, '대댓글을 입력해주세요.');
     }
