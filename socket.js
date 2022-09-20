@@ -5,6 +5,7 @@ const { Room, Chat, User, Participant } = require('./models');
 // require('socket.io-client')('https://localhost:3000');
 // const server = http.createServer(app);
 const dayjs = require('dayjs');
+const admin = require('firebase-admin');
 
 // ------------------채팅 소캣 부분만 한번 만져봄(여기서부터) ----------------
 
@@ -149,13 +150,13 @@ module.exports = (server, app) => {
           userKey: 12, // 관리자 유저키
           chat: `${leaveUser.User.nickname}님이 퇴장했습니다.`,
         });
-        // await Chat.destroy({
-        //   where: {
-        //     roomKey,
-        //     userKey: 12, // 관리자 유저키
-        //     chat: `${leaveUser.User.nickname}님이 입장했습니다.`,
-        //   },
-        // });
+        await Chat.destroy({
+          where: {
+            roomKey,
+            userKey: 12, // 관리자 유저키
+            chat: `${leaveUser.User.nickname}님이 입장했습니다.`,
+          },
+        });
         let param = { nickname: leaveUser.User.nickname };
         io.to(leaveUser.Room.title).emit('bye', param);
       }
