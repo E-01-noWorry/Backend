@@ -9,7 +9,7 @@ const dayjs = require('dayjs');
 
 const chatSchema = Joi.object({
   title: Joi.string().required(),
-  max: Joi.string().required(),
+  max: Joi.number().required(),
   hashTag: Joi.array(),
 });
 
