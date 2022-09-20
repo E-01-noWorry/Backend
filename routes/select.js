@@ -24,13 +24,11 @@ router.post(
   async (req, res, next) => {
     try {
       const { userKey, nickname } = res.locals.user;
-      const { title, category, time, options } = req.body;
-      const resultSchema = selectSchema.validate({title, category, time, options});
-      console.log(resultSchema);
+      const { title, category, time, options } = await selectSchema.validateAsync(req.body);
 
       const image = req.files;
 
-      if (resultSchema.error) {
+      if (title || category || time || options) {
         throw new ErrorCustom(400, '항목들을 모두 입력해주세요.');
       }
 
