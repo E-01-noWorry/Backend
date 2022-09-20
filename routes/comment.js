@@ -9,22 +9,18 @@ const commentSchema = Joi.object({
   comment: Joi.string().required(),
 });
 
-const admin = require('firebase-admin');
-
 // 댓글 작성
 router.post('/:selectKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { selectKey } = req.params;
-    const { comment } = req.body;
-    const resultSchema = commentSchema.validate({comment});
+    const { comment } = await commentSchema.validateAsync(req.body);
 
-    if (resultSchema.error) {
-      throw new ErrorCustom(400, '댓글을 입력해주세요.');
-    }
+
     // if (comment.length > 200) {
     // throw new ErrorCustom(400, '댓글은 200자 이내로 작성 가능합니다.');
     // }
+
 
     const data = await Select.findOne({
       where: { selectKey },
@@ -43,6 +39,7 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
     newComment.updatedAt = newComment.updatedAt.setHours(
       newComment.updatedAt.getHours() + 9
     );
+
 
     // 글쓴이 토큰 유무 확인 후 알림 보내주기
     if (data.User.deviceToken) {
@@ -153,11 +150,8 @@ router.put('/:commentKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { commentKey } = req.params;
-    const { comment } = req.body;
+    const { comment } = await commentSchema.validateAsync(req.body);
 
-    if (comment === '') {
-      throw new ErrorCustom(400, '댓글을 입력해주세요.');
-    }
     // if (comment.length > 200) {
     // throw new ErrorCustom(400, '댓글은 200자 이내로 작성 가능합니다.');
     // }
