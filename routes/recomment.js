@@ -176,7 +176,6 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
           },
         });
       }
-    }
   } catch (err) {
     next(err);
   }
