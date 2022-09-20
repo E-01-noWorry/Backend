@@ -20,7 +20,10 @@ const app = express();
 
 app.use(morganMiddleware);
 
+//
 const path = require('path');
+app.use(express.static(path.join(__dirname, 'src')));
+//
 
 const cors = require('cors');
 app.use(
@@ -50,9 +53,11 @@ app.use(passport.initialize()); // passport를 초기화 하기 위해서 passpo
 app.use(passport.session());
 
 app.use('/api', Router);
-app.get('/', (req, res) => {
-  res.status(200).json({ massage: '연동 잘 됨.' });
-});
+//
+// app.get('/', (req, res) => {
+//   res.status(200).json({ massage: '연동 잘 됨.' });
+// });
+//
 app.use(errorHandler);
 
 if (process.env.NODE_ENV == 'production') {

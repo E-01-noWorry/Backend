@@ -22,7 +22,7 @@ router.post(
         throw new ErrorCustom(400, '항목들을 모두 입력해주세요.');
       }
 
-      // 이미지는 들어가면 최소 2개이상(선택지갯수에 맞게), 없을수도 있음
+      // 이미지는 들어가면 최소 2개이상(선택지갯수에 맞게), 없을수도 있음!
       let location = [];
       if (image !== undefined) {
         location = image.map((e) => e.location);
