@@ -16,8 +16,8 @@ module.exports = () => {
       async (request, accessToken, refreshToken, profile, done) => {
         try {
           const exUser = await User.findOne({
-            snsId: profile.id,
-            provider: 'google',
+            where: {snsId: profile.id,
+            provider: 'google',}
           });
           // 이미 가입된 구글 프로필이면 성공
           if (exUser) {
@@ -27,12 +27,12 @@ module.exports = () => {
               snsId: profile.id,
               nickname: profile.displayName,
               provider: 'google',
+              point: 0,
             });
             done(null, newUSer);
           }
-        } catch (err) {
-          console.error(error);
-          done(err);
+        } catch (error) {
+          done(error);
         }
       }
     )

@@ -5,6 +5,23 @@ const authMiddleware = require('../middlewares/authMiddlware');
 const isLoginMiddlware = require('../middlewares/isLoginMiddlware');
 const ErrorCustom = require('../advice/errorCustom');
 
+let count = [0, 0, 0, 0];
+function totalcount(data) {
+  data.map((e) => {
+    if (e.choice === 1) {
+      ++count[0];
+    } else if (e.choice === 2) {
+      ++count[1];
+    } else if (e.choice === 3) {
+      ++count[2];
+    } else if (e.choice === 4) {
+      ++count[3];
+    }
+  });
+  let totalcount = count[0] + count[1] + count[2] + count[3];
+  return totalcount;
+}
+
 // 선택지 투표
 router.post('/:selectKey', authMiddleware, async (req, res, next) => {
   try {
@@ -20,6 +37,10 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
 
     if (userKey === data.userKey) {
       throw new ErrorCustom(400, '본인 글에는 투표할 수 없습니다.');
+    }
+
+    if (data.compeltion === true) {
+      throw new ErrorCustom(400, '투표가 마감되었습니다.');
     }
 
     // 투표했는지 확인
@@ -39,38 +60,29 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
         where: { selectKey },
       });
 
-      let count1 = 0;
-      let count2 = 0;
-      let count3 = 0;
-      let count4 = 0;
-      datas.map((e) => {
-        if (e.choice === 1) {
-          ++count1;
-        } else if (e.choice === 2) {
-          ++count2;
-        } else if (e.choice === 3) {
-          ++count3;
-        } else if (e.choice === 4) {
-          ++count4;
-        }
-      });
-      let total = count1 + count2 + count3 + count4;
+      count = [0, 0, 0, 0];
+      const total = totalcount(datas);
+
+      function rate(i) {
+      const num = (count[i] / total) * 100;
+      return Math.round(num * 100) / 100;
+      }
 
       //선택글 투표시 +1점씩 포인트 지급
-      let votePoint = await User.findOne({ where:{userKey}})
-      await votePoint.update({ point: votePoint.point + 1})
+      let votePoint = await User.findOne({ where: { userKey } });
+      await votePoint.update({ point: votePoint.point + 1 });
 
       return res.status(200).json({
         ok: true,
         msg: '선택지 투표 성공',
         result: {
-          1: (Math.round((count1 / total) * 100) / 100) * 100,
-          2: (Math.round((count2 / total) * 100) / 100) * 100,
-          3: (Math.round((count3 / total) * 100) / 100) * 100,
-          4: (Math.round((count4 / total) * 100) / 100) * 100,
+          1: rate(0),
+          2: rate(1),
+          3: rate(2),
+          4: rate(3),
           total,
           isVote: choice,
-          votePoint:votePoint.point
+          votePoint: votePoint.point,
         },
       });
     } else {
@@ -96,35 +108,24 @@ router.get('/:selectKey', isLoginMiddlware, async (req, res, next) => {
       where: { selectKey },
     });
 
-    let count1 = 0;
-    let count2 = 0;
-    let count3 = 0;
-    let count4 = 0;
-    datas.map((e) => {
-      if (e.choice === 1) {
-        ++count1;
-      } else if (e.choice === 2) {
-        ++count2;
-      } else if (e.choice === 3) {
-        ++count3;
-      } else if (e.choice === 4) {
-        ++count4;
-      }
-    });
-    let total = count1 + count2 + count3 + count4;
+    count = [0, 0, 0, 0];
+    const total = totalcount(datas);
+
+    function rate(i) {
+      const num = (count[i] / total) * 100;
+      return Math.round(num * 100) / 100;
+    }
 
     // 글이 마감되었는지 확인 마감되면 바로 투표결과 보여줌
-    let now = new Date();
-    now = now.setHours(now.getHours() + 9);
-    if (now > new Date(isSelect.deadLine)) {
+    if (isSelect.compeltion === true) {
       return res.status(200).json({
         ok: true,
         msg: '마감된 투표 조회 성공',
         result: {
-          1: (Math.round((count1 / total) * 100) / 100) * 100,
-          2: (Math.round((count2 / total) * 100) / 100) * 100,
-          3: (Math.round((count3 / total) * 100) / 100) * 100,
-          4: (Math.round((count4 / total) * 100) / 100) * 100,
+          1: rate(0),
+          2: rate(1),
+          3: rate(2),
+          4: rate(3),
           total,
         },
       });
@@ -148,10 +149,10 @@ router.get('/:selectKey', isLoginMiddlware, async (req, res, next) => {
           ok: true,
           msg: '글작성자가 투표 조회 성공',
           result: {
-            1: (Math.round((count1 / total) * 100) / 100) * 100,
-            2: (Math.round((count2 / total) * 100) / 100) * 100,
-            3: (Math.round((count3 / total) * 100) / 100) * 100,
-            4: (Math.round((count4 / total) * 100) / 100) * 100,
+            1: rate(0),
+            2: rate(1),
+            3: rate(2),
+            4: rate(3),
             total,
           },
         });
@@ -179,10 +180,10 @@ router.get('/:selectKey', isLoginMiddlware, async (req, res, next) => {
           ok: true,
           msg: '선택지 비율 조회 성공',
           result: {
-            1: (Math.round((count1 / total) * 100) / 100) * 100,
-            2: (Math.round((count2 / total) * 100) / 100) * 100,
-            3: (Math.round((count3 / total) * 100) / 100) * 100,
-            4: (Math.round((count4 / total) * 100) / 100) * 100,
+            1: rate(0),
+            2: rate(1),
+            3: rate(2),
+            4: rate(3),
             total,
             isVote: isVote.choice,
           },

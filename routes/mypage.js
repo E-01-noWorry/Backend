@@ -9,12 +9,11 @@ router.get('/', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const user = await User.findOne({ where: { userKey } });
-    // 나중에 포인트 db만들면 그것만 가져와서 보여주기
 
     return res.status(200).json({
       ok: true,
       msg: '마이페이지 조회 성공',
-      result: { point: 0 },
+      result: { point: user.point },
     });
   } catch (err) {
     next(err);

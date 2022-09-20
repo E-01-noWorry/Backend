@@ -11,6 +11,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'userKey',
         sourceKey: 'userKey',
       });
+      this.hasMany(models.Recomment, {
+        foreignKey: 'userKey',
+        sourceKey: 'userKey',
+      });
       this.hasMany(models.Vote, {
         foreignKey: 'userKey',
         sourceKey: 'userKey',
@@ -42,6 +46,8 @@ module.exports = (sequelize, DataTypes) => {
       nickname: DataTypes.STRING,
       password: DataTypes.STRING,
       point: DataTypes.INTEGER,
+      refreshToken: DataTypes.STRING,
+      deviceToken: DataTypes.STRING,
     },
     {
       sequelize,

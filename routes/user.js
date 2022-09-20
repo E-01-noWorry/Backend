@@ -40,8 +40,9 @@ router.post('/user/signup', async (req, res, next) => {
 
     const salt = await bcrypt.genSalt(10); //기본이 10, 숫자가 높을 수록 연산 시간과 보안이 높아짐.
     pwHash = await bcrypt.hash(password, salt);
-    await User.create({ userId, nickname, password: pwHash });
-    res.status(201).send({ msg: '회원가입에 성공하였습니다.' });
+    await User.create({ userId, nickname, password: pwHash, point: 0 });
+
+    res.status(201).json({ msg: '회원가입에 성공하였습니다.' });
   } catch (error) {
     next(error);
   }
@@ -117,7 +118,6 @@ const googleCallback = (req, res, next) => {
       { failureRedirect: '/user/login' }, //실패하면 '/user/login''로 돌아감.
       (err, user, info) => {
         if (err) return next(err);
-        res.redirect('/');
 
         const { userKey, nickname } = user;
         const token = jwt.sign(
@@ -129,7 +129,7 @@ const googleCallback = (req, res, next) => {
         result = { userKey, token, nickname };
         res
           .status(201)
-          .send({ user: result, msg: '구글 로그인에 성공하였습니다.' });
+          .json({ user: result, msg: '구글 로그인에 성공하였습니다.' });
       }
     )(req, res, next);
   } catch (error) {
@@ -145,7 +145,7 @@ router.get(
 //구글 서버 로그인이 되면, redicrect url을 통해 요청 재전달
 router.get('/auth/google/callback', googleCallback);
 
-//유저 닉네임 수정
+//유저 닉네임 수정               //미들웨어 사용하는게 좋아보이는데 바꿀것이 많을까요?
 router.put('/user/:userKey', async (req, res) => {
   try {
     const { userKey } = req.params;
