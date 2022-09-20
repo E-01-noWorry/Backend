@@ -48,14 +48,14 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
       let target_token = data.User.deviceToken;
 
       const message = {
-        notification: {
-          title: '곰곰',
-          body: '작성한 댓글에 대댓글이 달렸습니다.',
-        },
+//         notification: {
+//           title: '곰곰',
+//           body: '작성한 댓글에 대댓글이 달렸습니다.',
+//         },
         token: target_token,
         data: {
           title: '곰곰 알림',
-          body: '게시물에 댓글이 달렸습니다!',
+          body: '작성한 댓글에 대댓글이 달렸습니다!',
         },
         webpush: {
           fcm_options: {
