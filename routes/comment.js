@@ -9,8 +9,6 @@ const commentSchema = Joi.object({
   comment: Joi.string().required(),
 });
 
-const admin = require('firebase-admin');
-
 // 댓글 작성
 router.post('/:selectKey', authMiddleware, async (req, res, next) => {
   try {
@@ -18,11 +16,12 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
     const { selectKey } = req.params;
     const { comment } = await commentSchema.validateAsync(req.body);
 
-    const data = await Select.findOne({
-      where: { selectKey },
-      include: [{ model: User, attributes: ['deviceToken'] }],
-    });
-    console.log(data.User.deviceToken);
+
+    // if (comment.length > 200) {
+    // throw new ErrorCustom(400, '댓글은 200자 이내로 작성 가능합니다.');
+    // }
+
+    const data = await Select.findOne({ where: { selectKey } });
 
     if (!data) {
       throw new ErrorCustom(400, '해당 선택글이 존재하지 않습니다.');
@@ -36,39 +35,6 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
     newComment.updatedAt = newComment.updatedAt.setHours(
       newComment.updatedAt.getHours() + 9
     );
-
-    // 글쓴이 토큰 유무 확인 후 알림 보내주기
-    if (data.User.deviceToken) {
-      let target_token = data.User.deviceToken;
-
-      let message = {
-        notification: {
-          title: '곰곰',
-          body: '댓글이 달렸습니다.',
-        },
-        token: target_token,
-        data: {
-          title: '포그라운드 알림',
-          body: '포그라운드 내용',
-        },
-        webpush: {
-          fcm_options: {
-            link: '/',
-          },
-        },
-      };
-      console.log(message);
-
-      admin
-        .messaging()
-        .send(message)
-        .then(function (response) {
-          console.log('Successfully sent message: : ', response);
-        })
-        .catch(function (err) {
-          console.log('Error Sending message!!! : ', err);
-        });
-    }
 
     return res.status(200).json({
       ok: true,
@@ -147,11 +113,8 @@ router.put('/:commentKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { commentKey } = req.params;
-    const { comment } = req.body;
+    const { comment } = await commentSchema.validateAsync(req.body);
 
-    if (comment === '') {
-      throw new ErrorCustom(400, '댓글을 입력해주세요.');
-    }
     // if (comment.length > 200) {
     // throw new ErrorCustom(400, '댓글은 200자 이내로 작성 가능합니다.');
     // }
