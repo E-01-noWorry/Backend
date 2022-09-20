@@ -1,16 +1,23 @@
 const express = require('express');
 const router = express.Router();
+const Joi = require('joi');
 const authMiddleware = require('../middlewares/authMiddlware');
 const { Room, Chat, User, Participant } = require('../models');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 const dayjs = require('dayjs');
 
+const chatSchema = Joi.object({
+  title: Joi.string().required(),
+  max: Joi.number().required(),
+  hashTag: Joi.array(),
+});
+
 // 채팅방 생성
 router.post('/', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
-    const { title, max, hashTag } = req.body;
+    const { title, max, hashTag } = await chatSchema.validateAsync(req.body);
 
     const newRoom = await Room.create({
       title,

@@ -4,6 +4,7 @@ const { Select, User, Vote } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const isLoginMiddlware = require('../middlewares/isLoginMiddlware');
 const ErrorCustom = require('../advice/errorCustom');
+const admin = require('firebase-admin');
 
 let count = [0, 0, 0, 0];
 function totalcount(data) {
@@ -29,7 +30,10 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
     const { selectKey } = req.params;
     const { choice } = req.body;
 
-    const data = await Select.findOne({ where: { selectKey } });
+    const data = await Select.findOne({
+      where: { selectKey },
+      include: [{ model: User, attributes: ['deviceToken'] }],
+    });
 
     if (!data) {
       throw new ErrorCustom(400, '해당 선택글이 존재하지 않습니다.');
@@ -64,13 +68,45 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
       const total = totalcount(datas);
 
       function rate(i) {
-      const num = (count[i] / total) * 100;
-      return Math.round(num * 100) / 100;
+        const num = (count[i] / total) * 100;
+        return Math.round(num * 100) / 100;
       }
 
       //선택글 투표시 +1점씩 포인트 지급
       let votePoint = await User.findOne({ where: { userKey } });
       await votePoint.update({ point: votePoint.point + 1 });
+
+      // 투표가 3개씩 될때 알림 보냄
+      if (total % 3 === 0) {
+        let target_token = data.User.deviceToken;
+
+        const message = {
+          notification: {
+            title: '곰곰',
+            body: `게시물에 ${total}개 투표가 진행중입니다.`,
+          },
+          token: target_token,
+          data: {
+            title: '곰곰 알림',
+            body: '게시물에 댓글이 달렸습니다!',
+          },
+          webpush: {
+            fcm_options: {
+              link: '/',
+            },
+          },
+        };
+
+        admin
+          .messaging()
+          .send(message)
+          .then(function (response) {
+            console.log('Successfully sent push: : ', response);
+          })
+          .catch(function (err) {
+            console.log('Error Sending push!!! : ', err);
+          });
+      }
 
       return res.status(200).json({
         ok: true,

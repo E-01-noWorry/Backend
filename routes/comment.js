@@ -21,7 +21,11 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
     // throw new ErrorCustom(400, '댓글은 200자 이내로 작성 가능합니다.');
     // }
 
-    const data = await Select.findOne({ where: { selectKey } });
+
+    const data = await Select.findOne({
+      where: { selectKey },
+      include: [{ model: User, attributes: ['deviceToken'] }],
+    });
 
     if (!data) {
       throw new ErrorCustom(400, '해당 선택글이 존재하지 않습니다.');
@@ -35,6 +39,39 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
     newComment.updatedAt = newComment.updatedAt.setHours(
       newComment.updatedAt.getHours() + 9
     );
+
+
+    // 글쓴이 토큰 유무 확인 후 알림 보내주기
+    if (data.User.deviceToken) {
+      let target_token = data.User.deviceToken;
+
+      const message = {
+//         notification: {
+//           title: '곰곰',
+//           body: '게시물에 댓글이 달렸습니다.',
+//         },
+        token: target_token,
+        data: {
+          title: '곰곰 알림',
+          body: '게시물에 댓글이 달렸습니다!',
+        },
+        webpush: {
+          fcm_options: {
+            link: '/',
+          },
+        },
+      };
+
+      admin
+        .messaging()
+        .send(message)
+        .then(function (response) {
+          console.log('Successfully sent push: : ', response);
+        })
+        .catch(function (err) {
+          console.log('Error Sending push!!! : ', err);
+        });
+    }
 
     return res.status(200).json({
       ok: true,

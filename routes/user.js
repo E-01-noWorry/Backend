@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const Joi = require('joi');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const { User } = require('../models');
@@ -9,24 +10,23 @@ const passport = require('passport');
 const ErrorCustom = require('../advice/errorCustom');
 const authMiddleware = require('../middlewares/authMiddlware');
 
+const userIdRegEx = /^[A-Za-z0-9]{6,20}$/;
+const nicknameRegEx = /^[가-힣,A-Za-z0-9]{2,10}$/;
+const passwordRegEx = /^[A-Za-z0-9]{6,20}$/;
+
+const userSchema = Joi.object({
+  userId: Joi.string().pattern(userIdRegEx).required(),
+  nickname: Joi.string().pattern(nicknameRegEx).required(),
+  password: Joi.string().pattern(passwordRegEx).required(),
+  confirm: Joi.string(),
+});
+
 //회원가입
 router.post('/user/signup', async (req, res, next) => {
   try {
-    const { userId, nickname, password, confirm } = req.body;
+    const { userId, nickname, password, confirm } =
+      await userSchema.validateAsync(req.body);
 
-    const userIdRegEx = /^[A-Za-z0-9]{6,20}$/;
-    const nicknameRegEx = /^[가-힣,A-Za-z0-9]{2,10}$/;
-    const passwordRegEx = /^[A-Za-z0-9]{6,20}$/;
-
-    if (!userIdRegEx.test(userId)) {
-      throw new ErrorCustom(400, '아이디 양식이 맞지 않습니다.');
-    }
-    if (!nicknameRegEx.test(nickname)) {
-      throw new ErrorCustom(400, '닉네임 양식이 맞지 않습니다.');
-    }
-    if (!passwordRegEx.test(password)) {
-      throw new ErrorCustom(400, '패스워드 양식이 맞지 않습니다.');
-    }
     if (password !== confirm) {
       throw new ErrorCustom(400, '패스워드가 일치하지 않습니다.');
     }
