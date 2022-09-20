@@ -6,6 +6,15 @@ const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 const upload = require('../middlewares/multer');
 const schedule = require('node-schedule');
+const Joi = require("joi");
+
+const selectSchema = Joi.object({
+  title: Joi.string().required(),
+  category: Joi.string().required(),
+  time: Joi.number().required(),
+  options: Joi.array().required(),
+});
+
 
 // 선택글 작성
 router.post(
@@ -16,9 +25,12 @@ router.post(
     try {
       const { userKey, nickname } = res.locals.user;
       const { title, category, time, options } = req.body;
+      const resultSchema = selectSchema.validate({title, category, time, options});
+      console.log(resultSchema);
+
       const image = req.files;
 
-      if (title === '' || category === '' || time === '' || options === '') {
+      if (resultSchema.error) {
         throw new ErrorCustom(400, '항목들을 모두 입력해주세요.');
       }
 
