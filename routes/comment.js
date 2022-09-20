@@ -16,15 +16,7 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { selectKey } = req.params;
-    const { comment } = req.body;
-    const resultSchema = commentSchema.validate({comment});
-
-    if (resultSchema.error) {
-      throw new ErrorCustom(400, '댓글을 입력해주세요.');
-    }
-    // if (comment.length > 200) {
-    // throw new ErrorCustom(400, '댓글은 200자 이내로 작성 가능합니다.');
-    // }
+    const { comment } = await commentSchema.validateAsync(req.body);
 
     const data = await Select.findOne({
       where: { selectKey },
