@@ -3,6 +3,7 @@ const router = express.Router();
 const { User, Comment, Recomment } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const ErrorCustom = require('../advice/errorCustom');
+const admin = require('firebase-admin');
 
 // 대댓글 작성
 router.post('/:commentKey', authMiddleware, async (req, res, next) => {
@@ -15,16 +16,14 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
       throw new ErrorCustom(400, '대댓글을 입력해주세요.');
     }
 
-    const data = await Comment.findOne({ where: { commentKey } });
+    const data = await Comment.findOne({
+      where: { commentKey },
+      include: [{ model: User, attributes: ['deviceToken'] }],
+    });
 
     if (!data) {
       throw new ErrorCustom(400, '해당 댓글이 존재하지 않습니다.'); //댓글 확인
     }
-
-    const pointer = await User.findOne(
-      { where: { userKey: userKey }}
-    );
-    console.log(pointer);
 
     const newComment = await Recomment.create({
       comment,
@@ -36,6 +35,36 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
       newComment.updatedAt.getHours() + 9
     );
 
+    if (data.User.deviceToken) {
+      let target_token = data.User.deviceToken;
+
+      const message = {
+        notification: {
+          title: '곰곰',
+          body: '작성한 댓글에 대댓글이 달렸습니다.',
+        },
+        token: target_token,
+        data: {
+          title: '곰곰 알림',
+          body: '게시물에 댓글이 달렸습니다!',
+        },
+        webpush: {
+          fcm_options: {
+            link: '/',
+          },
+        },
+      };
+
+      admin
+        .messaging()
+        .send(message)
+        .then(function (response) {
+          console.log('Successfully sent push: : ', response);
+        })
+        .catch(function (err) {
+          console.log('Error Sending push!!! : ', err);
+        });
+    }
 
     return res.status(200).json({
       ok: true,
@@ -46,7 +75,7 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
         comment: newComment.comment,
         User: { nickname },
         userKey,
-        updatedAt: newComment.updatedAt
+        updatedAt: newComment.updatedAt,
       },
     });
   } catch (err) {
@@ -70,9 +99,8 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
     });
 
     const commentdata = await Recomment.findOne({
-      where: { commentKey : data.commentKey },
+      where: { commentKey: data.commentKey },
     });
-
 
     if (!data) {
       throw new ErrorCustom(400, '해당 대댓글이 존재하지 않습니다.');
@@ -85,7 +113,6 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
         { comment: comment },
         { where: { recommentKey, userKey } }
       );
-
 
       const updateComment = await Recomment.findOne({
         where: { recommentKey },
