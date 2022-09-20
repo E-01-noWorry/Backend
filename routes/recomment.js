@@ -16,7 +16,7 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
 
     if (resultSchema.error) {
       throw new ErrorCustom(400, '댓글을 입력해주세요.');
-
+    }
     if (comment === '') {
       throw new ErrorCustom(400, '대댓글을 입력해주세요.');
 
@@ -157,7 +157,7 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
         },
       });
     }
-  } catch (err) {
+  }} catch (err) {
     next(err);
   }
 });
