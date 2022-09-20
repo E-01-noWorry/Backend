@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { Select, User, Comment } = require('../models');
+const { Select, User, Comment, Recomment } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const ErrorCustom = require('../advice/errorCustom');
-const { RoboMaker } = require('aws-sdk');
+const Joi = require("joi");
+
+const commentSchema = Joi.object({
+  comment: Joi.string().required(),
+});
 
 // 댓글 작성
 router.post('/:selectKey', authMiddleware, async (req, res, next) => {
@@ -11,8 +15,9 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
     const { userKey, nickname } = res.locals.user;
     const { selectKey } = req.params;
     const { comment } = req.body;
+    const resultSchema = commentSchema.validate({comment});
 
-    if (comment === '') {
+    if (resultSchema.error) {
       throw new ErrorCustom(400, '댓글을 입력해주세요.');
     }
     // if (comment.length > 200) {
@@ -53,6 +58,15 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
 // 해당 게시물 댓글 모두 조회
 router.get('/:selectKey', async (req, res, next) => {
   try {
+    let offset = 0;
+    const limit = 5;
+    const pageNum = req.query.page;
+    console.log(pageNum);
+
+    if (pageNum > 1) {
+      offset = limit * (pageNum - 1); //5 10
+    }
+
     const { selectKey } = req.params;
 
     const data = await Select.findOne({
@@ -65,8 +79,16 @@ router.get('/:selectKey', async (req, res, next) => {
 
     const datas = await Comment.findAll({
       where: { selectKey },
-      include: [{ model: User, attributes: ['nickname'] }],
+      include: [
+        { model: User, attributes: ['nickname', 'point'] },
+        {
+          model: Recomment,
+          include: [{ model: User, attributes: ['nickname', 'point'] }],
+        },
+      ],
       order: [['commentKey', 'ASC']],
+      offset: offset,
+      limit: limit,
     });
 
     return res.status(200).json({
@@ -78,7 +100,9 @@ router.get('/:selectKey', async (req, res, next) => {
           comment: e.comment,
           nickname: e.User.nickname,
           userKey: e.userKey,
+          ponit: e.User.point,
           time: e.updatedAt,
+          recomment: e.Recomments,
         };
       }),
     });
