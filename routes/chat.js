@@ -8,7 +8,7 @@ const ErrorCustom = require('../advice/errorCustom');
 const dayjs = require('dayjs');
 
 const chatSchema = Joi.object({
-  title: Joi.string().required(),
+  title: Joi.string().max(20).required(),
   max: Joi.number().required(),
   hashTag: Joi.array(),
 });
@@ -17,7 +17,11 @@ const chatSchema = Joi.object({
 router.post('/', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
-    const { title, max, hashTag } = await chatSchema.validateAsync(req.body);
+    const result = chatSchema.validate(req.body);
+    if (result.error) {
+      throw new ErrorCustom(400, '제목을 입력해주세요.');
+    }
+    const { title, max, hashTag } = result.value;
 
     const newRoom = await Room.create({
       title,
@@ -108,7 +112,6 @@ router.get('/', async (req, res, next) => {
     let offset = 0;
     const limit = 5;
     const pageNum = req.query.page;
-    console.log(pageNum);
 
     if (pageNum > 1) {
       offset = limit * (pageNum - 1); //5 10

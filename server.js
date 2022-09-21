@@ -1,16 +1,11 @@
 const { server } = require('./socket');
 require('dotenv').config();
-// const port2 = process.env.PORT2;
-
-// server.listen(port2, () => {
-//   console.log(port2, '포트로 http 서버가 열렸어요!');
-// });
 
 if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
   const port2 = process.env.PORT2;
 
   server.listen(port2, () => {
-    console.log(port2, '포트로 http 서버가 열렸어요!');
+    console.log(port2, '포트로 https 서버가 열렸어요!');
   });
 } else {
   const port = process.env.PORT;

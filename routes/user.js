@@ -24,8 +24,11 @@ const userSchema = Joi.object({
 //회원가입
 router.post('/user/signup', async (req, res, next) => {
   try {
-    const { userId, nickname, password, confirm } =
-      await userSchema.validateAsync(req.body);
+    const result = userSchema.validate(req.body);
+    if (result.error) {
+      throw new ErrorCustom(400, '형식에 맞게 모두 입력해주세요');
+    }
+    const { userId, nickname, password, confirm } = result.value;
 
     if (password !== confirm) {
       throw new ErrorCustom(400, '패스워드가 일치하지 않습니다.');
@@ -145,7 +148,7 @@ router.get(
 //구글 서버 로그인이 되면, redicrect url을 통해 요청 재전달
 router.get('/auth/google/callback', googleCallback);
 
-//유저 닉네임 수정               //미들웨어 사용하는게 좋아보이는데 바꿀것이 많을까요?
+// 유저 닉네임 수정
 router.put('/user/:userKey', async (req, res) => {
   try {
     const { userKey } = req.params;

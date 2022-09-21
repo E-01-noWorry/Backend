@@ -53,11 +53,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api', Router);
-//
-// app.get('/', (req, res) => {
-//   res.status(200).json({ massage: '연동 잘 됨.' });
-// });
-//
+app.get('/', (req, res) => {
+  res.status(200).json({ massage: '서버 잘 켜짐.' });
+});
 app.use(errorHandler);
 
 // if (process.env.NODE_ENV == 'production') {
@@ -80,10 +78,10 @@ app.use(errorHandler);
 //     console.log(err);
 //   }
 // } else {
-  // const server = app.listen(port, () => {
-  //   console.log(port, '포트로 http 서버가 열렸어요!');
-  // });
-  // webSocket(server, app);
+// const server = app.listen(port, () => {
+//   console.log(port, '포트로 http 서버가 열렸어요!');
+// });
+// webSocket(server, app);
 // }
 
 module.exports = app;
