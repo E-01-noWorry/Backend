@@ -6,7 +6,7 @@ const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 const upload = require('../middlewares/multer');
 const schedule = require('node-schedule');
-const Joi = require("joi");
+const Joi = require('joi');
 
 const selectSchema = Joi.object({
   title: Joi.string().required(),
@@ -23,7 +23,16 @@ router.post(
   async (req, res, next) => {
     try {
       const { userKey, nickname } = res.locals.user;
-      const { title, category, time, options } = await selectSchema.validateAsync(req.body);
+      // const { title, category, time, options } = await selectSchema.validateAsync(req.body);
+      const result = selectSchema.validate(req.body);
+      if (result.error) {
+        throw new ErrorCustom(400, '항목들을 모두 입력해주세요.');
+      }
+      const { title, category, time, options } = result.value;
+
+      if (options.indexOf(',') === -1) {
+        throw new ErrorCustom(400, '선택지가 1개입니다.');
+      }
 
       const image = req.files;
 

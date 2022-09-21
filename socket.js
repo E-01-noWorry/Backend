@@ -144,7 +144,7 @@ const io = require("socket.io")(server, {
         userKey: chatUser.userKey,
         nickname: chatUser.User.nickname,
         point: chatUser.User.point,
-        time: newChat.createdAt, // (9시간 차이나는 시간)
+        time: dayjs().format(),
       };
 
       io.to(chatUser.Room.title).emit('message', param);
