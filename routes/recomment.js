@@ -17,7 +17,7 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
     const { userKey, nickname } = res.locals.user;
     const { commentKey } = req.params;
     const { comment } = await recommentSchema.validateAsync(req.body);
-    
+
     if (comment === '') {
       throw new ErrorCustom(400, '대댓글을 입력해주세요.');
     }
@@ -41,20 +41,16 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
       newComment.updatedAt.getHours() + 9
     );
 
-
     if (data.User.deviceToken) {
       let target_token = data.User.deviceToken;
 
       const message = {
-//         notification: {
-//           title: '곰곰',
-//           body: '작성한 댓글에 대댓글이 달렸습니다.',
-//         },
         token: target_token,
         data: {
-          title: '곰곰 알림',
+          title: '곰곰',
           body: '작성한 댓글에 대댓글이 달렸습니다!',
         },
+
         webpush: {
           fcm_options: {
             link: '/',
@@ -65,11 +61,8 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
       admin
         .messaging()
         .send(message)
-        .then(function (response) {
-          console.log('Successfully sent push: : ', response);
-        })
         .catch(function (err) {
-          console.log('Error Sending push!!! : ', err);
+          next(err);
         });
     }
 
@@ -126,7 +119,6 @@ router.get('/:commentKey', async (req, res, next) => {
   }
 });
 
-
 // 해당 대댓글 수정
 router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
   try {
@@ -134,48 +126,45 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
     const { recommentKey } = req.params;
     const { comment } = await recommentSchema.validateAsync(req.body);
 
-      const data = await Recomment.findOne({
+    const data = await Recomment.findOne({
+      where: { recommentKey },
+    });
+
+    const commentdata = await Recomment.findOne({
+      where: { commentKey: data.commentKey },
+    });
+
+    if (!data) {
+      throw new ErrorCustom(400, '해당 대댓글이 존재하지 않습니다.');
+    }
+
+    if (userKey !== data.userKey) {
+      throw new ErrorCustom(400, '작성자가 다릅니다.');
+    } else {
+      await Recomment.update({ comment }, { where: { recommentKey, userKey } });
+
+      await Recomment.update(
+        { comment: comment },
+        { where: { recommentKey, userKey } }
+      );
+
+      const updateComment = await Recomment.findOne({
         where: { recommentKey },
       });
 
-      const commentdata = await Recomment.findOne({
-        where: { commentKey: data.commentKey },
+      return res.status(200).json({
+        ok: true,
+        msg: '대댓글 수정 성공',
+        result: {
+          commentKey: commentdata.commentKey,
+          recommentKey: updateComment.recommentKey,
+          comment,
+          User: { nickname },
+          userKey,
+          time: updateComment.updatedAt,
+        },
       });
-
-      if (!data) {
-        throw new ErrorCustom(400, '해당 대댓글이 존재하지 않습니다.');
-      }
-
-      if (userKey !== data.userKey) {
-        throw new ErrorCustom(400, '작성자가 다릅니다.');
-      } else {
-        await Recomment.update(
-          { comment },
-          { where: { recommentKey, userKey } }
-        );
-
-        await Recomment.update(
-          { comment: comment },
-          { where: { recommentKey, userKey } }
-        );
-
-        const updateComment = await Recomment.findOne({
-          where: { recommentKey },
-        });
-
-        return res.status(200).json({
-          ok: true,
-          msg: '대댓글 수정 성공',
-          result: {
-            commentKey: commentdata.commentKey,
-            recommentKey: updateComment.recommentKey,
-            comment,
-            User: { nickname },
-            userKey,
-            time: updateComment.updatedAt,
-          },
-        });
-      }
+    }
   } catch (err) {
     next(err);
   }
