@@ -11,10 +11,10 @@ const session = require('cookie-session');
 const passport = require('passport');
 const passportConfig = require('./passport');
 
-const webSocket = require('./socket');
+// const webSocket = require('./socket');
 
 require('dotenv').config();
-const port = process.env.PORT;
+// const port = process.env.PORT;
 
 const app = express();
 
