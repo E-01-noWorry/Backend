@@ -4,10 +4,7 @@ const http = require('http');
 const https = require('https');
 require('dotenv').config();
 
-// const socket = require('socket.io');
 const { Room, Chat, User, Participant } = require('./models');
-// require('socket.io-client')('https://localhost:3000');
-// const server = http.createServer(app);
 const dayjs = require('dayjs');
 const admin = require('firebase-admin');
 
