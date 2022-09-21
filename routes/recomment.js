@@ -16,11 +16,11 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { commentKey } = req.params;
-    const { comment } = await recommentSchema.validateAsync(req.body);
-
-    if (comment === '') {
+    const result = recommentSchema.validate(req.body);
+    if (result.error) {
       throw new ErrorCustom(400, '대댓글을 입력해주세요.');
     }
+    const { comment } = result.value;
 
     const data = await Comment.findOne({
       where: { commentKey },

@@ -5,7 +5,7 @@ const dayjs = require('dayjs');
 exports.scheduler = () => {
   const checkTime = dayjs().format();
 
-  schedule.scheduleJob('00 00 17 * * *', async function () {
+  schedule.scheduleJob('00 00 * * * *', async function () {
     console.log('데이터 확인');
     const datas = await Select.findAll({});
     await Promise.all(

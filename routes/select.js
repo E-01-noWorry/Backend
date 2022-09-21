@@ -6,10 +6,10 @@ const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 const upload = require('../middlewares/multer');
 const schedule = require('node-schedule');
-const Joi = require("joi");
+const Joi = require('joi');
 
 const selectSchema = Joi.object({
-  title: Joi.string().required(),
+  title: Joi.string().max(40).required(),
   category: Joi.string().required(),
   time: Joi.number().required(),
   options: Joi.string().required(),
@@ -23,11 +23,17 @@ router.post(
   async (req, res, next) => {
     try {
       const { userKey, nickname } = res.locals.user;
-      const { title, category, time, options } = await selectSchema.validateAsync(req.body);
+      const result = selectSchema.validate(req.body);
+      if (result.error) {
+        throw new ErrorCustom(400, '항목들을 모두 입력해주세요.');
+      }
+      const { title, category, time, options } = result.value;
+
+      if (options.indexOf(',') === -1) {
+        throw new ErrorCustom(400, '선택지는 최소 2개 이상 작성해주세요.');
+      }
 
       const image = req.files;
-
-      // 이미지는 들어가면 최소 2개이상(선택지갯수에 맞게), 없을수도 있음
       let location = [];
       if (image !== undefined) {
         location = image.map((e) => e.location);
@@ -66,14 +72,14 @@ router.post(
       const compeltionTime = now2.setHours(now2.getHours() + parseInt(time));
 
       schedule.scheduleJob(compeltionTime, async () => {
-        console.time('code_measure');
-        console.log('디비 변경됨');
+        console.log('게시물 마감처리');
         await data.update({ compeltion: true });
 
         const compeltionVote = await Vote.findAll({
           where: { selectKey: data.selectKey },
           include: [{ model: User }],
         });
+
         const count = [0, 0, 0, 0];
         compeltionVote.map((e) => {
           if (e.choice === 1) {
@@ -98,7 +104,6 @@ router.post(
             });
           }
         }
-        console.timeEnd('code_measure');
       });
 
       //선택글 생성시 +3점씩 포인트 지급
@@ -133,10 +138,9 @@ router.get('/', async (req, res, next) => {
     let offset = 0;
     const limit = 5;
     const pageNum = req.query.page;
-    console.log(pageNum);
 
     if (pageNum > 1) {
-      offset = limit * (pageNum - 1); //5 10
+      offset = limit * (pageNum - 1);
     }
 
     const datas = await Select.findAll({
@@ -175,7 +179,7 @@ router.get('/filter', async (req, res, next) => {
     const pageNum = req.query.page;
 
     if (pageNum > 1) {
-      offset = limit * (pageNum - 1); //5 10
+      offset = limit * (pageNum - 1);
     }
 
     const datas = await Select.findAll({
@@ -216,7 +220,7 @@ router.get('/category/:category', async (req, res, next) => {
     const pageNum = req.query.page;
 
     if (pageNum > 1) {
-      offset = limit * (pageNum - 1); //5 10
+      offset = limit * (pageNum - 1);
     }
 
     const { category } = req.params;

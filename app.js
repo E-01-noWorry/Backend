@@ -3,19 +3,19 @@ const Router = require('./routes/index');
 const errorHandler = require('./advice/errorHandler');
 const logger = require('./advice/winston');
 const morganMiddleware = require('./middlewares/morgan');
-const fs = require('fs');
-const http = require('http');
-const https = require('https');
+// const fs = require('fs');
+// const http = require('http');
+// const https = require('https');
 
 const session = require('cookie-session');
 const passport = require('passport');
 const passportConfig = require('./passport');
 
-const webSocket = require('./socket');
+// const webSocket = require('./socket');
 const scheduler = require('./advice/scheduler');
 
 require('dotenv').config();
-const port = process.env.PORT;
+// const port = process.env.PORT;
 
 const app = express();
 
@@ -37,7 +37,7 @@ app.use(
 passportConfig();
 
 app.use(express.json());
-
+app.use(express.static('public'));
 app.use(
   session({
     resave: false,
@@ -50,43 +50,40 @@ app.use(
   })
 );
 
-app.use(passport.initialize()); // passport를 초기화 하기 위해서 passport.initialize 미들웨어 사용??
+app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api', Router);
-//
-// app.get('/', (req, res) => {
-//   res.status(200).json({ massage: '연동 잘 됨.' });
-// });
+app.get('/', (req, res) => {
+  res.status(200).json({ massage: '서버 잘 켜짐.' });
+});
 scheduler.scheduler();
-//
 app.use(errorHandler);
 
-if (process.env.NODE_ENV == 'production') {
-  try {
-    const port2 = process.env.PORT2;
-    const options = {
-      ca: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain.pem'),
-      key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
-      cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
-    };
-    app.use(express.static('public'));
+// if (process.env.NODE_ENV == 'production') {
+//   try {
+//     const port2 = process.env.PORT2;
+//     const options = {
+//       ca: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain.pem'),
+//       key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
+//       cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
+//     };
+//     app.use(express.static('public'));
 
-    http.createServer(app).listen(port);
-    const server = https.createServer(options, app).listen(port2, () => {
-      console.log(port2, '포트로 https 서버가 열렸어요!');
-    });
-    webSocket(server, app);
-  } catch (err) {
-    console.log('HTTPS 서버가 실행되지 않습니다.');
-    console.log(err);
-  }
-} else {
-  const server = app.listen(port, () => {
-    console.log(port, '포트로 http 서버가 열렸어요!');
-  });
-
-  webSocket(server, app);
-}
+//     http.createServer(app).listen(port);
+//     const server = https.createServer(options, app).listen(port2, () => {
+//       console.log(port2, '포트로 https 서버가 열렸어요!');
+//     });
+//     webSocket(server, app);
+//   } catch (err) {
+//     console.log('HTTPS 서버가 실행되지 않습니다.');
+//     console.log(err);
+//   }
+// } else {
+// const server = app.listen(port, () => {
+//   console.log(port, '포트로 http 서버가 열렸어요!');
+// });
+// webSocket(server, app);
+// }
 
 module.exports = app;
