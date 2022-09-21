@@ -1,8 +1,8 @@
 const express = require('express');
 const Router = require('./routes/index');
 const errorHandler = require('./advice/errorHandler');
-const logger = require('./config/winston');
-const morganMiddleware = require('./config/morganMiddleware');
+const logger = require('./advice/winston');
+const morganMiddleware = require('./middlewares/morgan');
 // const fs = require('fs');
 // const http = require('http');
 // const https = require('https');
@@ -12,6 +12,7 @@ const passport = require('passport');
 const passportConfig = require('./passport');
 
 // const webSocket = require('./socket');
+const scheduler = require('./advice/scheduler');
 
 require('dotenv').config();
 // const port = process.env.PORT;
@@ -56,6 +57,7 @@ app.use('/api', Router);
 app.get('/', (req, res) => {
   res.status(200).json({ massage: '서버 잘 켜짐.' });
 });
+scheduler.scheduler();
 app.use(errorHandler);
 
 // if (process.env.NODE_ENV == 'production') {
