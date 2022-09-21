@@ -8,6 +8,8 @@ require('dotenv').config();
 const { Room, Chat, User, Participant } = require('./models');
 // require('socket.io-client')('https://localhost:3000');
 // const server = http.createServer(app);
+const dayjs = require('dayjs');
+const admin = require('firebase-admin');
 
 let server =''
 if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
@@ -117,15 +119,12 @@ const io = require("socket.io")(server, {
         let target_token = chatUser.Room.User.deviceToken;
 
         const message = {
-          notification: {
-            title: '곰곰',
-            body: '채팅이 왔습니다.',
-          },
           token: target_token,
           data: {
-            title: '곰곰 알림',
-            body: '게시물에 댓글이 달렸습니다!',
+            title: '곰곰',
+            body: '새로운 채팅이 왔습니다!',
           },
+
           webpush: {
             fcm_options: {
               link: '/',
@@ -136,11 +135,8 @@ const io = require("socket.io")(server, {
         admin
           .messaging()
           .send(message)
-          .then(function (response) {
-            console.log('Successfully sent push: : ', response);
-          })
           .catch(function (err) {
-            console.log('Error Sending push!!! : ', err);
+            next(err);
           });
       }
 
@@ -179,13 +175,13 @@ const io = require("socket.io")(server, {
           userKey: 12, // 관리자 유저키
           chat: `${leaveUser.User.nickname}님이 퇴장했습니다.`,
         });
-        // await Chat.destroy({
-        //   where: {
-        //     roomKey,
-        //     userKey: 12, // 관리자 유저키
-        //     chat: `${leaveUser.User.nickname}님이 입장했습니다.`,
-        //   },
-        // });
+        await Chat.destroy({
+          where: {
+            roomKey,
+            userKey: 12, // 관리자 유저키
+            chat: `${leaveUser.User.nickname}님이 입장했습니다.`,
+          },
+        });
         let param = { nickname: leaveUser.User.nickname };
         io.to(leaveUser.Room.title).emit('bye', param);
       }

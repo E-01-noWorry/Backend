@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Select, User, Vote, Sequelize } = require('../models');
+const { Select, User, Vote } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
@@ -12,9 +12,8 @@ const selectSchema = Joi.object({
   title: Joi.string().required(),
   category: Joi.string().required(),
   time: Joi.number().required(),
-  options: Joi.array().required(),
+  options: Joi.string().required(),
 });
-
 
 // 선택글 작성
 router.post(
@@ -24,17 +23,11 @@ router.post(
   async (req, res, next) => {
     try {
       const { userKey, nickname } = res.locals.user;
-      const { title, category, time, options } = req.body;
-      const resultSchema = selectSchema.validate({title, category, time, options});
-      console.log(resultSchema);
+      const { title, category, time, options } = await selectSchema.validateAsync(req.body);
 
       const image = req.files;
 
-      if (resultSchema.error) {
-        throw new ErrorCustom(400, '항목들을 모두 입력해주세요.');
-      }
-
-      // 이미지는 들어가면 최소 2개이상(선택지갯수에 맞게), 없을수도 있음!
+      // 이미지는 들어가면 최소 2개이상(선택지갯수에 맞게), 없을수도 있음
       let location = [];
       if (image !== undefined) {
         location = image.map((e) => e.location);
@@ -43,7 +36,7 @@ router.post(
       const date = new Date();
       const deadLine = date.setHours(date.getHours() + parseInt(time));
 
-      //   생성 1시간 쿨타임 구현중
+      //   생성 1시간 쿨타임 구현
       // const cooltime = date.setHours(date.getHours() - 2); // 왜 2시간인지는 모르겠네;; 배포하면 또 달라질듯
 
       // const oneHour = await Select.findOne({
@@ -186,28 +179,13 @@ router.get('/filter', async (req, res, next) => {
     }
 
     const datas = await Select.findAll({
-      attributes: {
-        include: [
-          [Sequelize.fn('COUNT', Sequelize.col('Votes.selectKey')), 'total'],
-        ],
-      },
-      include: [
-        { model: User, attributes: ['nickname'] },
-        {
-          attributes: [],
-          model: Vote,
-          duplicating: false,
-          required: false,
-        },
-      ],
-      group: ['Select.selectKey'],
-      order: [['total', 'DESC']],
+      include: [{ model: User, attributes: ['nickname'] }, { model: Vote }],
       offset: offset,
       limit: limit,
     });
 
     const popular = datas.map((e) => ({
-      total: e.dataValues.total,
+      total: e.Votes.length,
       selectKey: e.selectKey,
       title: e.title,
       category: e.category,
@@ -216,6 +194,10 @@ router.get('/filter', async (req, res, next) => {
       nickname: e.User.nickname,
       options: e.options,
     }));
+
+    popular.sort(function (a, b) {
+      return b.total - a.total;
+    });
 
     res.status(201).json({
       msg: '인기글이 조회되었습니다.',
@@ -242,7 +224,6 @@ router.get('/category/:category', async (req, res, next) => {
     const data = await Select.findAll({
       where: { [Op.or]: [{ category: { [Op.like]: `%${category}%` } }] },
       include: [{ model: User, attributes: ['nickname'] }, { model: Vote }],
-      order: [['selectKey', 'DESC']],
       offset: offset,
       limit: limit,
     });

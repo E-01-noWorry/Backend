@@ -81,15 +81,12 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
         let target_token = data.User.deviceToken;
 
         const message = {
-          notification: {
+          token: target_token,
+          data: {
             title: '곰곰',
             body: `게시물에 ${total}개 투표가 진행중입니다.`,
           },
-          token: target_token,
-          data: {
-            title: '곰곰 알림',
-            body: '게시물에 댓글이 달렸습니다!',
-          },
+
           webpush: {
             fcm_options: {
               link: '/',
@@ -100,11 +97,8 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
         admin
           .messaging()
           .send(message)
-          .then(function (response) {
-            console.log('Successfully sent push: : ', response);
-          })
           .catch(function (err) {
-            console.log('Error Sending push!!! : ', err);
+            next(err);
           });
       }
 

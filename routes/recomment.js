@@ -3,6 +3,7 @@ const router = express.Router();
 const { User, Comment, Recomment } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const ErrorCustom = require('../advice/errorCustom');
+
 const admin = require('firebase-admin');
 const Joi = require('joi');
 
@@ -15,12 +16,8 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { commentKey } = req.params;
-    const { comment } = req.body;
-    const resultSchema = recommentSchema.validate({ comment });
+    const { comment } = await recommentSchema.validateAsync(req.body);
 
-    if (resultSchema.error) {
-      throw new ErrorCustom(400, '댓글을 입력해주세요.');
-    }
     if (comment === '') {
       throw new ErrorCustom(400, '대댓글을 입력해주세요.');
     }
@@ -48,15 +45,12 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
       let target_token = data.User.deviceToken;
 
       const message = {
-        notification: {
-          title: '곰곰',
-          body: '작성한 댓글에 대댓글이 달렸습니다.',
-        },
         token: target_token,
         data: {
-          title: '곰곰 알림',
-          body: '게시물에 댓글이 달렸습니다!',
+          title: '곰곰',
+          body: '작성한 댓글에 대댓글이 달렸습니다!',
         },
+
         webpush: {
           fcm_options: {
             link: '/',
@@ -67,11 +61,8 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
       admin
         .messaging()
         .send(message)
-        .then(function (response) {
-          console.log('Successfully sent push: : ', response);
-        })
         .catch(function (err) {
-          console.log('Error Sending push!!! : ', err);
+          next(err);
         });
     }
 
@@ -79,10 +70,9 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
       ok: true,
       msg: '대댓글 작성 성공',
       result: {
-        commentKey: data.commentKey,
         recommentKey: newComment.recommentKey,
         comment: newComment.comment,
-        User: { nickname },
+        nickname: nickname,
         userKey,
         time: newComment.updatedAt,
       },
@@ -134,60 +124,46 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { recommentKey } = req.params;
-    const { comment } = req.body;
+    const { comment } = await recommentSchema.validateAsync(req.body);
 
-    const resultSchema = recommentSchema.validate({ comment });
+    const data = await Recomment.findOne({
+      where: { recommentKey },
+    });
 
-    if (resultSchema.error) {
-      if (comment === '') {
-        throw new ErrorCustom(400, '대댓글을 입력해주세요.');
-      }
-      // if (comment.length > 200) {
-      // throw new ErrorCustom(400, '댓글은 200자 이내로 작성 가능합니다.');
-      // }
+    const commentdata = await Recomment.findOne({
+      where: { commentKey: data.commentKey },
+    });
 
-      const data = await Recomment.findOne({
+    if (!data) {
+      throw new ErrorCustom(400, '해당 대댓글이 존재하지 않습니다.');
+    }
+
+    if (userKey !== data.userKey) {
+      throw new ErrorCustom(400, '작성자가 다릅니다.');
+    } else {
+      await Recomment.update({ comment }, { where: { recommentKey, userKey } });
+
+      await Recomment.update(
+        { comment: comment },
+        { where: { recommentKey, userKey } }
+      );
+
+      const updateComment = await Recomment.findOne({
         where: { recommentKey },
       });
 
-      const commentdata = await Recomment.findOne({
-        where: { commentKey: data.commentKey },
+      return res.status(200).json({
+        ok: true,
+        msg: '대댓글 수정 성공',
+        result: {
+          commentKey: commentdata.commentKey,
+          recommentKey: updateComment.recommentKey,
+          comment,
+          User: { nickname },
+          userKey,
+          time: updateComment.updatedAt,
+        },
       });
-
-      if (!data) {
-        throw new ErrorCustom(400, '해당 대댓글이 존재하지 않습니다.');
-      }
-
-      if (userKey !== data.userKey) {
-        throw new ErrorCustom(400, '작성자가 다릅니다.');
-      } else {
-        await Recomment.update(
-          { comment },
-          { where: { recommentKey, userKey } }
-        );
-
-        await Recomment.update(
-          { comment: comment },
-          { where: { recommentKey, userKey } }
-        );
-
-        const updateComment = await Recomment.findOne({
-          where: { recommentKey },
-        });
-
-        return res.status(200).json({
-          ok: true,
-          msg: '대댓글 수정 성공',
-          result: {
-            commentKey: commentdata.commentKey,
-            recommentKey: updateComment.recommentKey,
-            comment,
-            User: { nickname },
-            userKey,
-            time: updateComment.updatedAt,
-          },
-        });
-      }
     }
   } catch (err) {
     next(err);
@@ -215,7 +191,6 @@ router.delete('/:recommentKey', authMiddleware, async (req, res, next) => {
         ok: true,
         msg: '대댓글 삭제 성공',
         result: {
-          commentKey: data.commentKey,
           recommentKey: data.recommentKey,
           comment: data.comment,
           nickname: nickname,
