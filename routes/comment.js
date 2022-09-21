@@ -48,6 +48,7 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
         data: {
           title: '곰곰',
           body: '게시물에 댓글이 달렸습니다!',
+          link: `https//www.gomgom.site/detail/${selectKey}`,
         },
 
         webpush: {

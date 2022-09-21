@@ -49,6 +49,7 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
         data: {
           title: '곰곰',
           body: '작성한 댓글에 대댓글이 달렸습니다!',
+          link: `https//www.gomgom.site/detail/${data.selectKey}`,
         },
 
         webpush: {
