@@ -12,6 +12,7 @@ const passport = require('passport');
 const passportConfig = require('./passport');
 
 const webSocket = require('./socket');
+const scheduler = require('./advice/scheduler');
 
 require('dotenv').config();
 const port = process.env.PORT;
@@ -57,6 +58,7 @@ app.use('/api', Router);
 // app.get('/', (req, res) => {
 //   res.status(200).json({ massage: '연동 잘 됨.' });
 // });
+scheduler.scheduler();
 //
 app.use(errorHandler);
 
@@ -83,6 +85,7 @@ if (process.env.NODE_ENV == 'production') {
   const server = app.listen(port, () => {
     console.log(port, '포트로 http 서버가 열렸어요!');
   });
+
   webSocket(server, app);
 }
 
