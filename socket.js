@@ -1,22 +1,53 @@
-// const app = require('./app');
-const socket = require('socket.io');
-// const http = require('http');
+const app = require('./app');
+const fs = require('fs');
+const http = require('http');
+const https = require('https');
+require('dotenv').config();
+
+// const socket = require('socket.io');
 const { Room, Chat, User, Participant } = require('./models');
 // require('socket.io-client')('https://localhost:3000');
 // const server = http.createServer(app);
 const dayjs = require('dayjs');
 const admin = require('firebase-admin');
 
+let server =''
+if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
+  try {
+      const ca = fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain.pem', 'utf8')
+      const privateKey = fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem', 'utf8')
+      const certificate = fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem', 'utf8')
+    
+      const credentials = {
+        key: privateKey,
+        cert: certificate,
+        ca: ca,
+    }
+    server = https.createServer(credentials, app)
+
+  } catch (err) {
+    console.log('HTTPS 서버가 실행되지 않습니다.');
+    console.log(err);
+  }
+} else {
+  server = http.createServer(app)
+};
 // ------------------채팅 소캣 부분만 한번 만져봄(여기서부터) ----------------
 
-module.exports = (server, app) => {
-  const io = socket(server, {
-    cors: {
+// module.exports = (server, app) => {
+//   const io = socket(server, {
+//     cors: {
+//       origin: '*',
+//       credentials: true,
+//     },
+//   });
+//   app.set('socket.io', io);
+const io = require("socket.io")(server, {
+  cors: {
       origin: '*',
       credentials: true,
-    },
-  });
-  app.set('socket.io', io);
+  },
+})
 
   // 소캣 연결
   io.on('connection', (socket) => {
@@ -191,4 +222,6 @@ module.exports = (server, app) => {
       io.to(room.title).emit('recommend', param);
     });
   });
-};
+// };
+
+module.exports = { server }
