@@ -3,7 +3,7 @@ const router = express.Router();
 const { Select, User, Comment, Recomment } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const ErrorCustom = require('../advice/errorCustom');
-const Joi = require("joi");
+const Joi = require('joi');
 const admin = require('firebase-admin');
 
 const commentSchema = Joi.object({
@@ -17,11 +17,9 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
     const { selectKey } = req.params;
     const { comment } = await commentSchema.validateAsync(req.body);
 
-
     // if (comment.length > 200) {
     // throw new ErrorCustom(400, '댓글은 200자 이내로 작성 가능합니다.');
     // }
-
 
     const data = await Select.findOne({
       where: { selectKey },
@@ -41,21 +39,17 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
       newComment.updatedAt.getHours() + 9
     );
 
-
     // 글쓴이 토큰 유무 확인 후 알림 보내주기
     if (data.User.deviceToken) {
       let target_token = data.User.deviceToken;
 
       const message = {
-//         notification: {
-//           title: '곰곰',
-//           body: '게시물에 댓글이 달렸습니다.',
-//         },
         token: target_token,
         data: {
-          title: '곰곰 알림',
+          title: '곰곰',
           body: '게시물에 댓글이 달렸습니다!',
         },
+
         webpush: {
           fcm_options: {
             link: '/',
@@ -66,11 +60,8 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
       admin
         .messaging()
         .send(message)
-        .then(function (response) {
-          console.log('Successfully sent push: : ', response);
-        })
         .catch(function (err) {
-          console.log('Error Sending push!!! : ', err);
+          next(err);
         });
     }
 

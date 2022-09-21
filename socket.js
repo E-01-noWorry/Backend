@@ -88,15 +88,12 @@ module.exports = (server, app) => {
         let target_token = chatUser.Room.User.deviceToken;
 
         const message = {
-          notification: {
-            title: '곰곰',
-            body: '채팅이 왔습니다.',
-          },
           token: target_token,
           data: {
-            title: '곰곰 알림',
-            body: '게시물에 댓글이 달렸습니다!',
+            title: '곰곰',
+            body: '새로운 채팅이 왔습니다!',
           },
+
           webpush: {
             fcm_options: {
               link: '/',
@@ -107,11 +104,8 @@ module.exports = (server, app) => {
         admin
           .messaging()
           .send(message)
-          .then(function (response) {
-            console.log('Successfully sent push: : ', response);
-          })
           .catch(function (err) {
-            console.log('Error Sending push!!! : ', err);
+            next(err);
           });
       }
 
