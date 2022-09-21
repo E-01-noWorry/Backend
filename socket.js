@@ -86,6 +86,23 @@ io.on('connection', (socket) => {
 
     // 처음입장이라면 환영 메세지가 없을테니
     if (!enterMsg) {
+      const today = dayjs().format('YYYY-MM-DD 00:00:00');
+
+      const todayChat = await Chat.findOne({
+        where: {
+          roomKey,
+          createdAt: { [Op.gt]: today },
+        },
+      });
+
+      if (!todayChat) {
+        await Chat.create({
+          roomKey,
+          userKey: 12, // 관리자 유저키
+          chat: `${dayjs(today).format('YYYY년 MM월 DD일')}`,
+        });
+      }
+
       await Chat.create({
         roomKey,
         userKey: 12, // 관리자 유저키
