@@ -121,7 +121,7 @@ io.on('connection', (socket) => {
   socket.on('chat_message', async (data) => {
     let { message, roomKey, userKey } = data;
 
-    const today = dayjs(new Date()).format('YYYY-MM-DD hh:mm:ss');
+    const today = dayjs(new Date()).add(9, 'h').format('YYYY-MM-DD hh:mm:ss');
 
     const todayChat = await Chat.findOne({
       where: {
