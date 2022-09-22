@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { Select, User, Vote } = require('../models');
+const { Select, User, Vote, Sequelize } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 const upload = require('../middlewares/multer');
 const schedule = require('node-schedule');
 const Joi = require('joi');
+const dayjs = require('dayjs');
 
 const selectSchema = Joi.object({
   title: Joi.string().max(40).required(),
@@ -39,23 +40,22 @@ router.post(
         location = image.map((e) => e.location);
       }
 
-      const date = new Date();
-      const deadLine = date.setHours(date.getHours() + parseInt(time));
+      // 선택글 생성 5분 쿨타임 구현
+      const cooltime = dayjs(new Date()).subtract(5, 'm').format();
 
-      //   생성 1시간 쿨타임 구현
-      // const cooltime = date.setHours(date.getHours() - 2); // 왜 2시간인지는 모르겠네;; 배포하면 또 달라질듯
+      const fiveminute = await Select.findOne({
+        where: {
+          userKey,
+          createdAt: { [Op.gt]: cooltime },
+        },
+        attributes: ['createdAt'],
+      });
 
-      // const oneHour = await Select.findOne({
-      //   where: {
-      //     userKey,
-      //     createdAt: { [Op.gt]: new Date(cooltime) },
-      //   },
-      //   attributes: ['createdAt'],
-      // });
+      if (fiveminute) {
+        throw new ErrorCustom(400, '선택글은 5분에 1번만 작성 가능합니다.');
+      }
 
-      // if (oneHour) {
-      //   throw new ErrorCustom(400, '선택글은 1시간에 1번만 작성 가능합니다.');
-      // }
+      const deadLine = dayjs(new Date()).add(parseInt(time), 'h').format();
 
       const data = await Select.create({
         title,
@@ -68,10 +68,7 @@ router.post(
       });
 
       // 스케줄러로 마감시간이 되면 compeltion true로 바꾸고, 최다선택지 투표한 사람 포인트 적립
-      let now2 = new Date();
-      const compeltionTime = now2.setHours(now2.getHours() + parseInt(time));
-
-      schedule.scheduleJob(compeltionTime, async () => {
+      schedule.scheduleJob(deadLine, async () => {
         console.log('게시물 마감처리');
         await data.update({ compeltion: true });
 
@@ -110,9 +107,6 @@ router.post(
       let selectPoint = await User.findOne({ where: { userKey } });
       await selectPoint.update({ point: selectPoint.point + 3 });
 
-      // db 저장시간과 보여지는 시간이 9시간 차이가 나서 보여주는것은 9시간을 더한것을 보여준다. 이후 db에서 가져오는 dealine은 정상적인 한국시간
-      data.deadLine = date.setHours(date.getHours() + 9);
-
       return res.status(200).json({
         ok: true,
         msg: '선택글 작성 성공',
@@ -120,7 +114,7 @@ router.post(
           selectKey: data.selectKey,
           title: data.title,
           category: data.category,
-          deadLine: data.deadLine,
+          deadLine: deadLine,
           completion: false,
           nickname: nickname,
           selectPoint: selectPoint.point,
@@ -183,13 +177,28 @@ router.get('/filter', async (req, res, next) => {
     }
 
     const datas = await Select.findAll({
-      include: [{ model: User, attributes: ['nickname'] }, { model: Vote }],
+      attributes: {
+        include: [
+          [Sequelize.fn('COUNT', Sequelize.col('Votes.selectKey')), 'total'],
+        ],
+      },
+      include: [
+        { model: User, attributes: ['nickname'] },
+        {
+          attributes: [],
+          model: Vote,
+          duplicating: false,
+          required: false,
+        },
+      ],
+      group: ['Select.selectKey'],
+      order: [['total', 'DESC']],
       offset: offset,
       limit: limit,
     });
 
     const popular = datas.map((e) => ({
-      total: e.Votes.length,
+      total: e.dataValues.total,
       selectKey: e.selectKey,
       title: e.title,
       category: e.category,
@@ -198,10 +207,6 @@ router.get('/filter', async (req, res, next) => {
       nickname: e.User.nickname,
       options: e.options,
     }));
-
-    popular.sort(function (a, b) {
-      return b.total - a.total;
-    });
 
     res.status(201).json({
       msg: '인기글이 조회되었습니다.',
@@ -228,6 +233,7 @@ router.get('/category/:category', async (req, res, next) => {
     const data = await Select.findAll({
       where: { [Op.or]: [{ category: { [Op.like]: `%${category}%` } }] },
       include: [{ model: User, attributes: ['nickname'] }, { model: Vote }],
+      order: [['selectKey', 'DESC']],
       offset: offset,
       limit: limit,
     });

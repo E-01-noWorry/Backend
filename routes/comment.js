@@ -35,9 +35,11 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
       selectKey,
       userKey,
     });
-    newComment.updatedAt = newComment.updatedAt.setHours(
-      newComment.updatedAt.getHours() + 9
-    );
+
+    const newCmt = await Comment.findOne({
+      where: { commentKey: newComment.commentKey },
+      include: [{ model: User, attributes: ['nickname', 'point'] }],
+    });
 
     // 글쓴이 토큰 유무 확인 후 알림 보내주기
     if (data.User.deviceToken) {
@@ -48,12 +50,7 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
         data: {
           title: '곰곰',
           body: '게시물에 댓글이 달렸습니다!',
-        },
-
-        webpush: {
-          fcm_options: {
-            link: '/',
-          },
+          link: `detail/${selectKey}`,
         },
       };
 
@@ -73,7 +70,8 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
         comment: newComment.comment,
         nickname: nickname,
         userKey,
-        time: newComment.updatedAt,
+        point: newCmt.User.point,
+        time: newCmt.updatedAt,
       },
     });
   } catch (err) {
@@ -125,7 +123,7 @@ router.get('/:selectKey', async (req, res, next) => {
           comment: e.comment,
           nickname: e.User.nickname,
           userKey: e.userKey,
-          ponit: e.User.point,
+          point: e.User.point,
           time: e.updatedAt,
           recomment: e.Recomments,
         };
@@ -158,21 +156,26 @@ router.put('/:commentKey', authMiddleware, async (req, res, next) => {
     if (userKey !== data.userKey) {
       throw new ErrorCustom(400, '작성자가 다릅니다.');
     } else {
-      await Comment.update({ comment }, { where: { commentKey, userKey } });
+      const updateComment = await Comment.update(
+        { comment },
+        { where: { commentKey } }
+      );
 
-      const updateComment = await Comment.findOne({
+      const updateCmt = await Comment.findOne({
         where: { commentKey },
+        include: [{ model: User, attributes: ['nickname', 'point'] }],
       });
 
       return res.status(200).json({
         ok: true,
         msg: '댓글 수정 성공',
         result: {
-          commentKey: data.commentKey,
+          commentKey,
           comment: comment,
           nickname: nickname,
           userKey,
-          time: updateComment.updatedAt,
+          point: updateCmt.User.point,
+          time: updateCmt.updatedAt,
         },
       });
     }

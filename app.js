@@ -8,6 +8,8 @@ const session = require('cookie-session');
 const passport = require('passport');
 const passportConfig = require('./passport');
 
+const scheduler = require('./advice/scheduler');
+
 require('dotenv').config();
 
 const app = express();
@@ -50,6 +52,7 @@ app.use('/api', Router);
 app.get('/', (req, res) => {
   res.status(200).json({ massage: '서버 잘 켜짐.' });
 });
+scheduler.scheduler();
 app.use(errorHandler);
 
 module.exports = app;

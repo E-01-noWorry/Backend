@@ -3,7 +3,6 @@ const router = express.Router();
 const { User, Comment, Recomment } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const ErrorCustom = require('../advice/errorCustom');
-
 const admin = require('firebase-admin');
 const Joi = require('joi');
 
@@ -37,9 +36,10 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
       userKey,
     });
 
-    newComment.updatedAt = newComment.updatedAt.setHours(
-      newComment.updatedAt.getHours() + 9
-    );
+    const newCmt = await Recomment.findOne({
+      where: { commentKey: newComment.commentKey },
+      include: [{ model: User, attributes: ['nickname', 'point'] }],
+    });
 
     if (data.User.deviceToken) {
       let target_token = data.User.deviceToken;
@@ -49,12 +49,7 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
         data: {
           title: '곰곰',
           body: '작성한 댓글에 대댓글이 달렸습니다!',
-        },
-
-        webpush: {
-          fcm_options: {
-            link: '/',
-          },
+          link: `detail/${data.selectKey}`,
         },
       };
 
@@ -70,49 +65,16 @@ router.post('/:commentKey', authMiddleware, async (req, res, next) => {
       ok: true,
       msg: '대댓글 작성 성공',
       result: {
+        commentKey,
         recommentKey: newComment.recommentKey,
-        comment: newComment.comment,
-        nickname: nickname,
+        comment,
         userKey,
-        time: newComment.updatedAt,
+        User: {
+          nickname,
+          point: newCmt.User.point,
+        },
+        time: newCmt.updatedAt,
       },
-    });
-  } catch (err) {
-    next(err);
-  }
-});
-
-// 해당 게시물 대댓글 모두 조회
-router.get('/:commentKey', async (req, res, next) => {
-  try {
-    const { commentKey } = req.params;
-
-    const data = await Comment.findOne({
-      where: { commentKey },
-    });
-
-    if (!data) {
-      throw new ErrorCustom(400, '해당 대댓글이 존재하지 않습니다.');
-    }
-
-    const datas = await Recomment.findAll({
-      where: { commentKey },
-      include: [{ model: User, attributes: ['nickname'] }],
-      order: [['recommentKey', 'ASC']],
-    });
-
-    return res.status(200).json({
-      ok: true,
-      msg: '대댓글 조회 성공',
-      result: datas.map((e) => {
-        return {
-          recommentKey: e.recommentKey,
-          comment: e.comment,
-          nickname: e.User.nickname,
-          userKey: e.userKey,
-          time: e.updatedAt,
-        };
-      }),
     });
   } catch (err) {
     next(err);
@@ -124,14 +86,14 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { recommentKey } = req.params;
-    const { comment } = await recommentSchema.validateAsync(req.body);
+    const result = recommentSchema.validate(req.body);
+    if (result.error) {
+      throw new ErrorCustom(400, '대댓글을 입력해주세요. 50자까지 가능합니다.');
+    }
+    const { comment } = result.value;
 
     const data = await Recomment.findOne({
       where: { recommentKey },
-    });
-
-    const commentdata = await Recomment.findOne({
-      where: { commentKey: data.commentKey },
     });
 
     if (!data) {
@@ -143,25 +105,29 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
     } else {
       await Recomment.update({ comment }, { where: { recommentKey, userKey } });
 
-      await Recomment.update(
-        { comment: comment },
-        { where: { recommentKey, userKey } }
+      const updateComment = await Recomment.update(
+        { comment },
+        { where: { recommentKey } }
       );
 
-      const updateComment = await Recomment.findOne({
+      const updateCmt = await Recomment.findOne({
         where: { recommentKey },
+        include: [{ model: User, attributes: ['nickname', 'point'] }],
       });
 
       return res.status(200).json({
         ok: true,
         msg: '대댓글 수정 성공',
         result: {
-          commentKey: commentdata.commentKey,
-          recommentKey: updateComment.recommentKey,
+          commentKey: updateCmt.commentKey,
+          recommentKey,
           comment,
-          User: { nickname },
+          User: {
+            nickname,
+            point: updateCmt.User.point,
+          },
           userKey,
-          time: updateComment.updatedAt,
+          time: updateCmt.updatedAt,
         },
       });
     }

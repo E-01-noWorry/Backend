@@ -5,6 +5,7 @@ const https = require('https');
 require('dotenv').config();
 
 const { Room, Chat, User, Participant } = require('./models');
+const { Op } = require('sequelize');
 const dayjs = require('dayjs');
 const admin = require('firebase-admin');
 
@@ -77,6 +78,23 @@ io.on('connection', (socket) => {
 
     // 처음입장이라면 환영 메세지가 없을테니
     if (!enterMsg) {
+      const today = dayjs(new Date()).add(9, 'h').format('YYYY-MM-DD 00:00:00');
+
+      const todayChat = await Chat.findOne({
+        where: {
+          roomKey,
+          createdAt: { [Op.gt]: today },
+        },
+      });
+
+      if (!todayChat) {
+        await Chat.create({
+          roomKey,
+          userKey: 12, // 관리자 유저키
+          chat: `${dayjs(today).format('YYYY년 MM월 DD일')}`,
+        });
+      }
+
       await Chat.create({
         roomKey,
         userKey: 12, // 관리자 유저키
@@ -94,6 +112,23 @@ io.on('connection', (socket) => {
   // 채팅 받아서 저장하고, 그 채팅 보내서 보여주기
   socket.on('chat_message', async (data) => {
     let { message, roomKey, userKey } = data;
+
+    const today = dayjs(new Date()).add(9, 'h').format('YYYY-MM-DD 00:00:00');
+
+    const todayChat = await Chat.findOne({
+      where: {
+        roomKey,
+        createdAt: { [Op.gt]: today },
+      },
+    });
+    
+    if (!todayChat) {
+      await Chat.create({
+        roomKey,
+        userKey: 12, // 관리자 유저키
+        chat: `${dayjs(today).format('YYYY년 MM월 DD일')}`,
+      });
+    }
 
     const newChat = await Chat.create({
       roomKey,
@@ -120,12 +155,7 @@ io.on('connection', (socket) => {
         data: {
           title: '곰곰',
           body: '새로운 채팅이 왔습니다!',
-        },
-
-        webpush: {
-          fcm_options: {
-            link: '/',
-          },
+          link: `chatroom/${roomKey}`,
         },
       };
 
