@@ -126,7 +126,6 @@ io.on('connection', (socket) => {
     const todayChat = await Chat.findOne({
       where: {
         roomKey,
-        userKey: { [Op.ne]: 12 },
         createdAt: { [Op.gt]: today },
       },
     });
