@@ -129,6 +129,27 @@ io.on('connection', (socket) => {
         createdAt: { [Op.gt]: today },
       },
     });
+    
+    const array = fs.readFileSync('badwords.txt', 'utf-8').toString().split(",");
+      const text = [];
+      const star = [];
+
+      for(i=0; i<array.length; i++) {
+        text.push(array[i]);
+      }
+
+
+      //단어 배열에 저장하는 것까지했다 다음은 이 저장된거랑 입력받은 단어를 비교해서 같다면 필터링해줘야함
+      for(k=0; k<text.length; k++) {
+        if(message== text[k]) {
+            for(j=0; j<title.length; j++) {
+              star.push('*');
+            }
+        }
+      }
+
+      message = star.join('')
+
 
     if (!todayChat) {
       await Chat.create({
