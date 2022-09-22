@@ -65,14 +65,14 @@ router.post('/user/login', async (req, res, next) => {
       { userKey: user.userKey },
       process.env.SECRET_KEY,
       {
-        expiresIn: '1m',
+        expiresIn: '20s',
       }
     );
     const refreshToken = jwt.sign(
       { userKey: user.userKey },
       process.env.SECRET_KEY,
       {
-        expiresIn: '3m',
+        expiresIn: '30s',
       }
     );
     console.log(accessToken, 'access토큰 확인');
@@ -186,19 +186,21 @@ router.get('/auth/google/callback', googleCallback);
 
 //로그인 유저 확인
 router.get('/user/me', authMiddleware, async (req, res, next) => {
-  console.log(res.locals, '22')
-  const { userKey, nickname, userId } = res.locals.user;
-  const { accessToken } = res.locals;
+  try {
+    const { userKey, nickname, userId } = res.locals.user;
+    const { accessToken } = res.locals;
 
-  const existUser = await User.findOne({ where: { userKey } });
-  console.log(existUser, '유저확인')
-
-  res.status(200).json({
-    ok: true,
-    msg: '로그인 유저 정보 확인',
-    accessToken,
-    refreshToken: existUser.refreshToken
-  });
+    const existUser = await User.findOne({ where: { userKey } });
+    // console.log(existUser, '유저확인');
+    res.status(200).json({
+      ok: true,
+      msg: '로그인 유저 정보 확인',
+      accessToken,
+      refreshToken: existUser.refreshToken,
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
 // 유저 닉네임 수정
