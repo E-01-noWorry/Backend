@@ -7,6 +7,7 @@ const ErrorCustom = require('../advice/errorCustom');
 const upload = require('../middlewares/multer');
 const schedule = require('node-schedule');
 const Joi = require('joi');
+const dayjs = require('dayjs');
 
 const selectSchema = Joi.object({
   title: Joi.string().max(40).required(),
@@ -39,8 +40,11 @@ router.post(
         location = image.map((e) => e.location);
       }
 
-      const date = new Date();
-      const deadLine = date.setHours(date.getHours() + parseInt(time));
+      const date = dayjs(new Date()).format();
+      const deadLine = dayjs(new Date()).add(parseInt(time), 'h').format();
+
+      // const date = new Date();
+      // const deadLine = date.setHours(date.getHours() + parseInt(time));
 
       //   생성 1시간 쿨타임 구현
       // const cooltime = date.setHours(date.getHours() - 2); // 왜 2시간인지는 모르겠네;; 배포하면 또 달라질듯
@@ -111,7 +115,7 @@ router.post(
       await selectPoint.update({ point: selectPoint.point + 3 });
 
       // db 저장시간과 보여지는 시간이 9시간 차이가 나서 보여주는것은 9시간을 더한것을 보여준다. 이후 db에서 가져오는 dealine은 정상적인 한국시간
-      data.deadLine = date.setHours(date.getHours() + 9);
+      // data.deadLine = date.setHours(date.getHours() + 9);
 
       return res.status(200).json({
         ok: true,
@@ -120,7 +124,7 @@ router.post(
           selectKey: data.selectKey,
           title: data.title,
           category: data.category,
-          deadLine: data.deadLine,
+          deadLine: deadLine,
           completion: false,
           nickname: nickname,
           selectPoint: selectPoint.point,
