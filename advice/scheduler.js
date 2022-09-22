@@ -3,7 +3,7 @@ const { Select } = require('../models');
 const dayjs = require('dayjs');
 
 exports.scheduler = () => {
-  const now = dayjs(new Date()).add(9, 'h').format();
+  const now = dayjs(new Date()).add(10, 'h').format();
 
   schedule.scheduleJob('00 00 * * * *', async function () {
     console.log('데이터 확인');
