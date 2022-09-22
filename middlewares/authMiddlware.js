@@ -74,7 +74,7 @@ module.exports = (req, res, next) => {
         console.log(userKey, 'userKey확인');
 
         const newAccessToken = jwt.sign({ userKey }, process.env.SECRET_KEY, {
-          expiresIn: '1h',
+          expiresIn: '3m',
         });
         console.log(newAccessToken, 'newAccessToken 확인');
 
@@ -91,7 +91,7 @@ module.exports = (req, res, next) => {
 
         // refreshToken 발급
         const newRefreshToken = jwt.sign({ userKey }, process.env.SECRET_KEY, {
-          expiresIn: '14d',
+          expiresIn: '3m',
         });
         console.log(newRefreshToken, 'newRefreshToken 확인');
 
