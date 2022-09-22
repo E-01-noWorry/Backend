@@ -72,10 +72,10 @@ router.post(
       });
 
       // 스케줄러로 마감시간이 되면 compeltion true로 바꾸고, 최다선택지 투표한 사람 포인트 적립
-      let now2 = new Date();
-      const compeltionTime = now2.setHours(now2.getHours() + parseInt(time));
+      // let now2 = new Date();
+      // const compeltionTime = now2.setHours(now2.getHours() + parseInt(time));
 
-      schedule.scheduleJob(compeltionTime, async () => {
+      schedule.scheduleJob(deadLine, async () => {
         console.log('게시물 마감처리');
         await data.update({ compeltion: true });
 
