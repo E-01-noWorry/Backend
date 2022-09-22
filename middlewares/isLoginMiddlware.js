@@ -6,28 +6,37 @@ const ErrorCustom = require('../advice/errorCustom');
 // 단순히 로그인 비로그인을 확인하는 미들웨어(비로그인시 locals에 유저정보 담지 않고 그냥 next로 넘어감)
 module.exports = (req, res, next) => {
   try {
-    const { authorization } = req.headers;
+    const accessToken = req.headers.accesstoken;
+    const refreshToken = req.headers.refreshtoken;
 
-    if (authorization) {
-      const [authType, authToken] = (authorization || '').split(' ');
+    if (accessToken || refreshToken) {
+      const accessAuthType = accessToken.split(' ')[0];
+      const accessAuthToken = accessToken.split(' ')[1];
+      const refreshAuthType = refreshToken.split(' ')[0];
+      const refreshAuthToken = refreshToken.split(' ')[1];
 
-      if (authType !== 'Bearer') {
+      if (accessAuthType !== 'Bearer' || refreshAuthType !== 'Bearer') {
         throw new ErrorCustom(401, '토큰 타입이 맞지 않습니다.');
       }
 
       try {
-        const decoded = jwt.verify(authToken, process.env.SECRET_KEY);
+        const accessVerified = jwt.verify(
+          accessAuthToken,
+          process.env.SECRET_KEY
+        );
+        const { userKey } = accessVerified;
 
         User.findOne({
-          where: { userKey: decoded.userKey },
+          where: { userKey },
           attributes: ['userKey', 'userId', 'nickname'],
         }).then((user) => {
           res.locals.user = user;
+          res.locals.accessToken = accessAuthToken;
           next();
         });
         return;
       } catch (err) {
-        throw new ErrorCustom(401, '토큰이 유효하지 않습니다.(기간만료 등)');
+        next();
       }
     }
     next();
