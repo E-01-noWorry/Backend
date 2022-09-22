@@ -43,23 +43,20 @@ router.post(
       const date = dayjs(new Date()).format();
       const deadLine = dayjs(new Date()).add(parseInt(time), 'h').format();
 
-      // const date = new Date();
-      // const deadLine = date.setHours(date.getHours() + parseInt(time));
+      // 선택글 생성 5분 쿨타임 구현
+      const cooltime = dayjs(new Date()).subtract(5, 'm').format();
 
-      //   생성 1시간 쿨타임 구현
-      // const cooltime = date.setHours(date.getHours() - 2); // 왜 2시간인지는 모르겠네;; 배포하면 또 달라질듯
+      const fiveminute = await Select.findOne({
+        where: {
+          userKey,
+          createdAt: { [Op.gt]: cooltime },
+        },
+        attributes: ['createdAt'],
+      });
 
-      // const oneHour = await Select.findOne({
-      //   where: {
-      //     userKey,
-      //     createdAt: { [Op.gt]: new Date(cooltime) },
-      //   },
-      //   attributes: ['createdAt'],
-      // });
-
-      // if (oneHour) {
-      //   throw new ErrorCustom(400, '선택글은 1시간에 1번만 작성 가능합니다.');
-      // }
+      if (fiveminute) {
+        throw new ErrorCustom(400, '선택글은 5분에 1번만 작성 가능합니다.');
+      }
 
       const data = await Select.create({
         title,
@@ -72,9 +69,6 @@ router.post(
       });
 
       // 스케줄러로 마감시간이 되면 compeltion true로 바꾸고, 최다선택지 투표한 사람 포인트 적립
-      // let now2 = new Date();
-      // const compeltionTime = now2.setHours(now2.getHours() + parseInt(time));
-
       schedule.scheduleJob(deadLine, async () => {
         console.log('게시물 마감처리');
         await data.update({ compeltion: true });
@@ -113,9 +107,6 @@ router.post(
       //선택글 생성시 +3점씩 포인트 지급
       let selectPoint = await User.findOne({ where: { userKey } });
       await selectPoint.update({ point: selectPoint.point + 3 });
-
-      // db 저장시간과 보여지는 시간이 9시간 차이가 나서 보여주는것은 9시간을 더한것을 보여준다. 이후 db에서 가져오는 dealine은 정상적인 한국시간
-      // data.deadLine = date.setHours(date.getHours() + 9);
 
       return res.status(200).json({
         ok: true,
