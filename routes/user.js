@@ -61,15 +61,30 @@ router.post('/user/login', async (req, res, next) => {
       throw new ErrorCustom(400, '아이디 또는 패스워드가 잘못되었습니다.');
     }
 
-    const token = jwt.sign({ userKey: user.userKey }, process.env.SECRET_KEY, {
-      expiresIn: '6h',
-    }); //토큰 만료 6시간 설정
-    console.log(token, '토큰 확인');
+    const accessToken = jwt.sign(
+      { userKey: user.userKey },
+      process.env.SECRET_KEY,
+      {
+        expiresIn: '1h',
+      }
+    );
+    const refreshToken = jwt.sign(
+      { userKey: user.userKey },
+      process.env.SECRET_KEY,
+      {
+        expiresIn: '14d',
+      }
+    );
+    console.log(accessToken, 'access토큰 확인');
+    console.log(refreshToken, 'refresh토큰 확인');
+
+    await user.update({ refreshToken }, { where: { userKey: user.userKey } });
 
     res.status(200).json({
-      token,
       nickname: user.nickname,
       userKey: user.userKey,
+      accessToken,
+      refreshToken,
       msg: '로그인에 성공하였습니다.',
     });
   } catch (error) {
@@ -87,15 +102,26 @@ const kakaoCallback = (req, res, next) => {
         if (err) return next(err);
 
         const { userKey, nickname } = user;
-        const token = jwt.sign(
+
+        const accessToken = jwt.sign(
           { userKey: user.userKey },
           process.env.SECRET_KEY,
-          { expiresIn: '6h' }
-        ); //토큰 만료 6시간 설정
+          {
+            expiresIn: '1h',
+          }
+        );
+        const refreshToken = jwt.sign(
+          { userKey: user.userKey },
+          process.env.SECRET_KEY,
+          {
+            expiresIn: '14d',
+          }
+        );
 
         result = {
           userKey,
-          token,
+          accessToken,
+          refreshToken,
           nickname,
         };
         res
@@ -123,13 +149,23 @@ const googleCallback = (req, res, next) => {
         if (err) return next(err);
 
         const { userKey, nickname } = user;
-        const token = jwt.sign(
+
+        const accessToken = jwt.sign(
           { userKey: user.userKey },
           process.env.SECRET_KEY,
-          { expiresIn: '6h' }
-        ); //토큰 만료 6시간 설정
+          {
+            expiresIn: '1h',
+          }
+        );
+        const refreshToken = jwt.sign(
+          { userKey: user.userKey },
+          process.env.SECRET_KEY,
+          {
+            expiresIn: '14d',
+          }
+        );
 
-        result = { userKey, token, nickname };
+        result = { userKey, accessToken, refreshToken, nickname };
         res
           .status(201)
           .json({ user: result, msg: '구글 로그인에 성공하였습니다.' });
@@ -147,6 +183,28 @@ router.get(
 ); //프로필과 이메일 정보를 받음.
 //구글 서버 로그인이 되면, redicrect url을 통해 요청 재전달
 router.get('/auth/google/callback', googleCallback);
+
+//로그인 유저 확인
+router.get('/user/me', authMiddleware, async (req, res, next) => {
+  console.log(res.locals, '22')
+  const { userKey, nickname, userId } = res.locals.user;
+  const { accessToken } = res.locals;
+
+  const existUser = await User.findOne({ where: { userKey } });
+  console.log(existUser, '유저확인')
+
+  res.status(200).json({
+    ok: true,
+    msg: '로그인 유저 정보 확인',
+    result : {
+      userKey: existUser.userKey,
+      userId: existUser.userId,
+      nickname : existUser.nickname,
+      accessToken,
+      refreshToken: existUser.refreshToken
+    }
+  });
+});
 
 // 유저 닉네임 수정
 router.put('/user/:userKey', async (req, res) => {
