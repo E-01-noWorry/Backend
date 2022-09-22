@@ -86,7 +86,7 @@ io.on('connection', (socket) => {
 
     // 처음입장이라면 환영 메세지가 없을테니
     if (!enterMsg) {
-      const today = dayjs(new Date()).format('YYYY-MM-DD hh:mm:ss');
+      const today = dayjs(new Date()).add(9, 'h').format('YYYY-MM-DD hh:mm:ss');
 
       const todayChat = await Chat.findOne({
         where: {
