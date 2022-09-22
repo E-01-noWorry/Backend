@@ -165,12 +165,6 @@ io.on('connection', (socket) => {
           body: '새로운 채팅이 왔습니다!',
           link: `chatroom/${roomKey}`,
         },
-
-        webpush: {
-          fcm_options: {
-            link: '/',
-          },
-        },
       };
 
       admin

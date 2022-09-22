@@ -50,12 +50,6 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
           body: '게시물에 댓글이 달렸습니다!',
           link: `detail/${selectKey}`,
         },
-
-        webpush: {
-          fcm_options: {
-            link: '/',
-          },
-        },
       };
 
       admin

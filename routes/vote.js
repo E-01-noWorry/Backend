@@ -87,12 +87,6 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
             body: `게시물에 ${total}개 투표가 진행중입니다.`,
             link: `detail/${selectKey}`,
           },
-
-          webpush: {
-            fcm_options: {
-              link: '/',
-            },
-          },
         };
 
         admin
