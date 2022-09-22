@@ -81,12 +81,12 @@ module.exports = async (req, res, next) => {
 
       //3.access토큰은 있지만, refresh토큰 사용 불가하다면 refreshToken 발급
       if (accessVerified && !refreshVerified) {
+        const { userKey } = accessVerified;
+
         const existUser = await User.findOne({ where: { userKey } });
         if (!existUser) {
           throw new ErrorCustom(401, '존재하지 않은 사용자입니다.');
         }
-
-        const { userKey } = accessVerified;
         // refreshToken 발급
         const newRefreshToken = jwt.sign({ userKey }, process.env.SECRET_KEY, {
           expiresIn: '1m',
