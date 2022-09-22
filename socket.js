@@ -40,14 +40,6 @@ if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
 }
 // ------------------채팅 소캣 부분만 한번 만져봄(여기서부터) ----------------
 
-// module.exports = (server, app) => {
-//   const io = socket(server, {
-//     cors: {
-//       origin: '*',
-//       credentials: true,
-//     },
-//   });
-//   app.set('socket.io', io);
 const io = require('socket.io')(server, {
   cors: {
     origin: '*',

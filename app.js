@@ -1,21 +1,16 @@
 const express = require('express');
 const Router = require('./routes/index');
 const errorHandler = require('./advice/errorHandler');
-const logger = require('./advice/winston');
-const morganMiddleware = require('./middlewares/morgan');
-// const fs = require('fs');
-// const http = require('http');
-// const https = require('https');
+const logger = require('./config/winston');
+const morganMiddleware = require('./config/morganMiddleware');
 
 const session = require('cookie-session');
 const passport = require('passport');
 const passportConfig = require('./passport');
 
-// const webSocket = require('./socket');
 const scheduler = require('./advice/scheduler');
 
 require('dotenv').config();
-// const port = process.env.PORT;
 
 const app = express();
 
@@ -59,31 +54,5 @@ app.get('/', (req, res) => {
 });
 scheduler.scheduler();
 app.use(errorHandler);
-
-// if (process.env.NODE_ENV == 'production') {
-//   try {
-//     const port2 = process.env.PORT2;
-//     const options = {
-//       ca: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/fullchain.pem'),
-//       key: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/privkey.pem'),
-//       cert: fs.readFileSync('/etc/letsencrypt/live/jolee.shop/cert.pem'),
-//     };
-//     app.use(express.static('public'));
-
-//     http.createServer(app).listen(port);
-//     const server = https.createServer(options, app).listen(port2, () => {
-//       console.log(port2, '포트로 https 서버가 열렸어요!');
-//     });
-//     webSocket(server, app);
-//   } catch (err) {
-//     console.log('HTTPS 서버가 실행되지 않습니다.');
-//     console.log(err);
-//   }
-// } else {
-// const server = app.listen(port, () => {
-//   console.log(port, '포트로 http 서버가 열렸어요!');
-// });
-// webSocket(server, app);
-// }
 
 module.exports = app;
