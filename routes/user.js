@@ -196,13 +196,8 @@ router.get('/user/me', authMiddleware, async (req, res, next) => {
   res.status(200).json({
     ok: true,
     msg: '로그인 유저 정보 확인',
-    result : {
-      userKey: existUser.userKey,
-      userId: existUser.userId,
-      nickname : existUser.nickname,
-      accessAuthToken,
-      refreshToken: existUser.refreshToken
-    }
+    accessAuthToken,
+    refreshToken: existUser.refreshToken
   });
 });
 
