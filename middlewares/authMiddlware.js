@@ -25,7 +25,7 @@ module.exports = (req, res, next) => {
       res.status(401).json({ err: '토큰 타입이 맞지 않습니다.' });
       // throw new ErrorCustom(401, '토큰 타입이 맞지 않습니다.');
     }
-    console.log(1);
+
     if (
       accessAuthToken === null ||
       accessAuthToken === undefined ||
@@ -37,7 +37,6 @@ module.exports = (req, res, next) => {
       res.status(401).json({ err: '토큰이 유효하지 않습니다.' });
       // throw new ErrorCustom(401, '토큰이 유효하지 않습니다.');
     }
-    console.log(2);
 
     let accessVerified = null;
     let refreshVerified = null;
@@ -52,20 +51,13 @@ module.exports = (req, res, next) => {
     } catch (error) {
       refreshVerified = null;
     }
-    console.log(3);
 
     try {
-      console.log(4);
-      console.log(accessVerified, 'aa');
-      console.log(refreshVerified, 'bb');
-
       //1.access토큰, refresh토큰 모두 사용 불가
       if (!accessVerified && !refreshVerified) {
-        console.log(777);
         res.status(401).json({ err: '로그인 후 사용 가능합니다(1)' });
         // throw new ErrorCustom(401, '로그인 후 사용 가능합니다.33');
       }
-      console.log(5);
 
       //2.access토큰은 만료되었지만 refresh토큰이 존재한다면 db에서 토큰을 비교하여 accessToken 발급
       if (!accessVerified && refreshVerified) {
@@ -76,22 +68,19 @@ module.exports = (req, res, next) => {
           res.status(401).json({ err: '존재하지 않은 사용자입니다' });
           // throw new ErrorCustom(401, '존재하지 않은 사용자입니다.');
         }
-        console.log(6);
 
         // accessToken 발급
         const userKey = existUser?.userKey; //옵셔널 체이닝
         console.log(userKey, 'userKey확인');
-        console.log(7);
 
         const newAccessToken = jwt.sign({ userKey }, process.env.SECRET_KEY, {
           expiresIn: '1h',
         });
         console.log(newAccessToken, 'newAccessToken 확인');
-        console.log(8);
 
         return res.status(200).json({
           accessToken: newAccessToken,
-          refreshToken,
+          refreshToken: refreshAuthToken,
           msg: 'acceess 토큰이 재발급 되었습니다.',
         });
       }
@@ -118,7 +107,7 @@ module.exports = (req, res, next) => {
 
         return res.status(200).json({
           refreshToken: newRefreshToken,
-          accessToken,
+          accessToken: accessAuthToken,
           msg: 'refresh 토큰이 재발급 되었습니다.',
         });
       }
@@ -131,7 +120,7 @@ module.exports = (req, res, next) => {
           attributes: ['userKey', 'userId', 'nickname'],
         }).then((user) => {
           res.locals.user = user;
-          res.locals.accessToken = accessToken;
+          res.locals.accessToken = accessAuthToken;
           next();
         });
       }
