@@ -1,5 +1,5 @@
 const morgan = require('morgan');
-const logger = require('./winston');
+const logger = require('../advice/winston');
 require('dotenv').config();
 
 // 사용자의 입력값을 출력할 수 있게 함

@@ -3,10 +3,11 @@ const router = express.Router();
 const { Select, User, Comment, Recomment } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const ErrorCustom = require('../advice/errorCustom');
-const Joi = require("joi");
+const Joi = require('joi');
+const admin = require('firebase-admin');
 
 const commentSchema = Joi.object({
-  comment: Joi.string().required(),
+  comment: Joi.string().max(50).required(),
 });
 
 // 댓글 작성
@@ -14,13 +15,11 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { selectKey } = req.params;
-    const { comment } = await commentSchema.validateAsync(req.body);
-
-
-    // if (comment.length > 200) {
-    // throw new ErrorCustom(400, '댓글은 200자 이내로 작성 가능합니다.');
-    // }
-
+    const result = commentSchema.validate(req.body);
+    if (result.error) {
+      throw new ErrorCustom(400, '댓글을 입력해주세요. 50자까지 가능합니다.');
+    }
+    const { comment } = result.value;
 
     const data = await Select.findOne({
       where: { selectKey },
@@ -36,40 +35,30 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
       selectKey,
       userKey,
     });
-    newComment.updatedAt = newComment.updatedAt.setHours(
-      newComment.updatedAt.getHours() + 9
-    );
 
+    const newCmt = await Comment.findOne({
+      where: { commentKey: newComment.commentKey },
+      include: [{ model: User, attributes: ['nickname', 'point'] }],
+    });
 
     // 글쓴이 토큰 유무 확인 후 알림 보내주기
     if (data.User.deviceToken) {
       let target_token = data.User.deviceToken;
 
       const message = {
-//         notification: {
-//           title: '곰곰',
-//           body: '게시물에 댓글이 달렸습니다.',
-//         },
         token: target_token,
         data: {
-          title: '곰곰 알림',
+          title: '곰곰',
           body: '게시물에 댓글이 달렸습니다!',
-        },
-        webpush: {
-          fcm_options: {
-            link: '/',
-          },
+          link: `detail/${selectKey}`,
         },
       };
 
       admin
         .messaging()
         .send(message)
-        .then(function (response) {
-          console.log('Successfully sent push: : ', response);
-        })
         .catch(function (err) {
-          console.log('Error Sending push!!! : ', err);
+          next(err);
         });
     }
 
@@ -81,7 +70,8 @@ router.post('/:selectKey', authMiddleware, async (req, res, next) => {
         comment: newComment.comment,
         nickname: nickname,
         userKey,
-        time: newComment.updatedAt,
+        point: newCmt.User.point,
+        time: newCmt.updatedAt,
       },
     });
   } catch (err) {
@@ -95,7 +85,6 @@ router.get('/:selectKey', async (req, res, next) => {
     let offset = 0;
     const limit = 5;
     const pageNum = req.query.page;
-    console.log(pageNum);
 
     if (pageNum > 1) {
       offset = limit * (pageNum - 1); //5 10
@@ -134,7 +123,7 @@ router.get('/:selectKey', async (req, res, next) => {
           comment: e.comment,
           nickname: e.User.nickname,
           userKey: e.userKey,
-          ponit: e.User.point,
+          point: e.User.point,
           time: e.updatedAt,
           recomment: e.Recomments,
         };
@@ -150,11 +139,11 @@ router.put('/:commentKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { commentKey } = req.params;
-    const { comment } = await commentSchema.validateAsync(req.body);
-
-    // if (comment.length > 200) {
-    // throw new ErrorCustom(400, '댓글은 200자 이내로 작성 가능합니다.');
-    // }
+    const result = commentSchema.validate(req.body);
+    if (result.error) {
+      throw new ErrorCustom(400, '댓글을 입력해주세요. 50자까지 가능합니다.');
+    }
+    const { comment } = result.value;
 
     const data = await Comment.findOne({
       where: { commentKey },
@@ -167,21 +156,26 @@ router.put('/:commentKey', authMiddleware, async (req, res, next) => {
     if (userKey !== data.userKey) {
       throw new ErrorCustom(400, '작성자가 다릅니다.');
     } else {
-      await Comment.update({ comment }, { where: { commentKey, userKey } });
+      const updateComment = await Comment.update(
+        { comment },
+        { where: { commentKey } }
+      );
 
-      const updateComment = await Comment.findOne({
+      const updateCmt = await Comment.findOne({
         where: { commentKey },
+        include: [{ model: User, attributes: ['nickname', 'point'] }],
       });
 
       return res.status(200).json({
         ok: true,
         msg: '댓글 수정 성공',
         result: {
-          commentKey: data.commentKey,
+          commentKey,
           comment: comment,
           nickname: nickname,
           userKey,
-          time: updateComment.updatedAt,
+          point: updateCmt.User.point,
+          time: updateCmt.updatedAt,
         },
       });
     }
