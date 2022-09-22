@@ -163,7 +163,7 @@ io.on('connection', (socket) => {
         data: {
           title: '곰곰',
           body: '새로운 채팅이 왔습니다!',
-          link: `https//www.gomgom.site/chatroom/${roomKey}`,
+          link: `chatroom/${roomKey}`,
         },
 
         webpush: {
