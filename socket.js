@@ -145,10 +145,11 @@ io.on('connection', (socket) => {
             for(j=0; j<title.length; j++) {
               star.push('*');
             }
+            message = star.join('')
         }
       }
 
-      message = star.join('')
+     
 
 
     if (!todayChat) {
