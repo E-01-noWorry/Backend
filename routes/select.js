@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Select, User, Vote } = require('../models');
+const { Select, User, Vote, Sequelize } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
@@ -40,9 +40,6 @@ router.post(
         location = image.map((e) => e.location);
       }
 
-      const date = dayjs(new Date()).format();
-      const deadLine = dayjs(new Date()).add(parseInt(time), 'h').format();
-
       // 선택글 생성 5분 쿨타임 구현
       const cooltime = dayjs(new Date()).subtract(5, 'm').format();
 
@@ -57,6 +54,8 @@ router.post(
       if (fiveminute) {
         throw new ErrorCustom(400, '선택글은 5분에 1번만 작성 가능합니다.');
       }
+
+      const deadLine = dayjs(new Date()).add(parseInt(time), 'h').format();
 
       const data = await Select.create({
         title,
@@ -178,13 +177,28 @@ router.get('/filter', async (req, res, next) => {
     }
 
     const datas = await Select.findAll({
-      include: [{ model: User, attributes: ['nickname'] }, { model: Vote }],
+      attributes: {
+        include: [
+          [Sequelize.fn('COUNT', Sequelize.col('Votes.selectKey')), 'total'],
+        ],
+      },
+      include: [
+        { model: User, attributes: ['nickname'] },
+        {
+          attributes: [],
+          model: Vote,
+          duplicating: false,
+          required: false,
+        },
+      ],
+      group: ['Select.selectKey'],
+      order: [['total', 'DESC']],
       offset: offset,
       limit: limit,
     });
 
     const popular = datas.map((e) => ({
-      total: e.Votes.length,
+      total: e.dataValues.total,
       selectKey: e.selectKey,
       title: e.title,
       category: e.category,
@@ -193,10 +207,6 @@ router.get('/filter', async (req, res, next) => {
       nickname: e.User.nickname,
       options: e.options,
     }));
-
-    popular.sort(function (a, b) {
-      return b.total - a.total;
-    });
 
     res.status(201).json({
       msg: '인기글이 조회되었습니다.',
@@ -223,6 +233,7 @@ router.get('/category/:category', async (req, res, next) => {
     const data = await Select.findAll({
       where: { [Op.or]: [{ category: { [Op.like]: `%${category}%` } }] },
       include: [{ model: User, attributes: ['nickname'] }, { model: Vote }],
+      order: [['selectKey', 'DESC']],
       offset: offset,
       limit: limit,
     });

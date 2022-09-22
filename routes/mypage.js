@@ -40,9 +40,6 @@ router.get('/select', authMiddleware, async (req, res, next) => {
       limit: limit,
     });
 
-    let now = new Date();
-    now = now.setHours(now.getHours() + 9);
-
     res.status(200).json({
       msg: '내가 작성한 선택글 조회 성공',
       result: allSelect.map((e) => {
@@ -51,7 +48,7 @@ router.get('/select', authMiddleware, async (req, res, next) => {
           title: e.title,
           category: e.category,
           deadLine: e.deadLine,
-          completion: now > new Date(e.deadLine),
+          completion: e.deadLine,
           nickname: nickname,
           options: e.options,
           total: e.Votes.length,
@@ -91,9 +88,6 @@ router.get('/vote', authMiddleware, async (req, res, next) => {
       limit: limit,
     });
 
-    let now = new Date();
-    now = now.setHours(now.getHours() + 9);
-
     res.status(200).json({
       msg: '내가 투표한 선택글 조회 성공',
       result: allVote.map((e) => {
@@ -102,7 +96,7 @@ router.get('/vote', authMiddleware, async (req, res, next) => {
           title: e.Select.title,
           category: e.Select.category,
           deadLine: e.Select.deadLine,
-          completion: now > new Date(e.Select.deadLine),
+          completion: e.Select.deadLine,
           nickname: e.Select.User.nickname,
           options: e.Select.options,
           total: e.Select.Votes.length,
