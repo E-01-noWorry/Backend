@@ -74,7 +74,7 @@ module.exports = (req, res, next) => {
         console.log(userKey, 'userKey확인');
 
         const newAccessToken = jwt.sign({ userKey }, process.env.SECRET_KEY, {
-          expiresIn: '3m',
+          expiresIn: '1m',
         });
         console.log(newAccessToken, 'newAccessToken 확인');
 
