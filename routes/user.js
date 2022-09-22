@@ -188,7 +188,7 @@ router.get('/auth/google/callback', googleCallback);
 router.get('/user/me', authMiddleware, async (req, res, next) => {
   console.log(res.locals, '22')
   const { userKey, nickname, userId } = res.locals.user;
-  const { accessAuthToken } = res.locals;
+  const { accessToken } = res.locals;
 
   const existUser = await User.findOne({ where: { userKey } });
   console.log(existUser, '유저확인')
@@ -196,7 +196,7 @@ router.get('/user/me', authMiddleware, async (req, res, next) => {
   res.status(200).json({
     ok: true,
     msg: '로그인 유저 정보 확인',
-    accessAuthToken,
+    accessToken,
     refreshToken: existUser.refreshToken
   });
 });
