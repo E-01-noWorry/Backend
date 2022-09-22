@@ -1,8 +1,8 @@
 const express = require('express');
 const Router = require('./routes/index');
 const errorHandler = require('./advice/errorHandler');
-const logger = require('./config/winston');
-const morganMiddleware = require('./config/morganMiddleware');
+const logger = require('./advice/winston');
+const morganMiddleware = require('./middlewares/morgan');
 
 const session = require('cookie-session');
 const passport = require('passport');
