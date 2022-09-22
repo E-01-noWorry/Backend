@@ -7,6 +7,8 @@ const { Room, Chat, User, Participant } = require('./models');
 const dayjs = require('dayjs');
 const admin = require('firebase-admin');
 
+const fs =require('fs');
+
 // ------------------채팅 소캣 부분만 한번 만져봄(여기서부터) ----------------
 
 module.exports = (server, app) => {
@@ -66,6 +68,26 @@ module.exports = (server, app) => {
     // 채팅 받아서 저장하고, 그 채팅 보내서 보여주기
     socket.on('chat_message', async (data) => {
       let { message, roomKey, userKey } = data;
+
+      const array = fs.readFileSync('badwords.txt', 'utf-8').toString().split(",");
+      const text = [];
+      const star = [];
+
+      for(i=0; i<array.length; i++) {
+        text.push(array[i]);
+      }
+
+
+      //단어 배열에 저장하는 것까지했다 다음은 이 저장된거랑 입력받은 단어를 비교해서 같다면 필터링해줘야함
+      for(k=0; k<text.length; k++) {
+        if(message== text[k]) {
+            for(j=0; j<title.length; j++) {
+              star.push('*');
+            }
+        }
+      }
+
+      message = star.join('')
 
       const newChat = await Chat.create({
         roomKey,
