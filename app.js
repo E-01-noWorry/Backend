@@ -17,15 +17,15 @@ const app = express();
 app.use(morganMiddleware);
 
 //
-const path = require('path');
-app.use(express.static(path.join(__dirname, 'src')));
+// const path = require('path');
+// app.use(express.static(path.join(__dirname, 'src')));
 //
 
 const cors = require('cors');
 app.use(
   cors({
-    origin: true, // 출처 허용 옵션
-    withCredentials: true, // 사용자 인증이 필요한 리소스(쿠키 ..등) 접근
+    origin: ['http://localhost:3000', 'https://www.gomgom.site'], // 출처 허용 옵션
+    credentials: true, // 사용자 인증이 필요한 리소스(쿠키 ..등) 접근
   })
 );
 

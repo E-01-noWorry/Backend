@@ -210,15 +210,12 @@ router.delete('/:roomKey', authMiddleware, async (req, res, next) => {
     }
 
     if (userKey === room.userKey) {
-      await Chat.destroy({ where: { roomKey } });
-      await Participant.destroy({ where: { roomKey } });
       await Room.destroy({ where: { roomKey } });
 
       return res.status(200).json({
         ok: true,
         msg: '채팅방 호스트가 나가 채팅방이 삭제 됩니다.',
       });
-      // 삭제니까 무슨 방 사라졌는지 줘야하나?
     } else {
       await Participant.destroy({ where: { userKey, roomKey } });
 
