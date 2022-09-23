@@ -6,15 +6,8 @@ const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 const upload = require('../middlewares/multer');
 const schedule = require('node-schedule');
-const Joi = require('joi');
 const dayjs = require('dayjs');
-
-const selectSchema = Joi.object({
-  title: Joi.string().max(40).required(),
-  category: Joi.string().required(),
-  time: Joi.number().required(),
-  options: Joi.string().required(),
-});
+const joi = require('../advice/joiSchema');
 
 // 선택글 작성
 router.post(
@@ -24,7 +17,7 @@ router.post(
   async (req, res, next) => {
     try {
       const { userKey, nickname } = res.locals.user;
-      const result = selectSchema.validate(req.body);
+      const result = joi.selectSchema.validate(req.body);
       if (result.error) {
         throw new ErrorCustom(400, '항목들을 모두 입력해주세요.');
       }

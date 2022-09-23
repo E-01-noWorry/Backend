@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const Joi = require('joi');
+const joi = require('../advice/joiSchema');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const { User } = require('../models');
@@ -10,21 +10,10 @@ const passport = require('passport');
 const ErrorCustom = require('../advice/errorCustom');
 const authMiddleware = require('../middlewares/authMiddlware');
 
-const userIdRegEx = /^[A-Za-z0-9]{6,20}$/;
-const nicknameRegEx = /^[가-힣,A-Za-z0-9]{2,10}$/;
-const passwordRegEx = /^[A-Za-z0-9]{6,20}$/;
-
-const userSchema = Joi.object({
-  userId: Joi.string().pattern(userIdRegEx).required(),
-  nickname: Joi.string().pattern(nicknameRegEx).required(),
-  password: Joi.string().pattern(passwordRegEx).required(),
-  confirm: Joi.string(),
-});
-
 //회원가입
 router.post('/user/signup', async (req, res, next) => {
   try {
-    const result = userSchema.validate(req.body);
+    const result = joi.userSchema.validate(req.body);
     if (result.error) {
       throw new ErrorCustom(400, '형식에 맞게 모두 입력해주세요');
     }

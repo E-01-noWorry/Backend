@@ -1,23 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const Joi = require('joi');
+const joi = require('../advice/joiSchema');
 const authMiddleware = require('../middlewares/authMiddlware');
 const { Room, Chat, User, Participant } = require('../models');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 const dayjs = require('dayjs');
 
-const chatSchema = Joi.object({
-  title: Joi.string().max(20).required(),
-  max: Joi.number().required(),
-  hashTag: Joi.array(),
-});
-
 // 채팅방 생성
 router.post('/', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
-    const result = chatSchema.validate(req.body);
+    const result = joi.chatSchema.validate(req.body);
     if (result.error) {
       throw new ErrorCustom(400, '제목을 입력해주세요.');
     }

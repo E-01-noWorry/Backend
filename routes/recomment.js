@@ -4,18 +4,14 @@ const { User, Comment, Recomment } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const ErrorCustom = require('../advice/errorCustom');
 const admin = require('firebase-admin');
-const Joi = require('joi');
-
-const recommentSchema = Joi.object({
-  comment: Joi.string().required(),
-});
+const joi = require('../advice/joiSchema');
 
 // 대댓글 작성
 router.post('/:commentKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { commentKey } = req.params;
-    const result = recommentSchema.validate(req.body);
+    const result = joi.recommentSchema.validate(req.body);
     if (result.error) {
       throw new ErrorCustom(400, '대댓글을 입력해주세요.');
     }
@@ -86,7 +82,7 @@ router.put('/:recommentKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { recommentKey } = req.params;
-    const result = recommentSchema.validate(req.body);
+    const result = joi.recommentSchema.validate(req.body);
     if (result.error) {
       throw new ErrorCustom(400, '대댓글을 입력해주세요. 50자까지 가능합니다.');
     }
