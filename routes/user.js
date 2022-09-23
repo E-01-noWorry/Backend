@@ -65,14 +65,14 @@ router.post('/user/login', async (req, res, next) => {
       { userKey: user.userKey },
       process.env.SECRET_KEY,
       {
-        expiresIn: '20s',
+        expiresIn: '3h',
       }
     );
     const refreshToken = jwt.sign(
       { userKey: user.userKey },
       process.env.SECRET_KEY,
       {
-        expiresIn: '30s',
+        expiresIn: '5h',
       }
     );
     console.log(accessToken, 'access토큰 확인');
