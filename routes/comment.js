@@ -3,19 +3,15 @@ const router = express.Router();
 const { Select, User, Comment, Recomment } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const ErrorCustom = require('../advice/errorCustom');
-const Joi = require('joi');
+const joi = require('../advice/joiSchema');
 const admin = require('firebase-admin');
-
-const commentSchema = Joi.object({
-  comment: Joi.string().max(50).required(),
-});
 
 // 댓글 작성
 router.post('/:selectKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { selectKey } = req.params;
-    const result = commentSchema.validate(req.body);
+    const result = joi.commentSchema.validate(req.body);
     if (result.error) {
       throw new ErrorCustom(400, '댓글을 입력해주세요. 50자까지 가능합니다.');
     }
@@ -139,7 +135,7 @@ router.put('/:commentKey', authMiddleware, async (req, res, next) => {
   try {
     const { userKey, nickname } = res.locals.user;
     const { commentKey } = req.params;
-    const result = commentSchema.validate(req.body);
+    const result = joi.commentSchema.validate(req.body);
     if (result.error) {
       throw new ErrorCustom(400, '댓글을 입력해주세요. 50자까지 가능합니다.');
     }
