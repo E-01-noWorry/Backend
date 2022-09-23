@@ -42,7 +42,7 @@ if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
 
 const io = require('socket.io')(server, {
   cors: {
-    origin: '*',
+    origin: ['http://localhost:3000', 'https://www.gomgom.site'],
     credentials: true,
   },
 });
@@ -121,7 +121,7 @@ io.on('connection', (socket) => {
         createdAt: { [Op.gt]: today },
       },
     });
-    
+
     if (!todayChat) {
       await Chat.create({
         roomKey,
