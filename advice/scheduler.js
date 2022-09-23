@@ -5,12 +5,12 @@ const dayjs = require('dayjs');
 exports.scheduler = () => {
   const now = dayjs(new Date())
     .add(9, 'h')
-    .subtract(16, 'm')
+    .add(2, 'm')
     .subtract(59, 's')
     .format();
   console.log(now);
 
-  schedule.scheduleJob('00 29 * * * *', async function () {
+  schedule.scheduleJob('00 31 * * * *', async function () {
     console.log(now);
     console.log('데이터 확인');
     const datas = await Select.findAll({});
