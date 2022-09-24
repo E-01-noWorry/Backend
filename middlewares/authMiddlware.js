@@ -51,7 +51,7 @@ module.exports = async (req, res, next) => {
     try {
       //1.access토큰, refresh토큰 모두 사용 불가
       if (!accessVerified && !refreshVerified) {
-        throw new ErrorCustom(403, 'access토큰, refresh토큰 모두 사용 불가');
+        throw new ErrorCustom(401, 'access토큰, refresh토큰 모두 사용 불가');
       }
 
       //2.access토큰은 만료되었지만 refresh토큰이 존재한다면 db에서 토큰을 비교하여 accessToken 발급
@@ -72,7 +72,7 @@ module.exports = async (req, res, next) => {
         });
         console.log(newAccessToken, 'newAccessToken 확인');
 
-        return res.status(200).json({
+        return res.status(201).json({
           accessToken: newAccessToken,
           refreshToken: refreshAuthToken,
           msg: 'acceess 토큰이 재발급 되었습니다.',
@@ -95,7 +95,7 @@ module.exports = async (req, res, next) => {
         // refreshToken 발급 후 db에 저장
         User.update({ refreshToken: newRefreshToken }, { where: { userKey } });
 
-        return res.status(200).json({
+        return res.status(201).json({
           accessToken: accessAuthToken,
           refreshToken: newRefreshToken,
           msg: 'refresh 토큰이 재발급 되었습니다.',
