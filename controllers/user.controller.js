@@ -48,7 +48,7 @@ class UserController {
         { userKey: user.userKey },
         process.env.SECRET_KEY,
         {
-          expiresIn: '3h',
+          expiresIn: '30',
         }
       );
       const refreshToken = jwt.sign(
