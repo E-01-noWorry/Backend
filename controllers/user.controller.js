@@ -26,8 +26,9 @@ class UserController {
         nickname,
         password
       );
+      console.log(createUser, '22')
 
-      res.status(201).json({ createUser, msg: '회원가입에 성공하였습니다.' });
+      res.status(201).json({ createUser });
     } catch (error) {
       next(error);
     }

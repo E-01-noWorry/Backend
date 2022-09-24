@@ -19,7 +19,7 @@ class UserService {
     const pwHash = await bcrypt.hash(password, salt);
     await User.create({ userId, nickname, password: pwHash, point: 0 });
 
-    return createUser;
+    return {msg: '회원가입에 성공하였습니다.'}
   };
 
   loginUser = async (userId, password) => {
