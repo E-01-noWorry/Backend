@@ -96,14 +96,14 @@ const kakaoCallback = (req, res, next) => {
           { userKey: user.userKey },
           process.env.SECRET_KEY,
           {
-            expiresIn: '30s',
+            expiresIn: '3h',
           }
         );
         const refreshToken = jwt.sign(
           { userKey: user.userKey },
           process.env.SECRET_KEY,
           {
-            expiresIn: '45s',
+            expiresIn: '5h',
           }
         );
 
