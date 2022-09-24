@@ -9,11 +9,11 @@ class SelectController {
   postSelect = async (req, res, next) => {
     try {
       const { userKey, nickname } = res.locals.user;
-      const result = joi.selectSchema.validate(req.body);
-      if (result.error) {
+      const validation = joi.selectSchema.validate(req.body);
+      if (validation.error) {
         throw new ErrorCustom(400, '항목들을 모두 입력해주세요.');
       }
-      const { title, category, time, options } = result.value;
+      const { title, category, time, options } = validation.value;
 
       if (options.indexOf(',') === -1) {
         throw new ErrorCustom(400, '선택지는 최소 2개 이상 작성해주세요.');
@@ -114,7 +114,7 @@ class SelectController {
     try {
       let offset = 0;
       const limit = 5;
-      const pageNum = req.query.page;
+      const pageNum = joi.pageSchema.validate(req.query.page).value;
 
       if (pageNum > 1) {
         offset = limit * (pageNum - 1);
@@ -152,7 +152,7 @@ class SelectController {
     try {
       let offset = 0;
       const limit = 5;
-      const pageNum = req.query.page;
+      const pageNum = joi.pageSchema.validate(req.query.page).value;
 
       if (pageNum > 1) {
         offset = limit * (pageNum - 1);
@@ -201,15 +201,15 @@ class SelectController {
 
   getCategory = async (req, res, next) => {
     try {
-      //   let offset = 0;
-      //   const limit = 5;
-      const pageNum = req.query.page;
+      let offset = 0;
+      const limit = 5;
+      const pageNum = joi.pageSchema.validate(req.query.page).value;
 
       if (pageNum > 1) {
         offset = limit * (pageNum - 1);
       }
 
-      const { category } = req.params;
+      const { category } = joi.categorySchema.validate(req.params).value;
 
       const data = await Select.findAll({
         where: { [Op.or]: [{ category: { [Op.like]: `%${category}%` } }] },
@@ -245,7 +245,8 @@ class SelectController {
 
   getDetailSelect = async (req, res, next) => {
     try {
-      const { selectKey } = req.params;
+      const { selectKey } = joi.selectKeySchema.validate(req.params).value;
+
       const data = await Select.findOne({
         where: { selectKey },
         include: [{ model: User, attributes: ['nickname', 'point'] }],
@@ -279,7 +280,7 @@ class SelectController {
   deleteSelect = async (req, res, next) => {
     try {
       const { userKey, nickname } = res.locals.user;
-      const { selectKey } = req.params;
+      const { selectKey } = joi.selectKeySchema.validate(req.params).value;
       const data = await Select.findOne({ where: { selectKey } });
 
       if (!data) {
