@@ -26,7 +26,6 @@ class UserController {
         nickname,
         password
       );
-      console.log(createUser, '22')
 
       res.status(201).json({ createUser });
     } catch (error) {
