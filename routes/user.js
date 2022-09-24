@@ -87,7 +87,7 @@ const kakaoCallback = (req, res, next) => {
     passport.authenticate(
       'kakao',
       { failureRedirect: '/user/login' }, //실패하면 '/user/login''로 돌아감.
-      (err, user, info) => {
+      async (err, user, info) => {
         if (err) return next(err);
 
         const { userKey, nickname } = user;
@@ -96,16 +96,18 @@ const kakaoCallback = (req, res, next) => {
           { userKey: user.userKey },
           process.env.SECRET_KEY,
           {
-            expiresIn: '1h',
+            expiresIn: '30s',
           }
         );
         const refreshToken = jwt.sign(
           { userKey: user.userKey },
           process.env.SECRET_KEY,
           {
-            expiresIn: '14d',
+            expiresIn: '45s',
           }
         );
+
+        await User.update({ refreshToken }, { where: { userKey: user.userKey } });
 
         result = {
           userKey,
@@ -134,7 +136,7 @@ const googleCallback = (req, res, next) => {
     passport.authenticate(
       'google',
       { failureRedirect: '/user/login' }, //실패하면 '/user/login''로 돌아감.
-      (err, user, info) => {
+      async (err, user, info) => {
         if (err) return next(err);
 
         const { userKey, nickname } = user;
@@ -143,18 +145,20 @@ const googleCallback = (req, res, next) => {
           { userKey: user.userKey },
           process.env.SECRET_KEY,
           {
-            expiresIn: '1h',
+            expiresIn: '3h',
           }
         );
         const refreshToken = jwt.sign(
           { userKey: user.userKey },
           process.env.SECRET_KEY,
           {
-            expiresIn: '14d',
+            expiresIn: '5h',
           }
         );
 
-        result = { userKey, accessToken, refreshToken, nickname };
+        await User.update({ refreshToken }, { where: { userKey: user.userKey } });
+
+        result = { userKey, accessToken, refreshToken : updateRefresh.refreshToken, nickname };
         res
           .status(201)
           .json({ user: result, msg: '구글 로그인에 성공하였습니다.' });
