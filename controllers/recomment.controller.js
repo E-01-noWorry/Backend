@@ -7,7 +7,7 @@ class recommentController {
     postRecomment = async(req,res,next) => {
         try {
             const { userKey, nickname } = res.locals.user;
-            const { commentKey } = req.params;
+            const { commentKey } = joi.commentKeySchema.validate(req.params).value;
             const result = joi.recommentSchema.validate(req.body);
             if (result.error) {
               throw new ErrorCustom(400, '대댓글을 입력해주세요.');
@@ -77,7 +77,7 @@ class recommentController {
     putRecomment = async(req,res,next) => {
         try {
             const { userKey, nickname } = res.locals.user;
-            const { recommentKey } = req.params;
+            const { recommentKey } = joi.recommentKeySchema.validate(req.params).value;
             const result = joi.recommentSchema.validate(req.body);
             if (result.error) {
               throw new ErrorCustom(400, '대댓글을 입력해주세요. 50자까지 가능합니다.');
@@ -131,7 +131,7 @@ class recommentController {
     deleteRecomment = async(req,res,next) => {
         try {
             const { userKey, nickname } = res.locals.user;
-            const { recommentKey } = req.params;
+            const { recommentKey } = joi.recommentKeySchema.validate(req.params).value;
         
             const data = await Recomment.findOne({ where: { recommentKey } });
         

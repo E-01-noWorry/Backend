@@ -130,7 +130,7 @@ class commentController {
     putComment = async (req,res,next)=> {
         try {
             const { userKey, nickname } = res.locals.user;
-            const { commentKey } = req.params;
+            const { commentKey } = joi.commentKeySchema.validate(req.params).value;
             const result = joi.commentSchema.validate(req.body);
             if (result.error) {
               throw new ErrorCustom(400, '댓글을 입력해주세요. 50자까지 가능합니다.');
@@ -179,7 +179,7 @@ class commentController {
     deleteComment = async (req,res,next) => {
         try {
             const { userKey, nickname } = res.locals.user;
-            const { commentKey } = req.params;
+            const { commentKey } = joi.commentKeySchema.validate(req.params).value;
 
             const data = await Comment.findOne({ where: { commentKey } });
         
