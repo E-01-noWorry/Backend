@@ -3,7 +3,7 @@ const ErrorCustom = require('../advice/errorCustom');
 const admin = require('firebase-admin');
 const joi = require('../advice/joiSchema');
 
-class recommentController {
+class RecommentController {
     postRecomment = async(req,res,next) => {
         try {
             const { userKey, nickname } = res.locals.user;
@@ -162,4 +162,4 @@ class recommentController {
     }
 }
 
-module.exports = recommentController;
+module.exports = RecommentController;

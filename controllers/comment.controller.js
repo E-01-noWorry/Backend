@@ -3,7 +3,7 @@ const ErrorCustom = require('../advice/errorCustom');
 const joi = require('../advice/joiSchema');
 const admin = require('firebase-admin');
 
-class commentController {
+class CommentController {
     postComment = async (req,res,next) => {
         try {
             const { userKey, nickname } = res.locals.user;
@@ -83,7 +83,7 @@ class commentController {
               offset = limit * (pageNum - 1); //5 10
             }
         
-            const { selectKey } = req.params;
+            const { selectKey } = joi.selectSchema.validate(req.params).value;
         
             const data = await Select.findOne({
               where: { selectKey },
@@ -209,4 +209,4 @@ class commentController {
     }
 }
 
-module.exports = commentController;
+module.exports = CommentController;

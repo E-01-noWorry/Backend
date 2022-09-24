@@ -2,10 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { User, Comment, Recomment } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
-const ErrorCustom = require('../advice/errorCustom');
-const admin = require('firebase-admin');
-const joi = require('../advice/joiSchema');
-
 const RecommentController = require('../controllers/recomment.controller');
 const recommentController = new RecommentController();
 
