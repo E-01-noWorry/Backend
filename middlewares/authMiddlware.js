@@ -51,7 +51,7 @@ module.exports = async (req, res, next) => {
     try {
       //1.access토큰, refresh토큰 모두 사용 불가
       if (!accessVerified && !refreshVerified) {
-        throw new ErrorCustom(401, 'access토큰, refresh토큰 모두 사용 불가');
+        throw new ErrorCustom(401, '로그인 기한이 만료되었습니다.');
       }
 
       //2.access토큰은 만료되었지만 refresh토큰이 존재한다면 db에서 토큰을 비교하여 accessToken 발급
@@ -68,7 +68,7 @@ module.exports = async (req, res, next) => {
         const userKey = existUser?.userKey; //옵셔널 체이닝
 
         const newAccessToken = jwt.sign({ userKey }, process.env.SECRET_KEY, {
-          expiresIn: '3h',
+          expiresIn: '1m',
         });
         console.log(newAccessToken, 'newAccessToken 확인');
 
