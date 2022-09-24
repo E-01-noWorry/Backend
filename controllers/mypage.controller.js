@@ -1,11 +1,15 @@
 const { Select, User, Vote, Room, Participant } = require('../models');
 const joi = require('../advice/joiSchema');
 
+const MypageService = require('../services/mypage.service'); //
+
 class MypageController {
+  mypageService = new MypageService(); //
+
   getMypage = async (req, res, next) => {
     try {
       const { userKey, nickname } = res.locals.user;
-      const user = await User.findOne({ where: { userKey } });
+      const user = await this.mypageService.findUserInfo(userKey);
 
       return res.status(200).json({
         ok: true,
