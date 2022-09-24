@@ -158,7 +158,7 @@ const googleCallback = (req, res, next) => {
 
         await User.update({ refreshToken }, { where: { userKey: user.userKey } });
 
-        result = { userKey, accessToken, refreshToken : updateRefresh.refreshToken, nickname };
+        result = { userKey, accessToken, refreshToken, nickname };
         res
           .status(201)
           .json({ user: result, msg: '구글 로그인에 성공하였습니다.' });
