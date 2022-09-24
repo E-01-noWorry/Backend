@@ -11,11 +11,27 @@ exports.userSchema = joi.object({
   confirm: joi.string(),
 });
 
+exports.pageSchema = joi.object({
+  page: joi.number().required(),
+});
+
+exports.selectKeySchema = joi.object({
+  selectKey: joi.number().required(),
+});
+
 exports.selectSchema = joi.object({
   title: joi.string().max(40).required(),
   category: joi.string().required(),
   time: joi.number().required(),
   options: joi.string().required(),
+});
+
+exports.categorySchema = joi.object({
+  category: joi.string().required(),
+});
+
+exports.choiceSchema = joi.object({
+  choice: joi.number().required(),
 });
 
 exports.commentSchema = joi.object({
