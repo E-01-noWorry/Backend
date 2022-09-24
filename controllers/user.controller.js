@@ -5,7 +5,7 @@ const { Op } = require('sequelize');
 const { User } = require('../models');
 const ErrorCustom = require('../advice/errorCustom');
 
-class userController {
+class UserController {
   postSignup = async (req, res, next) => {
     try {
       const result = joi.userSchema.validate(req.body);
@@ -114,4 +114,4 @@ class userController {
   }
 }
 
-module.exports = userController;
+module.exports = UserController;

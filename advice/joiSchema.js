@@ -63,3 +63,11 @@ exports.chatSchema = joi.object({
   max: joi.number().required(),
   hashTag: joi.array(),
 });
+
+exports.searchSchema = joi.object({
+  searchWord: joi.string().required(),
+});
+
+exports.roomKeySchema = joi.object({
+  roomKey: joi.number().required(),
+});
