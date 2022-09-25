@@ -113,7 +113,7 @@ io.on('connection', (socket) => {
   socket.on('chat_message', async (data) => {
     let { message, roomKey, userKey } = data;
 
-    const today = dayjs(new Date()).format('YYYY-MM-DD hh:mm:ss'); //.add(9, 'h')('YYYY-MM-DD 00:00:00');
+    const today = dayjs(new Date()).add(20, 'h').format('YYYY-MM-DD hh:mm:ss'); //.add(9, 'h')('YYYY-MM-DD 00:00:00');
     console.log(today, '00시 기준');
 
     const todayChat = await Chat.findOne({
