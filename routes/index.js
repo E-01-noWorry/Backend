@@ -11,6 +11,7 @@ const recommentRouter = require('./recomment');
 const chatRouter = require('./chat');
 const myRouter = require('./mypage');
 const tokenRouter = require('./push');
+const adviceRouter = require('./advice');
 
 router.use('/select', selectRouter);
 router.use('/user', userRouter);
@@ -22,5 +23,6 @@ router.use('/recomment', recommentRouter);
 router.use('/room', chatRouter);
 router.use('/my', myRouter);
 router.use('/token', tokenRouter);
+router.use('/advice', adviceRouter);
 
 module.exports = router;
