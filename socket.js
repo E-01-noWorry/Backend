@@ -113,7 +113,8 @@ io.on('connection', (socket) => {
   socket.on('chat_message', async (data) => {
     let { message, roomKey, userKey } = data;
 
-    const today = dayjs(new Date()).add(9, 'h').format('YYYY-MM-DD 00:00:00');
+    const today = dayjs(new Date()).add(9, 'h').format('YYYY-MM-DD hh:mm:ss'); //('YYYY-MM-DD 00:00:00');
+    console.log(today, '00시 기준');
 
     const todayChat = await Chat.findOne({
       where: {
@@ -121,6 +122,7 @@ io.on('connection', (socket) => {
         createdAt: { [Op.gt]: today },
       },
     });
+    console.log(todayChat, '마지막 채팅');
 
     if (!todayChat) {
       await Chat.create({

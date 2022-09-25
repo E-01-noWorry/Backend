@@ -9,12 +9,12 @@ class MypageController {
   getMypage = async (req, res, next) => {
     try {
       const { userKey, nickname } = res.locals.user;
-      const user = await this.mypageService.findUserInfo(userKey);
+      const userInfo = await this.mypageService.findUserInfo(userKey);
 
       return res.status(200).json({
         ok: true,
         msg: '마이페이지 조회 성공',
-        result: { point: user.point },
+        result: { point: userInfo.point },
       });
     } catch (err) {
       next(err);
@@ -32,23 +32,21 @@ class MypageController {
         offset = limit * (pageNum - 1); //5 10
       }
 
-      const allSelect = await Select.findAll({
-        where: { userKey },
-        include: [{ model: Vote }],
-        order: [['selectKey', 'DESC']],
-        offset: offset,
-        limit: limit,
-      });
+      const mySelects = await this.mypageService.mySelect(
+        userKey,
+        offset,
+        limit
+      );
 
       res.status(200).json({
         msg: '내가 작성한 선택글 조회 성공',
-        result: allSelect.map((e) => {
+        result: mySelects.map((e) => {
           return {
             selectKey: e.selectKey,
             title: e.title,
             category: e.category,
             deadLine: e.deadLine,
-            completion: e.deadLine,
+            completion: e.compeltion,
             nickname: nickname,
             options: e.options,
             total: e.Votes.length,
@@ -71,31 +69,17 @@ class MypageController {
         offset = limit * (pageNum - 1); //5 10
       }
 
-      const allVote = await Vote.findAll({
-        where: { userKey },
-        include: [
-          {
-            model: Select,
-            include: [
-              { model: User, attributes: ['nickname'] },
-              { model: Vote, attributes: ['choice'] },
-            ],
-          },
-        ],
-        order: [['selectKey', 'DESC']],
-        offset: offset,
-        limit: limit,
-      });
+      const myVotes = await this.mypageService.myVote(userKey, offset, limit);
 
       res.status(200).json({
         msg: '내가 투표한 선택글 조회 성공',
-        result: allVote.map((e) => {
+        result: myVotes.map((e) => {
           return {
             selectKey: e.Select.selectKey,
             title: e.Select.title,
             category: e.Select.category,
             deadLine: e.Select.deadLine,
-            completion: e.Select.deadLine,
+            completion: e.Select.compeltion,
             nickname: e.Select.User.nickname,
             options: e.Select.options,
             total: e.Select.Votes.length,
@@ -118,18 +102,12 @@ class MypageController {
         offset = limit * (pageNum - 1); //5 10
       }
 
-      const allRoom = await Room.findAll({
-        where: { userKey },
-        include: [{ model: Participant, attributes: ['userKey'] }],
-        order: [['roomKey', 'DESC']],
-        offset: offset,
-        limit: limit,
-      });
+      const myRooms = await this.mypageService.myRoom(userKey, offset, limit);
 
       return res.status(200).json({
         ok: true,
         msg: '내가 만든 채팅방 조회 성공',
-        result: allRoom.map((e) => {
+        result: myRooms.map((e) => {
           return {
             roomKey: e.roomKey,
             title: e.title,
@@ -157,26 +135,16 @@ class MypageController {
         offset = limit * (pageNum - 1); //5 10
       }
 
-      const allEnter = await Participant.findAll({
-        where: { userKey },
-        include: [
-          {
-            model: Room,
-            include: [
-              { model: User, attributes: ['nickname'] },
-              { model: Participant },
-            ],
-          },
-        ],
-        order: [['roomKey', 'DESC']],
-        offset: offset,
-        limit: limit,
-      });
+      const enterRooms = await this.mypageService.enterRoom(
+        userKey,
+        offset,
+        limit
+      );
 
       return res.status(200).json({
         ok: true,
         msg: '내가 들어가있는 채팅방 조회 성공',
-        result: allEnter.map((e) => {
+        result: enterRooms.map((e) => {
           return {
             roomKey: e.Room.roomKey,
             title: e.Room.title,
