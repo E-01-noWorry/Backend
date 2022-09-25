@@ -38,7 +38,6 @@ if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
 } else {
   server = http.createServer(app);
 }
-// ------------------채팅 소캣 부분만 한번 만져봄(여기서부터) ----------------
 
 const io = require('socket.io')(server, {
   cors: {
@@ -113,16 +112,14 @@ io.on('connection', (socket) => {
   socket.on('chat_message', async (data) => {
     let { message, roomKey, userKey } = data;
 
-    const today = dayjs(new Date()).format('YYYY-MM-DD 15:00:00'); // new Date().add(9, 'h')'YYYY-MM-DD 00:00:00' 'YYYY-MM-DD hh:mm:ss'
-    console.log(today, '00시 기준');
+    const today = dayjs(new Date()).format('YYYY-MM-DD 15:00:00');
 
     const todayChat = await Chat.findOne({
       where: {
         roomKey,
-        createdAt: { [Op.gt]: new Date(today) }, // new Date('2022-09-25 23:50:46'), //
+        createdAt: { [Op.gt]: new Date(today) },
       },
     });
-    console.log(todayChat, '마지막 채팅');
 
     if (!todayChat) {
       await Chat.create({
