@@ -27,7 +27,7 @@ class UserController {
         password
       );
 
-      res.status(201).json({ createUser });
+      res.status(201).json(createUser);
     } catch (error) {
       next(error);
     }
