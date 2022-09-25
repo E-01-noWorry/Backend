@@ -24,14 +24,14 @@ module.exports = async (req, res, next) => {
     }
 
     if (
-      accessAuthToken === null ||
-      accessAuthToken === undefined ||
+      accessAuthToken === 'null' ||
+      accessAuthToken === 'undefined' ||
       !accessAuthToken ||
-      refreshAuthToken === null ||
-      refreshAuthToken === undefined ||
+      refreshAuthToken === 'null' ||
+      refreshAuthToken === 'undefined' ||
       !refreshAuthToken
     ) {
-      throw new ErrorCustom(401, '토큰이 유효하지 않습니다.');
+      throw new ErrorCustom(401, '로그인 후 사용해주세요.');
     }
 
     let accessVerified = null;
