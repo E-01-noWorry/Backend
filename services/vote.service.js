@@ -34,7 +34,7 @@ class VoteService {
       throw new ErrorCustom(400, '본인 글에는 투표할 수 없습니다.');
     }
 
-    if (isSelect.compeltion === true) {
+    if (isSelect.completion === true) {
       throw new ErrorCustom(400, '투표가 마감되었습니다.');
     }
 

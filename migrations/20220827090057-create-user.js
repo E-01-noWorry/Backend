@@ -12,20 +12,31 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      nickname: {
+        type: Sequelize.STRING,
+      },
+      point: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      refreshToken: {
+        type: Sequelize.STRING,
+        defaultValue: '',
+      },
+      deviceToken: {
+        type: Sequelize.STRING,
+        defaultValue: '',
+      },
+      password: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       snsId: {
         type: Sequelize.STRING,
       },
       provider: {
         type: Sequelize.STRING,
       },
-      nickname: {
-        type: Sequelize.STRING,
-      },
-      password: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      point: Sequelize.INTEGER,
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

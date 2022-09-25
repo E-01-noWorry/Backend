@@ -30,21 +30,21 @@ class SelectService {
       deadLine,
       options: options.toString().split(','),
       userKey,
-      compeltion: false,
+      completion: false,
     });
 
-    // 스케줄러로 마감시간이 되면 compeltion true로 바꾸고, 최다선택지 투표한 사람 포인트 적립
+    // 스케줄러로 마감시간이 되면 completion true로 바꾸고, 최다선택지 투표한 사람 포인트 적립
     schedule.scheduleJob(deadLine, async () => {
       console.log('게시물 마감처리');
-      await createSelect.update({ compeltion: true });
+      await createSelect.update({ completion: true });
 
-      const compeltionVote = await Vote.findAll({
+      const completionVote = await Vote.findAll({
         where: { selectKey: createSelect.selectKey },
         include: [{ model: User }],
       });
 
       const count = [0, 0, 0, 0];
-      compeltionVote.map((e) => {
+      completionVote.map((e) => {
         if (e.choice === 1) {
           ++count[0];
         } else if (e.choice === 2) {

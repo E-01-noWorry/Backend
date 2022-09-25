@@ -70,7 +70,7 @@ class VoteController {
       }
 
       // 글이 마감되었는지 확인 마감되면 바로 투표결과 보여줌
-      if (isSelect.compeltion === true) {
+      if (isSelect.completion === true) {
         return res.status(200).json({
           ok: true,
           msg: '마감된 투표 조회 성공',

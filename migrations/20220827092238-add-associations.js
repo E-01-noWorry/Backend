@@ -57,12 +57,45 @@ module.exports = {
       onDelete: 'CASCADE',
     });
 
+    await queryInterface.addColumn('Participants', 'userKey', {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'userKey',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+    });
+
     await queryInterface.addColumn('Comments', 'selectKey', {
       type: Sequelize.INTEGER,
       allowNull: false,
       references: {
         model: 'Selects',
         key: 'selectKey',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+    });
+
+    await queryInterface.addColumn('Recomments', 'userKey', {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'userKey',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+    });
+
+    await queryInterface.addColumn('Recomments', 'commentKey', {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Comments',
+        key: 'commentKey',
       },
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
@@ -89,6 +122,17 @@ module.exports = {
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
     });
+
+    await queryInterface.addColumn('Participants', 'roomKey', {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Rooms',
+        key: 'roomKey',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+    });
   },
 
   async down(queryInterface, Sequelize) {
@@ -99,6 +143,11 @@ module.exports = {
 
     await queryInterface.removeColumn(
       'Comments', // name of Source model
+      'userKey' // key we want to remove
+    );
+
+    await queryInterface.removeColumn(
+      'Recomments', // name of Source model
       'userKey' // key we want to remove
     );
 
@@ -120,6 +169,11 @@ module.exports = {
     await queryInterface.removeColumn(
       'Comments', // name of Source model
       'selectKey' // key we want to remove
+    );
+
+    await queryInterface.removeColumn(
+      'Recomments', // name of Source model
+      'commentKey' // key we want to remove
     );
 
     await queryInterface.removeColumn(
