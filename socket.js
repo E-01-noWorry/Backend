@@ -13,15 +13,15 @@ let server = '';
 if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
   try {
     const ca = fs.readFileSync(
-      '/etc/letsencrypt/live/jolee.shop/fullchain.pem',
+      '/etc/letsencrypt/live/jinyeop.shop/fullchain.pem',
       'utf8'
     );
     const privateKey = fs.readFileSync(
-      '/etc/letsencrypt/live/jolee.shop/privkey.pem',
+      '/etc/letsencrypt/live/jinyeop.shop/privkey.pem',
       'utf8'
     );
     const certificate = fs.readFileSync(
-      '/etc/letsencrypt/live/jolee.shop/cert.pem',
+      '/etc/letsencrypt/live/jinyeop.shop/cert.pem',
       'utf8'
     );
 
@@ -78,12 +78,12 @@ io.on('connection', (socket) => {
 
     // 처음입장이라면 환영 메세지가 없을테니
     if (!enterMsg) {
-      const today = dayjs(new Date()).add(9, 'h').format('YYYY-MM-DD 00:00:00');
+      const today = dayjs(new Date()).format('YYYY-MM-DD 15:00:00');
 
       const todayChat = await Chat.findOne({
         where: {
           roomKey,
-          createdAt: { [Op.gt]: today },
+          createdAt: { [Op.gt]: new Date(today) },
         },
       });
 
@@ -113,13 +113,13 @@ io.on('connection', (socket) => {
   socket.on('chat_message', async (data) => {
     let { message, roomKey, userKey } = data;
 
-    const today = dayjs().add(20, 'h').format('YYYY-MM-DD 00:00:00'); // new Date().add(9, 'h')'YYYY-MM-DD 00:00:00' 'YYYY-MM-DD hh:mm:ss'
+    const today = dayjs(new Date()).format('YYYY-MM-DD 15:00:00'); // new Date().add(9, 'h')'YYYY-MM-DD 00:00:00' 'YYYY-MM-DD hh:mm:ss'
     console.log(today, '00시 기준');
 
     const todayChat = await Chat.findOne({
       where: {
         roomKey,
-        createdAt: { [Op.gt]: today },
+        createdAt: { [Op.gt]: new Date(today) }, // new Date('2022-09-25 23:50:46'), //
       },
     });
     console.log(todayChat, '마지막 채팅');
