@@ -78,7 +78,7 @@ io.on('connection', (socket) => {
 
     // 처음입장이라면 환영 메세지가 없을테니
     if (!enterMsg) {
-      const today = dayjs(new Date()).add(9, 'h').format('YYYY-MM-DD 15:00:00');
+      const today = dayjs(new Date()).format('YYYY-MM-DD 15:00:00');
 
       const todayChat = await Chat.findOne({
         where: {
@@ -91,7 +91,7 @@ io.on('connection', (socket) => {
         await Chat.create({
           roomKey,
           userKey: 12, // 관리자 유저키
-          chat: `${dayjs(today).format('YYYY년 MM월 DD일')}`,
+          chat: `${dayjs(today).add(1, 'd').format('YYYY년 MM월 DD일')}`,
         });
       }
 
@@ -113,7 +113,7 @@ io.on('connection', (socket) => {
   socket.on('chat_message', async (data) => {
     let { message, roomKey, userKey } = data;
 
-    const today = dayjs(new Date()).add(9, 'h').format('YYYY-MM-DD 15:00:00'); // new Date().add(9, 'h')'YYYY-MM-DD 00:00:00' 'YYYY-MM-DD hh:mm:ss'
+    const today = dayjs(new Date()).format('YYYY-MM-DD 15:00:00'); // new Date().add(9, 'h')'YYYY-MM-DD 00:00:00' 'YYYY-MM-DD hh:mm:ss'
     console.log(today, '00시 기준');
 
     const todayChat = await Chat.findOne({
@@ -128,7 +128,7 @@ io.on('connection', (socket) => {
       await Chat.create({
         roomKey,
         userKey: 12, // 관리자 유저키
-        chat: `${dayjs(today).format('YYYY년 MM월 DD일')}`,
+        chat: `${dayjs(today).add(1, 'd').format('YYYY년 MM월 DD일')}`,
       });
     }
 
