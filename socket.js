@@ -13,15 +13,15 @@ let server = '';
 if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
   try {
     const ca = fs.readFileSync(
-      '/etc/letsencrypt/live/jinyeop.shop/fullchain.pem',
+      '/etc/letsencrypt/live/jolee.shop/fullchain.pem',
       'utf8'
     );
     const privateKey = fs.readFileSync(
-      '/etc/letsencrypt/live/jinyeop.shop/privkey.pem',
+      '/etc/letsencrypt/live/jolee.shop/privkey.pem',
       'utf8'
     );
     const certificate = fs.readFileSync(
-      '/etc/letsencrypt/live/jinyeop.shop/cert.pem',
+      '/etc/letsencrypt/live/jolee.shop/cert.pem',
       'utf8'
     );
 
