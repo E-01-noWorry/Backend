@@ -18,7 +18,7 @@ exports.scheduler = () => {
     await Promise.all(
       datas.map((e) => {
         if (dayjs(e.deadLine).format() < now) {
-          e.update({ compeltion: true });
+          e.update({ completion: true });
         }
       })
     );

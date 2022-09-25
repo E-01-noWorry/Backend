@@ -17,6 +17,10 @@ module.exports = {
       deadLine: {
         type: Sequelize.DATE,
       },
+      completion: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       options: {
         type: Sequelize.JSON,
         defaultValue: [],
