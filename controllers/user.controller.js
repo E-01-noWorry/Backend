@@ -81,7 +81,7 @@ class UserController {
 
       const user = await this.userService.changeUser(userKey, nickname);
 
-      return res.status(201).json({ user });
+      return res.status(201).json( user );
     } catch (error) {
       next(error);
     }
