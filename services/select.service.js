@@ -33,6 +33,9 @@ class SelectService {
       completion: false,
     });
 
+    //선택글 생성시 +3점씩 포인트 지급
+    await User.increment({ point: 3 }, { where: { userKey } });
+
     // 스케줄러로 마감시간이 되면 completion true로 바꾸고, 최다선택지 투표한 사람 포인트 적립
     schedule.scheduleJob(deadLine, async () => {
       console.log('게시물 마감처리');
@@ -68,10 +71,6 @@ class SelectService {
         }
       }
     });
-
-    //선택글 생성시 +3점씩 포인트 지급
-    let selectPoint = await User.findOne({ where: { userKey } });
-    await selectPoint.update({ point: selectPoint.point + 3 });
 
     return createSelect;
   };
