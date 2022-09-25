@@ -234,20 +234,18 @@ io.on('connection', (socket) => {
 
   // 추천하기
   socket.on('recommend', async (data) => {
-    console.log('recommend 받기 성공');
-    console.log(data);
     // 여기서 유저키는 추천 받은 사람의 유저키
     let { roomKey, userKey } = data;
     const room = await Room.findOne({ where: roomKey });
-    const recommendUser = await User.findOne({ where: { userKey } });
-    await recommendUser.update({ point: recommendUser.point + 3 });
-    // console.log(recommendUser);
+    const recommendUser = await User.increment(
+      { point: 3 },
+      { where: { userKey } }
+    );
 
     let param = { userKey: recommendUser.userKey };
     console.log(param);
     io.to(room.title).emit('recommend', param);
   });
 });
-// };
 
 module.exports = { server };

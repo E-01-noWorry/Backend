@@ -48,8 +48,10 @@ class VoteService {
       await Vote.create({ selectKey, userKey, choice });
 
       //선택글 투표시 +1점씩 포인트 지급
-      let votePoint = await User.findOne({ where: { userKey } });
-      await votePoint.update({ point: votePoint.point + 1 });
+      let votePoint = await User.increment(
+        { point: 1 },
+        { where: { userKey } }
+      );
 
       const allVotes = await Vote.findAll({
         where: { selectKey },

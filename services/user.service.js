@@ -19,7 +19,7 @@ class UserService {
     const pwHash = await bcrypt.hash(password, salt);
     await User.create({ userId, nickname, password: pwHash, point: 0 });
 
-    return {msg: '회원가입에 성공하였습니다.'}
+    return { msg: '회원가입에 성공하였습니다.' };
   };
 
   loginUser = async (userId, password) => {
@@ -32,14 +32,14 @@ class UserService {
       { userKey: user.userKey },
       process.env.SECRET_KEY,
       {
-        expiresIn: '3h',
+        expiresIn: '1h',
       }
     );
     const refreshToken = jwt.sign(
       { userKey: user.userKey },
       process.env.SECRET_KEY,
       {
-        expiresIn: '5h',
+        expiresIn: '12h',
       }
     );
     console.log(accessToken, 'access토큰 확인');
