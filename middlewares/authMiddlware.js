@@ -24,14 +24,14 @@ module.exports = async (req, res, next) => {
     }
 
     if (
-      accessAuthToken === null ||
-      accessAuthToken === undefined ||
+      accessAuthToken === 'null' ||
+      accessAuthToken === 'undefined' ||
       !accessAuthToken ||
-      refreshAuthToken === null ||
-      refreshAuthToken === undefined ||
+      refreshAuthToken === 'null' ||
+      refreshAuthToken === 'undefined' ||
       !refreshAuthToken
     ) {
-      throw new ErrorCustom(401, '토큰이 유효하지 않습니다.');
+      throw new ErrorCustom(401, '로그인 후 사용해주세요.');
     }
 
     let accessVerified = null;
@@ -51,7 +51,7 @@ module.exports = async (req, res, next) => {
     try {
       //1.access토큰, refresh토큰 모두 사용 불가
       if (!accessVerified && !refreshVerified) {
-        throw new ErrorCustom(401, 'access토큰, refresh토큰 모두 사용 불가');
+        throw new ErrorCustom(401, '로그인 기한이 만료되었습니다.');
       }
 
       //2.access토큰은 만료되었지만 refresh토큰이 존재한다면 db에서 토큰을 비교하여 accessToken 발급
@@ -68,7 +68,7 @@ module.exports = async (req, res, next) => {
         const userKey = existUser?.userKey; //옵셔널 체이닝
 
         const newAccessToken = jwt.sign({ userKey }, process.env.SECRET_KEY, {
-          expiresIn: '3h',
+          expiresIn: '1h',
         });
         console.log(newAccessToken, 'newAccessToken 확인');
 
@@ -89,7 +89,7 @@ module.exports = async (req, res, next) => {
         }
         // refreshToken 발급
         const newRefreshToken = jwt.sign({ userKey }, process.env.SECRET_KEY, {
-          expiresIn: '5h',
+          expiresIn: '12h',
         });
         console.log(newRefreshToken, 'newRefreshToken 확인');
         // refreshToken 발급 후 db에 저장

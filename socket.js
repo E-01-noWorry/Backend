@@ -9,6 +9,14 @@ const { Op } = require('sequelize');
 const dayjs = require('dayjs');
 const admin = require('firebase-admin');
 
+//
+const timezone = require('dayjs/plugin/timezone');
+const utc = require('dayjs/plugin/utc');
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Seoul');
+//
+
 let server = '';
 if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
   try {
@@ -38,7 +46,6 @@ if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
 } else {
   server = http.createServer(app);
 }
-// ------------------채팅 소캣 부분만 한번 만져봄(여기서부터) ----------------
 
 const io = require('socket.io')(server, {
   cors: {
@@ -78,12 +85,13 @@ io.on('connection', (socket) => {
 
     // 처음입장이라면 환영 메세지가 없을테니
     if (!enterMsg) {
-      const today = dayjs(new Date()).add(9, 'h').format('YYYY-MM-DD 00:00:00');
+      const today = dayjs().tz().format('YYYY-MM-DD 00:00:00');
+      const chatTime = new Date(today).setHours(new Date(today).getHours() - 9);
 
       const todayChat = await Chat.findOne({
         where: {
           roomKey,
-          createdAt: { [Op.gt]: today },
+          createdAt: { [Op.gt]: chatTime },
         },
       });
 
@@ -113,12 +121,14 @@ io.on('connection', (socket) => {
   socket.on('chat_message', async (data) => {
     let { message, roomKey, userKey } = data;
 
-    const today = dayjs(new Date()).add(9, 'h').format('YYYY-MM-DD 00:00:00');
+    // const today = dayjs(new Date()).format('YYYY-MM-DD 15:00:00');
+    const today = dayjs().tz().format('YYYY-MM-DD 00:00:00'); // 'YYYY-MM-DD 00:00:00'
+    const chatTime = new Date(today).setHours(new Date(today).getHours() - 9);
 
     const todayChat = await Chat.findOne({
       where: {
         roomKey,
-        createdAt: { [Op.gt]: today },
+        createdAt: { [Op.gt]: chatTime },
       },
     });
 
@@ -235,20 +245,18 @@ io.on('connection', (socket) => {
 
   // 추천하기
   socket.on('recommend', async (data) => {
-    console.log('recommend 받기 성공');
-    console.log(data);
     // 여기서 유저키는 추천 받은 사람의 유저키
     let { roomKey, userKey } = data;
     const room = await Room.findOne({ where: roomKey });
-    const recommendUser = await User.findOne({ where: { userKey } });
-    await recommendUser.update({ point: recommendUser.point + 3 });
-    // console.log(recommendUser);
+    const recommendUser = await User.increment(
+      { point: 3 },
+      { where: { userKey } }
+    );
 
     let param = { userKey: recommendUser.userKey };
     console.log(param);
     io.to(room.title).emit('recommend', param);
   });
 });
-// };
 
 module.exports = { server };

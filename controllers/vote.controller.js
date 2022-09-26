@@ -3,6 +3,8 @@ const ErrorCustom = require('../advice/errorCustom');
 const admin = require('firebase-admin');
 const joi = require('../advice/joiSchema');
 
+const VoteService = require('../services/vote.service');
+
 let count = [0, 0, 0, 0];
 function totalcount(data) {
   data.map((e) => {
@@ -21,95 +23,25 @@ function totalcount(data) {
 }
 
 class VoteController {
+  voteService = new VoteService();
+
   postVote = async (req, res, next) => {
     try {
       const { userKey } = res.locals.user;
       const { selectKey } = joi.selectKeySchema.validate(req.params).value;
       const { choice } = joi.choiceSchema.validate(req.body).value;
 
-      const data = await Select.findOne({
-        where: { selectKey },
-        include: [{ model: User, attributes: ['deviceToken'] }],
+      const postVote = await this.voteService.postVote(
+        userKey,
+        selectKey,
+        choice
+      );
+
+      return res.status(200).json({
+        ok: true,
+        msg: '선택지 투표 성공',
+        result: postVote,
       });
-
-      if (!data) {
-        throw new ErrorCustom(400, '해당 선택글이 존재하지 않습니다.');
-      }
-
-      if (userKey === data.userKey) {
-        throw new ErrorCustom(400, '본인 글에는 투표할 수 없습니다.');
-      }
-
-      if (data.compeltion === true) {
-        throw new ErrorCustom(400, '투표가 마감되었습니다.');
-      }
-
-      // 투표했는지 확인
-      const voteCheck = await Vote.findOne({
-        where: { selectKey, userKey },
-      });
-
-      // 안하면 투표 데이터 생성
-      if (!voteCheck) {
-        await Vote.create({
-          selectKey,
-          userKey,
-          choice,
-        });
-
-        const datas = await Vote.findAll({
-          where: { selectKey },
-        });
-
-        // count = [0, 0, 0, 0];
-        const total = totalcount(datas);
-
-        function rate(i) {
-          const num = (count[i] / total) * 100;
-          return Math.round(num * 100) / 100;
-        }
-
-        //선택글 투표시 +1점씩 포인트 지급
-        let votePoint = await User.findOne({ where: { userKey } });
-        await votePoint.update({ point: votePoint.point + 1 });
-
-        // 투표가 3개씩 될때 알림 보냄
-        if (total % 3 === 0) {
-          let target_token = data.User.deviceToken;
-
-          const message = {
-            token: target_token,
-            data: {
-              title: '곰곰',
-              body: `게시물에 ${total}개 투표가 진행중입니다.`,
-              link: `detail/${selectKey}`,
-            },
-          };
-
-          admin
-            .messaging()
-            .send(message)
-            .catch(function (err) {
-              next(err);
-            });
-        }
-
-        return res.status(200).json({
-          ok: true,
-          msg: '선택지 투표 성공',
-          result: {
-            1: rate(0),
-            2: rate(1),
-            3: rate(2),
-            4: rate(3),
-            total,
-            isVote: choice,
-            votePoint: votePoint.point,
-          },
-        });
-      } else {
-        throw new ErrorCustom(400, '이미 투표를 실시했습니다.');
-      }
     } catch (err) {
       next(err);
     }
@@ -138,7 +70,7 @@ class VoteController {
       }
 
       // 글이 마감되었는지 확인 마감되면 바로 투표결과 보여줌
-      if (isSelect.compeltion === true) {
+      if (isSelect.completion === true) {
         return res.status(200).json({
           ok: true,
           msg: '마감된 투표 조회 성공',

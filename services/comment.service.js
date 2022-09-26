@@ -77,6 +77,7 @@ class CommentService {
             include: [{ model: User, attributes: ['nickname', 'point'] }],
           },
         ],
+        order: [['commentKey', 'ASC']],
       });
 
       return {
