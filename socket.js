@@ -9,6 +9,14 @@ const { Op } = require('sequelize');
 const dayjs = require('dayjs');
 const admin = require('firebase-admin');
 
+//
+const timezone = require('dayjs/plugin/timezone');
+const utc = require('dayjs/plugin/utc');
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault('Asia/Seoul');
+//
+
 let server = '';
 if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
   try {
@@ -77,12 +85,13 @@ io.on('connection', (socket) => {
 
     // 처음입장이라면 환영 메세지가 없을테니
     if (!enterMsg) {
-      const today = dayjs(new Date()).format('YYYY-MM-DD 15:00:00');
+      const today = dayjs().tz().format('YYYY-MM-DD 00:00:00');
+      const chatTime = new Date(today).setHours(new Date(today).getHours() - 9);
 
       const todayChat = await Chat.findOne({
         where: {
           roomKey,
-          createdAt: { [Op.gt]: new Date(today) },
+          createdAt: { [Op.gt]: chatTime },
         },
       });
 
@@ -90,7 +99,7 @@ io.on('connection', (socket) => {
         await Chat.create({
           roomKey,
           userKey: 12, // 관리자 유저키
-          chat: `${dayjs(today).add(1, 'd').format('YYYY년 MM월 DD일')}`,
+          chat: `${dayjs(today).format('YYYY년 MM월 DD일')}`,
         });
       }
 
@@ -112,12 +121,14 @@ io.on('connection', (socket) => {
   socket.on('chat_message', async (data) => {
     let { message, roomKey, userKey } = data;
 
-    const today = dayjs(new Date()).format('YYYY-MM-DD 15:00:00');
+    // const today = dayjs(new Date()).format('YYYY-MM-DD 15:00:00');
+    const today = dayjs().tz().format('YYYY-MM-DD 00:00:00'); // 'YYYY-MM-DD 00:00:00'
+    const chatTime = new Date(today).setHours(new Date(today).getHours() - 9);
 
     const todayChat = await Chat.findOne({
       where: {
         roomKey,
-        createdAt: { [Op.gt]: new Date(today) },
+        createdAt: { [Op.gt]: chatTime },
       },
     });
 
@@ -125,7 +136,7 @@ io.on('connection', (socket) => {
       await Chat.create({
         roomKey,
         userKey: 12, // 관리자 유저키
-        chat: `${dayjs(today).add(1, 'd').format('YYYY년 MM월 DD일')}`,
+        chat: `${dayjs(today).format('YYYY년 MM월 DD일')}`,
       });
     }
 
