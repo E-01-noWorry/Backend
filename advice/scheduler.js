@@ -20,7 +20,7 @@ exports.scheduler = () => {
   }
   console.log(now);
 
-  schedule.scheduleJob('*/1 * * * *', async function () {
+  schedule.scheduleJob('*/10 * * * *', async function () {
     console.log(now);
     console.log('데이터 확인');
     const datas = await Select.findAll({});
