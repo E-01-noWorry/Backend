@@ -1,4 +1,3 @@
-const { Select, User, Vote } = require('../models');
 const ErrorCustom = require('../advice/errorCustom');
 const admin = require('firebase-admin');
 
@@ -19,12 +18,13 @@ function totalcount(data) {
   return totalcount;
 }
 
+const VoteRepository = require('../repositories/vote.repository');
+
 class VoteService {
+  voteRepository = new VoteRepository();
+
   postVote = async (userKey, selectKey, choice) => {
-    const isSelect = await Select.findOne({
-      where: { selectKey },
-      include: [{ model: User, attributes: ['deviceToken'] }],
-    });
+    const isSelect = await this.voteRepository.findOneSelect(selectKey);
 
     if (!isSelect) {
       throw new ErrorCustom(400, '해당 선택글이 존재하지 않습니다.');
@@ -39,25 +39,17 @@ class VoteService {
     }
 
     // 투표했는지 확인
-    const voteCheck = await Vote.findOne({
-      where: { selectKey, userKey },
-    });
+    const voteCheck = await this.voteRepository.findOneVote(selectKey, userKey);
 
     // 안하면 투표 데이터 생성
     if (!voteCheck) {
-      await Vote.create({ selectKey, userKey, choice });
+      await this.voteRepository.createVote(selectKey, userKey, choice);
 
       //선택글 투표시 +1점씩 포인트 지급
-      let votePoint = await User.increment(
-        { point: 1 },
-        { where: { userKey } }
-      );
+      let votePoint = await this.voteRepository.incrementPoint(userKey);
 
-      const allVotes = await Vote.findAll({
-        where: { selectKey },
-      });
+      const allVotes = await this.voteRepository.findAllVote(selectKey);
 
-      // count = [0, 0, 0, 0];
       const total = totalcount(allVotes);
 
       function rate(i) {
@@ -107,15 +99,13 @@ class VoteService {
   };
 
   getVote = async (selectKey, user) => {
-    const isSelect = await Select.findOne({ where: { selectKey } });
+    const isSelect = await this.voteRepository.findOneSelect(selectKey);
 
     if (!isSelect) {
       throw new ErrorCustom(400, '해당 선택글이 존재하지 않습니다.');
     }
 
-    const datas = await Vote.findAll({
-      where: { selectKey },
-    });
+    const datas = await this.voteRepository.findAllVote(selectKey);
 
     count = [0, 0, 0, 0];
     const total = totalcount(datas);
@@ -166,9 +156,10 @@ class VoteService {
         };
       }
 
-      const voteCheck = await Vote.findOne({
-        where: { selectKey, userKey },
-      });
+      const voteCheck = await this.voteRepository.findOneVote(
+        selectKey,
+        userKey
+      );
 
       // 로그인은 했지만, 투표를 안하면 비율 안보이게함
       if (!voteCheck) {
@@ -179,10 +170,10 @@ class VoteService {
         };
       } else {
         // 로그인하고 투표까지하면 투표비율 보여줌
-        const isVote = await Vote.findOne({
-          where: { selectKey, userKey },
-          attributes: ['choice'],
-        });
+        const isVote = await this.voteRepository.findOneVote(
+          selectKey,
+          userKey
+        );
 
         return {
           ok: true,
