@@ -4,26 +4,26 @@ const ErrorCustom = require('../advice/errorCustom');
 const dayjs = require('dayjs');
 
 class ChatService {
-    createChat = async (userKey, title, max, hashTag) => {
-      const newRoom = await Room.create({
-        title,
-        max,
-        hashTag,
-        userKey,
-      });
+  createChat = async (userKey, title, max, hashTag) => {
+    const newRoom = await Room.create({
+      title,
+      max,
+      hashTag,
+      userKey,
+    });
 
-  //     // Participant에 방금 생성한 유저 생성하고 바로 채팅방 안으로 들어가야함
-      await Participant.create({
-        userKey,
-        roomKey: newRoom.roomKey,
-      });
+    //     // Participant에 방금 생성한 유저 생성하고 바로 채팅방 안으로 들어가야함
+    await Participant.create({
+      userKey,
+      roomKey: newRoom.roomKey,
+    });
 
-  //     //채팅방 생성시 +3점씩 포인트 지급
-      let roomPoint = await User.findOne({ where: { userKey } });
-      await roomPoint.update({ point: roomPoint.point + 3 });
+    //     //채팅방 생성시 +3점씩 포인트 지급
+    let roomPoint = await User.findOne({ where: { userKey } });
+    await roomPoint.update({ point: roomPoint.point + 3 });
 
-      return newRoom
-    }
+    return newRoom;
+  };
 
   searchChat = async (searchWord) => {
     const searchResult = await Room.findAll({
@@ -95,7 +95,7 @@ class ChatService {
     }
 
     return room;
-  }
+  };
 
   detailChat = async (userKey, nickname, roomKey) => {
     const room = await Room.findOne({
@@ -115,7 +115,7 @@ class ChatService {
     }
 
     return room;
-  }
+  };
 }
 
 module.exports = ChatService;
