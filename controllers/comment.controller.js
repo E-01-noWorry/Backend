@@ -60,7 +60,7 @@ class CommentController {
             );
 
               
-            return res.status(200).json(putComments);
+            res.status(200).json(putComments);
           } catch (err) {
             next(err);
           }
