@@ -91,7 +91,7 @@ class CommentService {
           return {
             commentKey: e.commentKey,
             comment: e.comment,
-            nickname: e.nickname,
+            nickname: e.User.nickname,
             userKey: e.userKey,
             point: e.User.point,
             updatedAt: e.updatedAt,
