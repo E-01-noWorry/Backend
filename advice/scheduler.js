@@ -20,12 +20,14 @@ exports.scheduler = () => {
   }
   console.log(now);
 
-  schedule.scheduleJob('*/20 * * * *', async function () {
+  schedule.scheduleJob('*/1 * * * *', async function () {
     console.log(now);
     console.log('데이터 확인');
     const datas = await Select.findAll({});
     await Promise.all(
       datas.map((e) => {
+        console.log(dayjs(e.deadLine).format());
+        console.log(now);
         if (dayjs(e.deadLine).format() < now) {
           e.update({ completion: true });
         }
