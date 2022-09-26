@@ -1,7 +1,6 @@
 const { Room, Chat, User, Participant } = require('../models');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
-const dayjs = require('dayjs');
 
 class ChatService {
   createChat = async (userKey, title, max, hashTag) => {
