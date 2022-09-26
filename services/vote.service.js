@@ -81,17 +81,13 @@ class VoteService {
       }
 
       return {
-        ok: true,
-        msg: '선택지 투표 성공',
-        result: {
-          1: rate(0),
-          2: rate(1),
-          3: rate(2),
-          4: rate(3),
-          total,
-          isVote: choice,
-          votePoint: votePoint.point,
-        },
+        1: rate(0),
+        2: rate(1),
+        3: rate(2),
+        4: rate(3),
+        total,
+        isVote: choice,
+        votePoint: votePoint.point,
       };
     } else {
       throw new ErrorCustom(400, '이미 투표를 실시했습니다.');
