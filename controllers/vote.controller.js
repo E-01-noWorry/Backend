@@ -1,6 +1,3 @@
-const { Select, User, Vote } = require('../models');
-const ErrorCustom = require('../advice/errorCustom');
-const admin = require('firebase-admin');
 const joi = require('../advice/joiSchema');
 
 const VoteService = require('../services/vote.service');
