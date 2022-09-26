@@ -120,7 +120,7 @@ class CommentService {
         msg: '댓글 수정 성공',
         result: {
           commentKey,
-          comment: updateComment.comment,
+          comment,
           nickname: nickname,
           userKey,
           point: updateCmt.User.point,
