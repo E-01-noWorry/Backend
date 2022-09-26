@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 
 class ChatService {
-  createChat = async (userKey, title, max, hashTag) => {
+  createChat = async (userKey, nickname, title, max, hashTag) => {
     const newRoom = await Room.create({
       title,
       max,
@@ -21,7 +21,20 @@ class ChatService {
     let roomPoint = await User.findOne({ where: { userKey } });
     await roomPoint.update({ point: roomPoint.point + 3 });
 
-    return newRoom;
+    return {
+      ok: true,
+      msg: '채팅방 생성 성공',
+      result: {
+        roomKey: newRoom.roomKey,
+        title: newRoom.title,
+        max: newRoom.max,
+        currentPeople: 1,
+        hashTag: newRoom.hashTag,
+        host: nickname,
+        userKey,
+        roomPoint: roomPoint.point,
+      },
+    };
   };
 
   searchChat = async (searchWord) => {

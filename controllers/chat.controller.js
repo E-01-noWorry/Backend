@@ -19,20 +19,7 @@ class ChatController {
 
       const newRoom = await this.chatService.createChat(userKey, title, max, hashTag)
 
-      return res.status(200).json({
-        ok: true,
-        msg: '채팅방 생성 성공',
-        result: {
-          roomKey: newRoom.roomKey,
-          title: newRoom.title,
-          max: newRoom.max,
-          currentPeople: 1,
-          hashTag: newRoom.hashTag,
-          host: nickname,
-          userKey,
-          roomPoint: newRoom.point,
-        },
-      });
+      return res.status(200).json(newRoom);
     } catch (err) {
       next(err);
     }
@@ -74,7 +61,7 @@ class ChatController {
         offset = limit * (pageNum - 1); //5 10
       }
 
-      const allRoom = await this.chatService.allChat(offset);
+      const allRoom = await this.chatService.allChat(offset, limit);
 
       return res.status(200).json({
         ok: true,
