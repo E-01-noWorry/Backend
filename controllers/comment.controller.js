@@ -1,12 +1,12 @@
-const ErrorCustom = require('../advice/errorCustom');
+const { User, Comment, Recomment } = require('../models');
 const joi = require('../advice/joiSchema');
-const admin = require('firebase-admin');
+
 const CommentService = require('../services/comment.service');
 
 
 class CommentController {
     commentService = new CommentService();
-    
+
     postComment = async (req,res,next) => {
         try {
             const { userKey, nickname } = res.locals.user;
@@ -51,11 +51,13 @@ class CommentController {
               throw new ErrorCustom(400, '댓글을 입력해주세요. 50자까지 가능합니다.');
             }
 
+            const { comment } = result.value;
+
+
             const putComments = await this.commentService.putComments(
               userKey, commentKey, comment, nickname
             );
 
-            const { comment } = result.value;
               
             return res.status(200).json(putComments);
           } catch (err) {
@@ -70,7 +72,8 @@ class CommentController {
 
             const deleteComments = await this.commentService.deleteComments(
               userKey, 
-              commentKey
+              commentKey,
+              nickname,
             );
             
             res.status(201).json( deleteComments );

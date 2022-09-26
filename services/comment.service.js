@@ -117,22 +117,22 @@ class CommentService {
           include: [{ model: User, attributes: ['nickname', 'point'] }],
         });
 
-        return res.status(200).json({
+        return {
           ok: true,
           msg: '댓글 수정 성공',
           result: {
             commentKey,
-            comment: comment,
+            comment: updateComment.comment,
             nickname: nickname,
             userKey,
             point: updateCmt.User.point,
             updatedAt: updateCmt.updatedAt,
           },
-        });
+        };
     }
   }
 
-    deleteComments = async (userKey, commentKey) => {
+    deleteComments = async (userKey, commentKey, nickname) => {
       const data = await Comment.findOne({ where: { commentKey } });
         
       if (!data) {
@@ -144,7 +144,7 @@ class CommentService {
       } else {
         await Comment.destroy({ where: { commentKey, userKey } });
   
-        return res.status(200).json({
+        return {
           ok: true,
           msg: '댓글 삭제 성공',
           result: {
@@ -153,9 +153,9 @@ class CommentService {
             nickname: nickname,
             userKey,
           },
-        });
+        };
     }
   }
 }
 
-module.exporrts = CommentService;
+module.exports = CommentService;
