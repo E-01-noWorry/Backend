@@ -17,7 +17,7 @@ class ChatController {
       }
       const { title, max, hashTag } = result.value;
 
-      const newRoom = await this.chatService.createChat(userKey, title, max, hashTag)
+      const newRoom = await this.chatService.createChat(userKey, nickname, title, max, hashTag)
 
       return res.status(200).json(newRoom);
     } catch (err) {
