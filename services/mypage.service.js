@@ -1,21 +1,22 @@
 const { Select, User, Vote, Room, Participant } = require('../models');
-// 작업시작
+
+const MypageRepository = require('../repositories/mypage.repository');
 
 class MypageService {
+  mypageRepository = new MypageRepository();
+
   findUserInfo = async (userKey) => {
-    const userInfo = await User.findOne({ where: { userKey } });
+    const userInfo = await this.mypageRepository.findOneUser(userKey);
 
     return userInfo;
   };
 
   mySelect = async (userKey, offset, limit) => {
-    const mySelects = await Select.findAll({
-      where: { userKey },
-      include: [{ model: Vote }],
-      order: [['selectKey', 'DESC']],
-      offset: offset,
-      limit: limit,
-    });
+    const mySelects = await this.mypageRepository.findAllSelect(
+      userKey,
+      offset,
+      limit
+    );
 
     return mySelects;
   };
