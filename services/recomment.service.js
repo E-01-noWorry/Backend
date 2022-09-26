@@ -14,10 +14,10 @@ class RecommentService {
           }
 
           const createRecomment = await Recomment.create({
-            comment,
             commentKey,
+            comment,
             userKey,
-            nickname
+            nickname,
           });
 
           
@@ -48,16 +48,19 @@ class RecommentService {
           }
       
           return { 
-              commentKey,
-              recommentKey: createRecomment.recommentKey,
-              comment,
-              userKey,
-              User: {
-                nickname,
-                point: findRecomment.User.point,
-              },
-              updatedAt: findRecomment.updatedAt,
-            
+            ok: true,
+            msg: '대댓글 작성  성공',
+              result: {
+                commentKey,
+                recommentKey: createRecomment.recommentKey,
+                comment,
+                userKey,
+                User: {
+                  nickname,
+                  point: findRecomment.User.point,
+                },
+                updatedAt: findRecomment.updatedAt,
+              }
           }
     }
 
@@ -74,12 +77,7 @@ class RecommentService {
             throw new ErrorCustom(400, '작성자가 다릅니다.');
           } else {
             await Recomment.update({ comment }, { where: { recommentKey, userKey } });
-      
-            const updateComment = await Recomment.update(
-              { comment },
-              { where: { recommentKey } }
-            );
-      
+       
             const updateCmt = await Recomment.findOne({
               where: { recommentKey },
               include: [{ model: User, attributes: ['nickname', 'point'] }],

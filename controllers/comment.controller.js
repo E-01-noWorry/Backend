@@ -21,7 +21,7 @@ class CommentController {
                 comment,
                 selectKey,
                 userKey,
-                nickname
+                nickname,
             );
             
             res.status(201).json(createComment);
@@ -55,11 +55,14 @@ class CommentController {
 
 
             const putComments = await this.commentService.putComments(
-              userKey, commentKey, comment, nickname
+              userKey, 
+              commentKey, 
+              comment,
+              nickname,
             );
 
               
-            return res.status(200).json(putComments);
+            res.status(200).json(putComments);
           } catch (err) {
             next(err);
           }

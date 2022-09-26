@@ -14,9 +14,10 @@ class CommentService {
           }
       
           const createComment = await Comment.create({
-            comment,
+            comment, 
             selectKey,
             userKey,
+            nickname,
           });
 
           const findComment = await Comment.findOne({
@@ -47,13 +48,16 @@ class CommentService {
           }
 
           return {
-            commentKey: createComment.commentKey,
-            comment: createComment.comment,
-            nickname: nickname,
-            userKey,
-            point: findComment.User.point,
-            updatedAt: findComment.updatedAt,
+            ok: true,
             msg: '댓글 작성 성공',
+            result: {
+              commentKey: createComment.commentKey,
+              comment: createComment.comment,
+              nickname: nickname,
+              userKey,
+              point: findComment.User.point,
+              updatedAt: findComment.updatedAt,
+            }
           }
 
 
@@ -81,6 +85,8 @@ class CommentService {
       });
 
       return {
+        ok: true,
+        msg: '대댓글 조회 성공',
         result: datas.map((e) => {
           return {
             commentKey: e.commentKey,
