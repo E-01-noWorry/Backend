@@ -67,23 +67,25 @@ class VoteService {
 
       // 투표가 3개씩 될때 알림 보냄
       if (total % 3 === 0) {
-        let target_token = isSelect.User.deviceToken;
+        if (isSelect.User.deviceToken) {
+          let target_token = isSelect.User.deviceToken;
 
-        const message = {
-          token: target_token,
-          data: {
-            title: '곰곰',
-            body: `게시물에 ${total}개 투표가 진행중입니다.`,
-            link: `detail/${selectKey}`,
-          },
-        };
+          const message = {
+            token: target_token,
+            data: {
+              title: '곰곰',
+              body: `게시물에 ${total}개 투표가 진행중입니다.`,
+              link: `detail/${selectKey}`,
+            },
+          };
 
-        admin
-          .messaging()
-          .send(message)
-          .catch(function (err) {
-            next(err);
-          });
+          admin
+            .messaging()
+            .send(message)
+            .catch(function (err) {
+              next(err);
+            });
+        }
       }
 
       return {

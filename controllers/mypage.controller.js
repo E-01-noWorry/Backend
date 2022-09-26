@@ -14,7 +14,7 @@ class MypageController {
       return res.status(200).json({
         ok: true,
         msg: '마이페이지 조회 성공',
-        result: { point: userInfo.point },
+        result: { point: userInfo.point, nickname: userInfo.nickname },
       });
     } catch (err) {
       next(err);
