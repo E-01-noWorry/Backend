@@ -1,0 +1,29 @@
+name: gomgom CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    name: CD Pipeline
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - name: Deploy
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          key: ${{ secrets.EC2_KEY }}
+          host: ${{ secrets.EC2_IP }}
+          username: ${{ secrets.EC2_NAME }}
+          script: |
+            cd /home/ubuntu/Backend
+            sudo git pull origin main
+            npm install
+            sudo pm2 restart server.js
