@@ -3,7 +3,7 @@ const ErrorCustom = require('../advice/errorCustom');
 const admin = require('firebase-admin');
 
 class RecommentService {
-    createRecomment = async(commentKey, comment, nickname, userKey) => {
+    createRecomment = async(userKey, commentKey, comment, nickname) => {
           const data = await Comment.findOne({
             where: { commentKey },
             include: [{ model: User, attributes: ['deviceToken'] }],
@@ -17,6 +17,7 @@ class RecommentService {
             commentKey,
             comment,
             userKey,
+            nickname,
           });
 
           
@@ -100,7 +101,7 @@ class RecommentService {
           }
     }
 
-    deleteRecomments = async(userKey, recommentKey) => {
+    deleteRecomments = async(userKey, recommentKey, nickname) => {
         const data = await Recomment.findOne({ where: { recommentKey } });
         
         if (!data) {
@@ -119,6 +120,7 @@ class RecommentService {
               commentKey: data.commentKey,
               recommentKey: data.recommentKey,
               comment: data.comment,
+              nickname: nickname,
               userKey,
             },
           };

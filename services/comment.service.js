@@ -3,7 +3,7 @@ const ErrorCustom = require('../advice/errorCustom');
 const admin = require('firebase-admin');
 
 class CommentService {
-    createComment = async (comment, selectKey, userKey) => {
+    createComment = async (comment, selectKey, userKey, nickname) => {
         const data = await Select.findOne({
             where: { selectKey },
             include: [{ model: User, attributes: ['deviceToken'] }],
@@ -17,6 +17,7 @@ class CommentService {
             comment, 
             selectKey,
             userKey,
+            nickname,
           });
 
           const findComment = await Comment.findOne({
@@ -52,6 +53,7 @@ class CommentService {
             result: {
               commentKey: createComment.commentKey,
               comment: createComment.comment,
+              nickname: nickname,
               userKey,
               point: findComment.User.point,
               updatedAt: findComment.updatedAt,
@@ -89,15 +91,17 @@ class CommentService {
           return {
             commentKey: e.commentKey,
             comment: e.comment,
+            nickname: e.nickname,
             userKey: e.userKey,
             point: e.User.point,
             updatedAt: e.updatedAt,
+            recomment: e.Recomments,
           };
         }),
       }
     }
 
-    putComments = async(userKey, commentKey, comment)=> {  
+    putComments = async(userKey, commentKey, comment, nickname)=> {  
       const data = await Comment.findOne({
         where: { commentKey },
       });
@@ -125,6 +129,7 @@ class CommentService {
           result: {
             commentKey,
             comment: updateComment.comment,
+            nickname: nickname,
             userKey,
             point: updateCmt.User.point,
             updatedAt: updateCmt.updatedAt,
@@ -151,6 +156,7 @@ class CommentService {
           result: {
             commentKey: data.commentKey,
             comment: data.comment,
+            nickname: nickname,
             userKey,
           },
         };

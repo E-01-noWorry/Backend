@@ -26,6 +26,8 @@ class RecommentController {
               nickname
             );
 
+
+          
             res.status(201).json(createRecomment);
           } catch (err) {
             next(err);
@@ -63,6 +65,7 @@ class RecommentController {
             const deleteRecomments = await this.recommentService.deleteRecomments(
               userKey, 
               recommentKey,
+              nickname
             );
 
             res.status(201).json(deleteRecomments);
