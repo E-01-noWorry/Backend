@@ -92,7 +92,6 @@ class CommentService {
             userKey: e.userKey,
             point: e.User.point,
             updatedAt: e.updatedAt,
-            recomment: e.Recomments,
           };
         }),
       }
