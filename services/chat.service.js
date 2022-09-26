@@ -5,11 +5,12 @@ const ErrorCustom = require('../advice/errorCustom');
 class ChatService {
   createChat = async (userKey, nickname, title, max, hashTag) => {
     const newRoom = await Room.create({
-      title,
-      max,
-      hashTag,
+      max:max,
+      hashTag:hashTag,
+      title:title,
       userKey,
     });
+    console.log(newRoom, '확인')
 
     //     // Participant에 방금 생성한 유저 생성하고 바로 채팅방 안으로 들어가야함
     await Participant.create({
