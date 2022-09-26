@@ -74,15 +74,6 @@ class CommentController {
 
     getAllComment = async(req,res,next) => {
         try {
-            let offset = 0;
-            const limit = 5;
-            const pageNum = joi.pageSchema.validate(req.query.page).value;
-
-        
-            if (pageNum > 1) {
-              offset = limit * (pageNum - 1); //5 10
-            }
-        
             const { selectKey } = joi.selectSchema.validate(req.params).value;
         
             const data = await Select.findOne({
@@ -103,8 +94,6 @@ class CommentController {
                 },
               ],
               order: [['commentKey', 'ASC']],
-              offset: offset,
-              limit: limit,
             });
         
             return res.status(200).json({
