@@ -32,14 +32,14 @@ class UserService {
       { userKey: user.userKey },
       process.env.SECRET_KEY,
       {
-        expiresIn: '1h',
+        expiresIn: '3h',
       }
     );
     const refreshToken = jwt.sign(
       { userKey: user.userKey },
       process.env.SECRET_KEY,
       {
-        expiresIn: '12h',
+        expiresIn: '14d',
       }
     );
     console.log(accessToken, 'access토큰 확인');

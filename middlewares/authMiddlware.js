@@ -68,7 +68,7 @@ module.exports = async (req, res, next) => {
         const userKey = existUser?.userKey; //옵셔널 체이닝
 
         const newAccessToken = jwt.sign({ userKey }, process.env.SECRET_KEY, {
-          expiresIn: '1h',
+          expiresIn: '3h',
         });
         console.log(newAccessToken, 'newAccessToken 확인');
 
@@ -89,7 +89,7 @@ module.exports = async (req, res, next) => {
         }
         // refreshToken 발급
         const newRefreshToken = jwt.sign({ userKey }, process.env.SECRET_KEY, {
-          expiresIn: '12h',
+          expiresIn: '14d',
         });
         console.log(newRefreshToken, 'newRefreshToken 확인');
         // refreshToken 발급 후 db에 저장
