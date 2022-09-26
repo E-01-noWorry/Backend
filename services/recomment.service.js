@@ -3,7 +3,7 @@ const ErrorCustom = require('../advice/errorCustom');
 const admin = require('firebase-admin');
 
 class RecommentService {
-    createRecomment = async(userKey, commentKey, comment, nickname) => {
+    createRecomment = async(commentKey, comment, nickname, userKey) => {
           const data = await Comment.findOne({
             where: { commentKey },
             include: [{ model: User, attributes: ['deviceToken'] }],
@@ -14,10 +14,9 @@ class RecommentService {
           }
 
           const createRecomment = await Recomment.create({
-            comment,
             commentKey,
+            comment,
             userKey,
-            nickname
           });
 
           
@@ -48,16 +47,19 @@ class RecommentService {
           }
       
           return { 
-              commentKey,
-              recommentKey: createRecomment.recommentKey,
-              comment,
-              userKey,
-              User: {
-                nickname,
-                point: findRecomment.User.point,
-              },
-              updatedAt: findRecomment.updatedAt,
-            
+            ok: true,
+            msg: '대댓글 작성  성공',
+              result: {
+                commentKey,
+                recommentKey: createRecomment.recommentKey,
+                comment,
+                userKey,
+                User: {
+                  nickname,
+                  point: findRecomment.User.point,
+                },
+                updatedAt: findRecomment.updatedAt,
+              }
           }
     }
 
@@ -74,12 +76,7 @@ class RecommentService {
             throw new ErrorCustom(400, '작성자가 다릅니다.');
           } else {
             await Recomment.update({ comment }, { where: { recommentKey, userKey } });
-      
-            const updateComment = await Recomment.update(
-              { comment },
-              { where: { recommentKey } }
-            );
-      
+       
             const updateCmt = await Recomment.findOne({
               where: { recommentKey },
               include: [{ model: User, attributes: ['nickname', 'point'] }],
@@ -103,7 +100,7 @@ class RecommentService {
           }
     }
 
-    deleteRecomments = async(userKey, recommentKey, nickname) => {
+    deleteRecomments = async(userKey, recommentKey) => {
         const data = await Recomment.findOne({ where: { recommentKey } });
         
         if (!data) {
@@ -122,7 +119,6 @@ class RecommentService {
               commentKey: data.commentKey,
               recommentKey: data.recommentKey,
               comment: data.comment,
-              nickname: nickname,
               userKey,
             },
           };

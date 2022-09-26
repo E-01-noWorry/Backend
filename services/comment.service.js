@@ -3,7 +3,7 @@ const ErrorCustom = require('../advice/errorCustom');
 const admin = require('firebase-admin');
 
 class CommentService {
-    createComment = async (comment, selectKey, userKey, nickname) => {
+    createComment = async (comment, selectKey, userKey) => {
         const data = await Select.findOne({
             where: { selectKey },
             include: [{ model: User, attributes: ['deviceToken'] }],
@@ -14,7 +14,7 @@ class CommentService {
           }
       
           const createComment = await Comment.create({
-            comment,
+            comment, 
             selectKey,
             userKey,
           });
@@ -47,13 +47,15 @@ class CommentService {
           }
 
           return {
-            commentKey: createComment.commentKey,
-            comment: createComment.comment,
-            nickname: nickname,
-            userKey,
-            point: findComment.User.point,
-            updatedAt: findComment.updatedAt,
+            ok: true,
             msg: '댓글 작성 성공',
+            result: {
+              commentKey: createComment.commentKey,
+              comment: createComment.comment,
+              userKey,
+              point: findComment.User.point,
+              updatedAt: findComment.updatedAt,
+            }
           }
 
 
@@ -81,11 +83,12 @@ class CommentService {
       });
 
       return {
+        ok: true,
+        msg: '대댓글 조회 성공',
         result: datas.map((e) => {
           return {
             commentKey: e.commentKey,
             comment: e.comment,
-            nickname: e.User.nickname,
             userKey: e.userKey,
             point: e.User.point,
             updatedAt: e.updatedAt,
@@ -95,7 +98,7 @@ class CommentService {
       }
     }
 
-    putComments = async(userKey, commentKey, comment, nickname)=> {  
+    putComments = async(userKey, commentKey, comment)=> {  
       const data = await Comment.findOne({
         where: { commentKey },
       });
@@ -123,7 +126,6 @@ class CommentService {
           result: {
             commentKey,
             comment: updateComment.comment,
-            nickname: nickname,
             userKey,
             point: updateCmt.User.point,
             updatedAt: updateCmt.updatedAt,
@@ -150,7 +152,6 @@ class CommentService {
           result: {
             commentKey: data.commentKey,
             comment: data.comment,
-            nickname: nickname,
             userKey,
           },
         };

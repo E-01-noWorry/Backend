@@ -21,7 +21,6 @@ class CommentController {
                 comment,
                 selectKey,
                 userKey,
-                nickname
             );
             
             res.status(201).json(createComment);
@@ -55,7 +54,9 @@ class CommentController {
 
 
             const putComments = await this.commentService.putComments(
-              userKey, commentKey, comment, nickname
+              userKey, 
+              commentKey, 
+              comment,
             );
 
               
@@ -73,7 +74,6 @@ class CommentController {
             const deleteComments = await this.commentService.deleteComments(
               userKey, 
               commentKey,
-              nickname,
             );
             
             res.status(201).json( deleteComments );
