@@ -50,7 +50,7 @@ class CommentService {
       msg: '댓글 작성 성공',
       result: {
         commentKey: createComment.commentKey,
-        comment: createComment.comment,
+        comment,
         nickname: nickname,
         userKey,
         point: findComment.User.point,
