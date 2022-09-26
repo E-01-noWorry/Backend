@@ -1,4 +1,5 @@
 const { Select, User, Vote, Room, Participant } = require('../models');
+// 작업시작
 
 class MypageService {
   findUserInfo = async (userKey) => {
