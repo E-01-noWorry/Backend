@@ -9,7 +9,7 @@ on:
 jobs:
   deploy:
     name: CD Pipeline
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -22,7 +22,6 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           host: ${{ secrets.EC2_IP }}
           username: ${{ secrets.EC2_NAME }}
-          port: ${{ secrets.EC2_PORT }}
           script: |
             cd /home/ubuntu/Backend
             sudo git pull origin main
