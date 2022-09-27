@@ -12,7 +12,7 @@ module.exports = async (req, res, next) => {
     console.log(refreshToken, 'refreshToken확인');
 
     if (!accessToken) {
-      throw new ErrorCustom(401, 'accessToken이 없습니다.');
+      throw new ErrorCustom(401, '다시 로그인 해주세요.');
     }
     const accessAuthType = accessToken.split(' ')[0];
     const accessAuthToken = accessToken.split(' ')[1];
@@ -20,7 +20,7 @@ module.exports = async (req, res, next) => {
     const refreshAuthToken = refreshToken.split(' ')[1];
 
     if (accessAuthType !== 'Bearer' || refreshAuthType !== 'Bearer') {
-      throw new ErrorCustom(401, '토큰 타입이 맞지 않습니다.');
+      throw new ErrorCustom(401, '다시 로그인 해주세요.');
     }
 
     if (
@@ -61,7 +61,7 @@ module.exports = async (req, res, next) => {
         });
 
         if (!existUser) {
-          throw new ErrorCustom(401, '존재하지 않은 사용자입니다.');
+          throw new ErrorCustom(401, '로그인 기한이 만료되었습니다.');
         }
 
         // accessToken 발급
@@ -85,7 +85,7 @@ module.exports = async (req, res, next) => {
 
         const existUser = await User.findOne({ where: { userKey } });
         if (!existUser) {
-          throw new ErrorCustom(401, '존재하지 않은 사용자입니다.');
+          throw new ErrorCustom(401, '로그인 기한이 만료되었습니다.');
         }
         // refreshToken 발급
         const newRefreshToken = jwt.sign({ userKey }, process.env.SECRET_KEY, {
