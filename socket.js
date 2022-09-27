@@ -6,16 +6,14 @@ require('dotenv').config();
 
 const { Room, Chat, User, Participant } = require('./models');
 const { Op } = require('sequelize');
-const dayjs = require('dayjs');
 const admin = require('firebase-admin');
-
-//
+const dayjs = require('dayjs');
 const timezone = require('dayjs/plugin/timezone');
 const utc = require('dayjs/plugin/utc');
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault('Asia/Seoul');
-//
 
 let server = '';
 if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
@@ -121,8 +119,7 @@ io.on('connection', (socket) => {
   socket.on('chat_message', async (data) => {
     let { message, roomKey, userKey } = data;
 
-    // const today = dayjs(new Date()).format('YYYY-MM-DD 15:00:00');
-    const today = dayjs().tz().format('YYYY-MM-DD 00:00:00'); // 'YYYY-MM-DD 00:00:00'
+    const today = dayjs().tz().format('YYYY-MM-DD 00:00:00');
     const chatTime = new Date(today).setHours(new Date(today).getHours() - 9);
 
     const todayChat = await Chat.findOne({
