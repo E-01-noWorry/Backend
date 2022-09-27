@@ -2,27 +2,29 @@ const { User, Comment, Recomment } = require('../models');
 const ErrorCustom = require('../advice/errorCustom');
 const admin = require('firebase-admin');
 
+const RecommentRepository = require('../repositories/recomment.repository');
+
 class RecommentService {
+  recommentRepository = new RecommentRepository();
+
   createRecomment = async (userKey, commentKey, comment, nickname) => {
-    const data = await Comment.findOne({
-      where: { commentKey },
-      include: [{ model: User, attributes: ['deviceToken'] }],
-    });
+    const data =  this.commentRepository.findCommentKey(
+      commentKey
+    );
 
     if (!data) {
       throw new ErrorCustom(400, '해당 댓글이 존재하지 않습니다.');
     }
 
-    const createRecomment = await Recomment.create({
+    const createRecomment = this.recommentRepository.createRecomments({
       commentKey,
       comment,
       userKey,
     });
 
-    const findRecomment = await Recomment.findOne({
-      where: { commentKey },
-      include: [{ model: User, attributes: ['nickname', 'point'] }],
-    });
+    const findRecomment = await this.recommentRepository.findRecomment(
+      commentKey
+    );
 
     if (data.User.deviceToken) {
       let target_token = data.User.deviceToken;
@@ -62,8 +64,8 @@ class RecommentService {
   };
 
   putRecomment = async (userKey, recommentKey, comment, nickname) => {
-    const data = await Recomment.findOne({
-      where: { recommentKey },
+    const data = await this.recommentRepository.findRecomment({
+      recommentKey 
     });
 
     if (!data) {
@@ -73,12 +75,9 @@ class RecommentService {
     if (userKey !== data.userKey) {
       throw new ErrorCustom(400, '작성자가 다릅니다.');
     } else {
-      await Recomment.update({ comment }, { where: { recommentKey, userKey } });
-
-      const updateCmt = await Recomment.findOne({
-        where: { recommentKey },
-        include: [{ model: User, attributes: ['nickname', 'point'] }],
-      });
+      const updateCmt = await this.recommentRepository.updateRecomment(
+        recommentKey
+      );
 
       return {
         ok: true,
@@ -99,8 +98,10 @@ class RecommentService {
   };
 
   deleteRecomment = async (userKey, recommentKey, nickname) => {
-    const data = await Recomment.findOne({ where: { recommentKey } });
-
+    const data = await this.recommentRepository.findRecomment({
+      recommentKey 
+    });
+    
     if (!data) {
       throw new ErrorCustom(400, '해당 대댓글이 존재하지 않습니다.');
     }
