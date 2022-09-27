@@ -76,7 +76,7 @@ class UserController {
       const validation = joi.nicknameSchema.validate(req.body);
 
       if (validation.error) {
-        throw new ErrorCustom(400, '변경할 닉네임을 입력해주세요.');
+        throw new ErrorCustom(400, '한글, 영어, 숫자 2~10자로 입력해주세요.');
       }
 
       const { nickname } = validation.value;
