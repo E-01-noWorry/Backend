@@ -2,16 +2,11 @@ const morgan = require('morgan');
 const logger = require('../advice/winston');
 require('dotenv').config();
 
-// 사용자의 입력값을 출력할 수 있게 함
-morgan.token('request', function (req, res) {
-  return 'Request_' + JSON.stringify(req.body);
-});
-
 const format = () => {
   const result =
     process.env.NODE_ENV === 'production'
       ? '[:remote-addr - :remote-user] ":method :url HTTP/:http-version" :status :response-time ms - :res[content-length] ":referrer" ":user-agent"'
-      : ':method :url :status :response-time ms - :res[content-length] :request';
+      : ':method :url :status :response-time ms - :res[content-length]';
   return result;
 };
 

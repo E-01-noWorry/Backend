@@ -1,16 +1,17 @@
 const express = require('express');
 const Router = require('./routes/index');
+require('dotenv').config();
 const errorHandler = require('./advice/errorHandler');
 const logger = require('./advice/winston');
 const morganMiddleware = require('./middlewares/morgan');
+const scheduler = require('./advice/scheduler');
+
+const cors = require('cors');
+const helmet = require('helmet');
 
 const session = require('cookie-session');
 const passport = require('passport');
 const passportConfig = require('./passport');
-
-const scheduler = require('./advice/scheduler');
-
-require('dotenv').config();
 
 const app = express();
 
@@ -21,13 +22,14 @@ app.use(morganMiddleware);
 // app.use(express.static(path.join(__dirname, 'src')));
 //
 
-const cors = require('cors');
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'https://www.gomgom.site'], // 출처 허용 옵션
-    credentials: true, // 사용자 인증이 필요한 리소스(쿠키 ..등) 접근
+    origin: ['http://localhost:3000', 'https://www.gomgom.site'],
+    credentials: true,
   })
 );
+
+app.use(helmet());
 
 passportConfig();
 
@@ -44,7 +46,6 @@ app.use(
     },
   })
 );
-
 app.use(passport.initialize());
 app.use(passport.session());
 
