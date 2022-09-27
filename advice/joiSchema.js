@@ -16,7 +16,7 @@ exports.userKeySchema = joi.object({
 });
 
 exports.nicknameSchema = joi.object({
-  nickname: joi.string().required(),
+  nickname: joi.string().pattern(nicknameRegEx).required(),
 });
 
 exports.pageSchema = joi.object({
