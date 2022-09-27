@@ -2,28 +2,30 @@ const { Select, User, Comment, Recomment } = require('../models');
 const ErrorCustom = require('../advice/errorCustom');
 const admin = require('firebase-admin');
 
+const CommentRepository = require('../repositories/comment.repository');
+
+
 //commit 
 class CommentService {
+  commentRepository = new CommentRepository();
+
   createComment = async (comment, selectKey, userKey, nickname) => {
-    const data = await Select.findOne({
-      where: { selectKey },
-      include: [{ model: User, attributes: ['deviceToken'] }],
-    });
+    console.log(comment);
+
+    const data = await this.commentRepository.findSelectKey(selectKey);
+
 
     if (!data) {
       throw new ErrorCustom(400, '해당 선택글이 존재하지 않습니다.');
     }
 
-    const createComment = await Comment.create({
+    const createComment = await this.commentRepository.createComments(
       comment,
       selectKey,
       userKey,
-    });
+    );
 
-    const findComment = await Comment.findOne({
-      where: { commentKey: createComment.commentKey },
-      include: [{ model: User, attributes: ['nickname', 'point'] }],
-    });
+    const findComment = await this.commentRepository.findComments(createComment.commentKey);
 
     // 글쓴이 토큰 유무 확인 후 알림 보내주기
     if (data.User.deviceToken) {
