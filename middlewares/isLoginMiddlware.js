@@ -9,9 +9,6 @@ module.exports = async (req, res, next) => {
     const accessToken = req.headers.accesstoken;
     const refreshToken = req.headers.refreshtoken;
 
-    // console.log(accessToken, '이즈로그인 미들웨어 accessToken확인');
-    // console.log(refreshToken, '이즈로그인 미들웨어 refreshToken확인');
-
     if (accessToken && refreshToken) {
       const accessAuthType = accessToken.split(' ')[0];
       const accessAuthToken = accessToken.split(' ')[1];
