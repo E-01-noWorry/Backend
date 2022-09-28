@@ -1,60 +1,61 @@
 const { User, Comment, Recomment } = require('../models');
 
-class RecommentRepository{
+class RecommentRepository {
+  findOneComment = async (commentKey) => {
+    const findOneComment = await Comment.findOne({
+      where: { commentKey },
+      include: [{ model: User, attributes: ['deviceToken'] }],
+    });
+    return findOneComment;
+  };
 
-    findCommentKey = async(commentKey) => {
-        const findCommentKey = await Select.findOne({ 
-            where: { commentKey },
-            include: [{ model: User, attributes: ['deviceToken'] }],
-        })
-        return findCommentKey;
-    };
+  createRecomment = async (commentKey, comment, userKey) => {
+    const createRecomment = await Recomment.create({
+      commentKey,
+      comment,
+      userKey,
+    });
 
-    createRecomments = async(comment, comment, userKey) => {
-        const createRecomments = await Comment.create({
-            comment, 
-            selectKey, 
-            userKey
-        });
-        console.log(createRecomments.comment);
+    return createRecomment;
+  };
 
-        return createRecomments;
-    };
+  findRecomment = async (createRecomment) => {
+    const findRecomment = await Recomment.findOne({
+      where: { recommentKey: createRecomment.recommentKey },
+      include: [{ model: User, attributes: ['nickname', 'point'] }],
+    });
 
+    return findRecomment;
+  };
 
-    //이 부분
-    findRecomment = async( commentKey  ) => {
-        const findRecomment = await Recomment.findOne({
-            where: { commentKey },
-            include: [{ model: User, attributes: ['nickname', 'point'] }],
-          });
+  findOneRecomment = async (recommentKey) => {
+    const findOneRecomment = await Recomment.findOne({
+      where: { recommentKey },
+      include: [{ model: User, attributes: ['nickname', 'point'] }],
+    });
 
-        return findRecomment;
-    };
+    return findOneRecomment;
+  };
 
+  updateRecomment = async (comment, recommentKey) => {
+    const updateRecomment = await Recomment.update(
+      { comment },
+      {
+        where: { recommentKey },
+        include: [{ model: User, attributes: ['nickname', 'point'] }],
+      }
+    );
 
+    return updateRecomment;
+  };
 
-    findRecomment = async(recommentKey) => {
-        const findRecomment = await Recomment.findOne({
-             where: { recommentKey } 
-        });
+  delRecomment = async (recommentKey) => {
+    const delRecomment = await Recomment.destroy({
+      where: { recommentKey },
+    });
 
-        return findRecomment;
-    };
-
-    updateRecomment = async(recommentKey) => {
-        const updateRecomment = await Recomment.findOne({
-            where: { recommentKey },
-            include: [{ model: User, attributes: ['nickname', 'point'] }],
-        });
-
-        return updateRecomment;
-    };
-
+    return delRecomment;
+  };
 }
 
-
-
-
-
-module.exports = RecommentRepository
+module.exports = RecommentRepository;

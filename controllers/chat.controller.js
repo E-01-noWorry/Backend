@@ -1,5 +1,4 @@
 const joi = require('../advice/joiSchema');
-const { Room, Chat, User, Participant } = require('../models');
 const ErrorCustom = require('../advice/errorCustom');
 const dayjs = require('dayjs');
 
@@ -35,12 +34,16 @@ class ChatController {
     try {
       const { searchWord } = joi.searchSchema.validate(req.query).value;
 
-      const searchResult = await this.chatService.searchChat(searchWord);
+      if (!searchWord) {
+        throw new ErrorCustom(400, '검색어를 입력해주세요.');
+      }
+
+      const searchResults = await this.chatService.searchChat(searchWord);
 
       return res.status(200).json({
         ok: true,
         msg: '채팅방 검색 조회 성공',
-        result: searchResult.map((e) => {
+        result: searchResults.map((e) => {
           return {
             roomKey: e.roomKey,
             title: e.title,
@@ -67,12 +70,12 @@ class ChatController {
         offset = limit * (pageNum - 1); //5 10
       }
 
-      const allRoom = await this.chatService.allChat(offset, limit);
+      const allRooms = await this.chatService.allChat(offset, limit);
 
       return res.status(200).json({
         ok: true,
         msg: '채팅방 전체 조회 성공',
-        result: allRoom.map((e) => {
+        result: allRooms.map((e) => {
           return {
             roomKey: e.roomKey,
             title: e.title,
@@ -91,19 +94,12 @@ class ChatController {
 
   entranceChat = async (req, res, next) => {
     try {
-      const { userKey, nickname } = res.locals.user;
+      const { userKey } = res.locals.user;
       const { roomKey } = joi.roomKeySchema.validate(req.params).value;
 
-      const room = await this.chatService.entranceChat(
-        userKey,
-        nickname,
-        roomKey
-      );
+      const room = await this.chatService.entranceChat(userKey, roomKey);
 
-      return res.status(200).json({
-        ok: true,
-        msg: '채팅방 입장 성공',
-      });
+      return res.status(200).json(room);
     } catch (err) {
       next(err);
     }
@@ -116,10 +112,7 @@ class ChatController {
 
       const room = await this.chatService.leaveChet(userKey, nickname, roomKey);
 
-      return res.status(200).json({
-        ok: true,
-        msg: '채팅방에서 나왔습니다.',
-      });
+      return res.status(200).json(room);
     } catch (err) {
       next(err);
     }
@@ -130,11 +123,7 @@ class ChatController {
       const { userKey, nickname } = res.locals.user;
       const { roomKey } = joi.roomKeySchema.validate(req.params).value;
 
-      const room = await this.chatService.detailChat(
-        userKey,
-        nickname,
-        roomKey
-      );
+      const room = await this.chatService.detailChat(roomKey);
 
       return res.status(200).json(room);
     } catch (err) {

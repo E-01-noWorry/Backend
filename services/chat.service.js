@@ -3,7 +3,6 @@ const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 const dayjs = require('dayjs');
 
-
 const ChatRepository = require('../repositories/chat.repository');
 
 class ChatService {
@@ -12,15 +11,12 @@ class ChatService {
   createChat = async (userKey, nickname, title, max, hashTag) => {
     const newRoom = await this.chatRepository.createChat(
       userKey,
-      nickname,
       title,
       max,
       hashTag
     );
 
-    //채팅방 생성시 +3점씩 포인트 지급
-    let roomPoint = await User.findOne({ where: { userKey } });
-    await roomPoint.update({ point: roomPoint.point + 3 });
+    await this.chatRepository.incrementPoint(userKey);
 
     return {
       ok: true,
@@ -33,36 +29,31 @@ class ChatService {
         hashTag: newRoom.hashTag,
         host: nickname,
         userKey,
-        roomPoint: roomPoint.point,
+        // roomPoint: roomPoint.point,
       },
     };
   };
 
   searchChat = async (searchWord) => {
-    const searchResult = await this.chatRepository.searchChat(searchWord);
+    const searchResults = await this.chatRepository.findAllSearchWord(
+      searchWord
+    );
 
-    if (!searchWord) {
-      throw new ErrorCustom(400, '검색어를 입력해주세요.');
-    }
-
-    if (searchResult.length == 0) {
+    if (searchResults.length == 0) {
       throw new ErrorCustom(400, '키워드와 일치하는 검색결과가 없습니다.');
     }
 
-    return searchResult;
+    return searchResults;
   };
 
   allChat = async (offset, limit) => {
-    const allRoom = await this.chatRepository.allChat(offset, limit);
-    return allRoom;
+    const allRooms = await this.chatRepository.findAllRoom(offset, limit);
+
+    return allRooms;
   };
 
-  entranceChat = async (userKey, nickname, roomKey) => {
-    const room = await this.chatRepository.inoutChat(
-      userKey,
-      nickname,
-      roomKey
-    );
+  entranceChat = async (userKey, roomKey) => {
+    const room = await this.chatRepository.findOneRoom(roomKey);
 
     if (!room) {
       throw new ErrorCustom(400, '해당 채팅방이 존재하지 않습니다.');
@@ -73,10 +64,10 @@ class ChatService {
     });
 
     if (users.includes(userKey)) {
-      return res.status(200).json({
+      return {
         ok: true,
         msg: '채팅방 입장 성공',
-      });
+      };
     }
 
     if (room.Participants.length >= room.max) {
@@ -86,37 +77,40 @@ class ChatService {
         userKey,
         roomKey: room.roomKey,
       });
+
+      return {
+        ok: true,
+        msg: '채팅방 입장 성공',
+      };
     }
-    return room;
   };
 
   leaveChet = async (userKey, nickname, roomKey) => {
-    const room = await this.chatRepository.inoutChat(
-      userKey,
-      nickname,
-      roomKey
-    );
+    const room = await this.chatRepository.findOneRoom(roomKey);
 
     if (!room) {
       throw new ErrorCustom(400, '해당 채팅방이 존재하지 않습니다.');
     }
 
     if (userKey === room.userKey) {
-      await Room.destroy({ where: { roomKey } });
+      await this.chatRepository.delRoom(roomKey);
 
-      return res.status(200).json({
+      return {
         ok: true,
         msg: '채팅방 호스트가 나가 채팅방이 삭제 됩니다.',
-      });
+      };
     } else {
-      await Participant.destroy({ where: { userKey, roomKey } });
-    }
+      await this.chatRepository.delParticipant(userKey, roomKey);
 
-    return room;
+      return {
+        ok: true,
+        msg: '채팅방에서 나왔습니다.',
+      };
+    }
   };
 
-  detailChat = async (userKey, nickname, roomKey) => {
-    const room = await this.chatRepository.detailChat(userKey, nickname, roomKey)
+  detailChat = async (roomKey) => {
+    const room = await this.chatRepository.detailChat(roomKey);
 
     if (!room) {
       throw new ErrorCustom(400, '해당 채팅방이 존재하지 않습니다.');
@@ -126,11 +120,7 @@ class ChatService {
       return { userKey: e.userKey, nickname: e.User.nickname };
     });
 
-    const loadChats = await Chat.findAll({
-      where: { roomKey },
-      attributes: ['chat', 'userKey', 'createdAt'],
-      include: [{ model: User, attributes: ['nickname', 'point'] }],
-    });
+    const loadChats = await this.chatRepository.loadChats(roomKey);
 
     return {
       ok: true,

@@ -1,8 +1,4 @@
-const jwt = require('jsonwebtoken');
 const joi = require('../advice/joiSchema');
-const bcrypt = require('bcrypt');
-const { Op } = require('sequelize');
-const { User } = require('../models');
 const ErrorCustom = require('../advice/errorCustom');
 
 const UserService = require('../services/user.service');
@@ -17,14 +13,12 @@ class UserController {
         throw new ErrorCustom(400, '형식에 맞게 모두 입력해주세요');
       }
       const { userId, nickname, password, confirm } = result.value;
-      if (password !== confirm) {
-        throw new ErrorCustom(400, '패스워드가 일치하지 않습니다.');
-      }
 
       const createUser = await this.userService.createUser(
         userId,
         nickname,
-        password
+        password,
+        confirm
       );
 
       res.status(201).json(createUser);
@@ -50,11 +44,7 @@ class UserController {
       const { userKey, nickname, userId } = res.locals.user;
       const { accessToken } = res.locals;
 
-      const existUser = await this.userService.checkUser(
-        userKey,
-        nickname,
-        userId
-      );
+      const existUser = await this.userService.checkUser(userKey);
 
       res.status(200).json({
         ok: true,
@@ -81,7 +71,7 @@ class UserController {
 
       const user = await this.userService.changeUser(userKey, nickname);
 
-      return res.status(201).json( user );
+      return res.status(201).json(user);
     } catch (error) {
       next(error);
     }
