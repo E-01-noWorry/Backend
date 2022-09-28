@@ -76,6 +76,17 @@ class UserController {
       next(error);
     }
   };
+
+  deleteUser = async (req, res) => {
+    const { user } = res.locals;
+
+    const { userKey } = joi.userKeySchema.validate(req.params).value;
+
+    const delUser = await this.userService.deleteUser(userKey);
+    // const deleteUser = await user.destroy({ where: { userKey:user.userKey } });
+
+    res.status(200).json(delUser);
+  };
 }
 
 module.exports = UserController;

@@ -76,6 +76,15 @@ class UserService {
       msg: '닉네임 변경이 완료되었습니다.',
     };
   };
+
+  deleteUser = async (userKey) => {
+    const delUser = await this.userRepository.delUser(userKey);
+
+    return {
+      userKey,
+      msg: '회원 정보가 삭제되었습니다.',
+    };
+  };
 }
 
 module.exports = UserService;
