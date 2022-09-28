@@ -7,8 +7,6 @@ const ErrorCustom = require('../advice/errorCustom');
 
 const UserService = require('../services/user.service');
 
-//작업시작
-
 class UserController {
   userService = new UserService();
 
@@ -69,14 +67,14 @@ class UserController {
     }
   };
 
-  changeNickname = async (req, res) => {
+  changeNickname = async (req, res, next) => {
     try {
       const { userKey } = joi.userKeySchema.validate(req.params).value;
 
       const validation = joi.nicknameSchema.validate(req.body);
 
       if (validation.error) {
-        throw new ErrorCustom(400, '변경할 닉네임을 입력해주세요.');
+        throw new ErrorCustom(400, '한글, 영어, 숫자 2~10자로 입력해주세요.');
       }
 
       const { nickname } = validation.value;

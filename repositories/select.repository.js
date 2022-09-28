@@ -10,6 +10,8 @@ class SelectRepository {
       },
       attributes: ['createdAt'],
     });
+    
+    return fiveMinSelect;
   };
 
   createSelect = async (
