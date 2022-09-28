@@ -10,14 +10,14 @@ exports.scheduler = () => {
   dayjs.tz.setDefault('Asia/Seoul');
 
   let now;
-  if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
-    now = dayjs().tz().format();
-  } else {
-    now = dayjs().tz().format();
-  }
-  console.log(now);
 
   schedule.scheduleJob('*/10 * * * *', async function () {
+    if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
+      now = dayjs().tz().format();
+    } else {
+      now = dayjs().tz().format();
+    }
+
     console.log(now);
     console.log('반복 스케줄러 동작');
     const datas = await Select.findAll({});

@@ -2,24 +2,36 @@ const { Room, Chat, User, Participant } = require('../models');
 const { Op } = require('sequelize');
 
 class ChatRepository {
-  createChat = async (userKey, nickname, title, max, hashTag) => {
+  createChat = async (userKey, title, max, hashTag) => {
     const newRoom = await Room.create({
-      max: max,
-      hashTag: hashTag,
-      title: title,
       userKey,
-    });
-
-    // Participant에 방금 생성한 유저 생성하고 바로 채팅방 안으로 들어가야함
-    await Participant.create({
-      userKey,
-      roomKey: newRoom.roomKey,
+      title,
+      max,
+      hashTag,
     });
 
     return newRoom;
   };
 
-  searchChat = async (searchWord) => {
+  createParticipant = async (userKey, newRoom) => {
+    const createParticipant = await Participant.create({
+      userKey,
+      roomKey: newRoom.roomKey,
+    });
+
+    return createParticipant;
+  };
+
+  incrementPoint = async (userKey) => {
+    const incrementPoint = await User.increment(
+      { point: 3 },
+      { where: { userKey } }
+    );
+
+    return incrementPoint;
+  };
+
+  findAllSearchWord = async (searchWord) => {
     const searchResult = await Room.findAll({
       where: {
         [Op.or]: [
@@ -37,8 +49,8 @@ class ChatRepository {
     return searchResult;
   };
 
-  allChat = async (offset, limit) => {
-    const allRoom = await Room.findAll({
+  findAllRoom = async (offset, limit) => {
+    const findAllRoom = await Room.findAll({
       include: [
         { model: User, attributes: ['nickname'] },
         { model: Participant, attributes: ['userKey'] },
@@ -48,11 +60,11 @@ class ChatRepository {
       limit: limit,
     });
 
-    return allRoom
-  }
+    return findAllRoom;
+  };
 
-  inoutChat = async (userKey, nickname, roomKey) => {
-    const room = await Room.findOne({
+  findOneRoom = async (roomKey) => {
+    const findOneRoom = await Room.findOne({
       where: { roomKey },
       include: [
         { model: User, attributes: ['nickname'] },
@@ -60,10 +72,24 @@ class ChatRepository {
       ],
     });
 
-    return room
-  }
+    return findOneRoom;
+  };
 
-  detailChat = async (userKey, nickname, roomKey) => {
+  delRoom = async (roomKey) => {
+    const delRoom = await Room.destroy({ where: { roomKey } });
+
+    return delRoom;
+  };
+
+  delParticipant = async (userKey, roomKey) => {
+    const delParticipant = await Participant.destroy({
+      where: { userKey, roomKey },
+    });
+
+    return delParticipant;
+  };
+
+  detailChat = async (roomKey) => {
     const room = await Room.findOne({
       where: { roomKey },
       include: [
@@ -76,11 +102,18 @@ class ChatRepository {
       ],
     });
 
-    return room
-  }
-  
-  
+    return room;
+  };
 
+  loadChats = async (roomKey) => {
+    const loadChats = await Chat.findAll({
+      where: { roomKey },
+      attributes: ['chat', 'userKey', 'createdAt'],
+      include: [{ model: User, attributes: ['nickname', 'point'] }],
+    });
+
+    return loadChats;
+  };
 }
 
 module.exports = ChatRepository;

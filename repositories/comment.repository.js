@@ -1,65 +1,75 @@
 const { Select, User, Comment, Recomment } = require('../models');
 
-class CommentRepository{
+class CommentRepository {
+  findOneSelect = async (selectKey) => {
+    const findOneSelect = await Select.findOne({
+      where: { selectKey },
+      include: [{ model: User, attributes: ['deviceToken'] }],
+    });
 
-    findSelectKey = async(selectKey) => {
-        const findSelectKey = await Select.findOne({ 
-            where: { selectKey },
-            include: [{ model: User, attributes: ['deviceToken'] }],
-        })
-        return findSelectKey;
-    };
+    return findOneSelect;
+  };
 
-    createComments = async(comment, selectKey, userKey) => {
-        const createComments = await Comment.create({
-            comment, 
-            selectKey, 
-            userKey
-        });
-        console.log(createComments.comment);
+  createComment = async (comment, selectKey, userKey) => {
+    const createComment = await Comment.create({
+      comment,
+      selectKey,
+      userKey,
+    });
 
-        return createComments;
-    };
+    return createComment;
+  };
 
+  findOneComment = async (createComments) => {
+    const findOneComment = await Comment.findOne({
+      where: { commentKey: createComments.commentKey },
+      include: [{ model: User, attributes: ['nickname', 'point'] }],
+    });
 
-    //이 부분
-    findComment = async( createComments ) => {
-        const findComment = await Comment.findOne({
-            where: { commentKey: createComments.commentKey },
-            include: [{ model: User, attributes: ['nickname', 'point'] }],
-          });
+    return findOneComment;
+  };
 
-        return findComment;
-    };
+  findAllComments = async (selectKey) => {
+    const findAllComments = await Comment.findAll({
+      where: { selectKey },
+      include: [
+        { model: User, attributes: ['nickname', 'point'] },
+        {
+          model: Recomment,
+          include: [{ model: User, attributes: ['nickname', 'point'] }],
+        },
+      ],
+      order: [['commentKey', 'ASC']],
+    });
 
-    findAllComment = async(selectKey) => {
-        const findAllComment = await Comment.findAll({
-            where: { selectKey },
-            include: [
-              { model: User, attributes: ['nickname', 'point'] },
-              {
-                model: Recomment,
-                include: [{ model: User, attributes: ['nickname', 'point'] }],
-              },
-            ],
-            order: [['commentKey', 'ASC']],
-        });
+    return findAllComments;
+  };
 
-        return findAllComment;
-    };
+  findOneCmt = async (commentKey) => {
+    const findOneCmt = await Comment.findOne({
+      where: { commentKey },
+      include: [{ model: User, attributes: ['nickname', 'point'] }],
+    });
 
-    findCmt = async(commentKey) => {
-        const findCmt = await Comment.findOne({
-             where: { commentKey } 
-        });
+    return findOneCmt;
+  };
 
-        return findCmt;
-    };
+  updateComment = async (comment, commentKey) => {
+    const updateComment = await Comment.update(
+      { comment },
+      { where: { commentKey } }
+    );
 
+    return updateComment;
+  };
+
+  delComment = async (commentKey, userKey) => {
+    const delComment = await Comment.destroy({
+      where: { commentKey, userKey },
+    });
+
+    return delComment;
+  };
 }
 
-
-
-
-
-module.exports = CommentRepository
+module.exports = CommentRepository;

@@ -1,36 +1,46 @@
 const { User } = require('../models');
-const { Op } = require('sequelize');
 
 class UserRepository {
-  createUser = async (userId, nickname, password, confirm) => {
-    const exitUsers = await User.findAll({
-      where: { [Op.or]: { userId } },
+  findOneId = async (userId) => {
+    const findOneId = await User.findOne({
+      where: { userId },
     });
 
-    return exitUsers;
+    return findOneId;
   };
 
-  loginUser = async (userId, password) => {
-    const user = await User.findOne({ where: { userId } });
+  findOneUser = async (userKey) => {
+    const findOneUser = await User.findOne({
+      where: { userKey },
+    });
 
-    await user.update(
-      { refreshToken: user.refreshToken },
+    return findOneUser;
+  };
+
+  createUser = async (userId, nickname, pwHash) => {
+    const createUser = await User.create({
+      userId,
+      nickname,
+      password: pwHash,
+      point: 0,
+    });
+
+    return createUser;
+  };
+
+  updateRefresh = async (refreshToken, user) => {
+    const updateRefresh = await user.update(
+      { refreshToken },
       { where: { userKey: user.userKey } }
     );
 
-    return user;
+    return updateRefresh;
   };
 
-  checkUser = async (userKey, nickname, userId) => {
-    const existUser = await User.findOne({ where: { userKey } });
+  changeNic = async (userKey, nickname) => {
+    const changeNic = await User.update({ nickname }, { where: { userKey } });
 
-    return existUser;
-  };
-
-  changeUser = async (userKey, nickname) => {
-    const user = await User.findOne({ where: { userKey } });
-
-    return user;
+    return changeNic;
   };
 }
 
