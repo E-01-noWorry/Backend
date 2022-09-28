@@ -1,15 +1,20 @@
 const jwt = require('jsonwebtoken');
-const joi = require('../advice/joiSchema');
-const { Op } = require('sequelize');
 const { User } = require('../models');
 const bcrypt = require('bcrypt');
 const ErrorCustom = require('../advice/errorCustom');
 
+const UserRepository = require('../repositories/user.repository');
+
 class UserService {
+  userRepository = new UserRepository();
+
   createUser = async (userId, nickname, password, confirm) => {
-    const exitUsers = await User.findAll({
-      where: { [Op.or]: { userId } },
-    });
+    const exitUsers = await this.userRepository.createUser(
+      userId,
+      nickname,
+      password,
+      confirm
+    );
 
     if (exitUsers.length) {
       throw new ErrorCustom(400, '이미 사용중인 아이디입니다.');
@@ -23,7 +28,8 @@ class UserService {
   };
 
   loginUser = async (userId, password) => {
-    const user = await User.findOne({ where: { userId } });
+    const user = await this.userRepository.loginUser(userId, password);
+
     if (!user || !bcrypt.compareSync(password, user.password)) {
       throw new ErrorCustom(400, '아이디 또는 패스워드가 잘못되었습니다.');
     }
@@ -45,8 +51,6 @@ class UserService {
     console.log(accessToken, 'access토큰 확인');
     console.log(refreshToken, 'refresh토큰 확인');
 
-    await user.update({ refreshToken }, { where: { userKey: user.userKey } });
-
     return {
       nickname: user.nickname,
       userKey: user.userKey,
@@ -57,18 +61,22 @@ class UserService {
   };
 
   checkUser = async (userKey, nickname, userId) => {
-    const existUser = await User.findOne({ where: { userKey } });
+    const existUser = await this.userRepository.checkUser(
+      userKey,
+      nickname,
+      userId
+    );
 
     return existUser;
   };
 
   changeUser = async (userKey, nickname) => {
-    const user = await User.findOne({ where: { userKey } });
+    const user = await this.userRepository.checkUser(userKey, nickname);
 
     await User.update({ nickname }, { where: { userKey } });
 
     return {
-      userKey,
+      userKey: user.userKey,
       nickname,
       msg: '닉네임 변경이 완료되었습니다.',
     };

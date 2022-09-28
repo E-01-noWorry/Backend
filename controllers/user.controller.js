@@ -7,8 +7,6 @@ const ErrorCustom = require('../advice/errorCustom');
 
 const UserService = require('../services/user.service');
 
-//작업시작
-
 class UserController {
   userService = new UserService();
 
@@ -69,7 +67,7 @@ class UserController {
     }
   };
 
-  changeNickname = async (req, res) => {
+  changeNickname = async (req, res, next) => {
     try {
       const { userKey } = joi.userKeySchema.validate(req.params).value;
 
