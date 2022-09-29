@@ -110,6 +110,10 @@ class ChatRepository {
       where: { roomKey, chat: `${nickname}님이 입장했습니다.` },
     });
 
+    if (!firstChat) {
+      return [];
+    }
+
     const chatTime = new Date(firstChat.createdAt).setHours(
       new Date(firstChat.createdAt).getHours() - 9
     );
