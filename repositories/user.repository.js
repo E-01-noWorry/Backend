@@ -42,6 +42,12 @@ class UserRepository {
 
     return changeNic;
   };
+
+  delUser = async (userKey) => {
+    const delUser = await User.destroy({ where: { userKey } });
+
+    return delUser;
+  };
 }
 
 module.exports = UserRepository;
