@@ -171,7 +171,7 @@ class SelectController {
         msg: '진행중 선택글 조회 성공',
         result: ongoings.map((e) => {
           return {
-            total: e.dataValues.total,
+            total: e.Votes.length,,
             selectKey: e.selectKey,
             title: e.title,
             category: e.category,
@@ -202,7 +202,7 @@ class SelectController {
         msg: '선택글 검색 조회 성공',
         result: searchResults.map((e) => {
           return {
-            total: e.dataValues.total,
+            total: e.Votes.length,,
             selectKey: e.selectKey,
             title: e.title,
             category: e.category,
