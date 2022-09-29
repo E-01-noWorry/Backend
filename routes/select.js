@@ -26,6 +26,8 @@ router.get('/category/:category', selectController.getCategory);
 // 진행중인 선택글 조회
 router.get('/ongoing', selectController.getOngoing);
 
+router.get('/search', selectController.searchSelect);
+
 // 선택글 상세조회
 router.get('/:selectKey', selectController.getDetailSelect);
 

@@ -141,6 +141,21 @@ class SelectRepository {
     return findAllOngoing;
   };
 
+  findAllSearchWord = async (searchWord) => {
+    const searchResult = await Select.findAll({
+      where: {
+        [Op.or]: [
+          { title: { [Op.like]: `%${searchWord}%` } },
+          { options: { [Op.substring]: `%${searchWord}%` } },
+        ],
+      },
+      include: [{ model: User, attributes: ['nickname'] }, { model: Vote }],
+      order: [['selectKey', 'DESC']],
+    });
+
+    return searchResult;
+  };
+
   delSelect = async (selectKey) => {
     await Select.destroy({ where: { selectKey } });
   };

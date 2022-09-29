@@ -116,6 +116,18 @@ class SelectService {
     return ongoingSelects;
   };
 
+  searchSelect = async (searchWord) => {
+    const searchSelects = await this.selectRepository.findAllSearchWord(
+      searchWord
+    );
+
+    if (searchSelects.length == 0) {
+      throw new ErrorCustom(400, '키워드와 일치하는 검색결과가 없습니다.');
+    }
+
+    return searchSelects;
+  };
+
   detailSelect = async (selectKey) => {
     const detailSelect = await this.selectRepository.findOneSelect(selectKey);
 

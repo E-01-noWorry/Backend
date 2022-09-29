@@ -187,6 +187,37 @@ class SelectController {
     }
   };
 
+  searchSelect = async (req, res, next) => {
+    try {
+      const { searchWord } = joi.searchSchema.validate(req.query).value;
+
+      if (!searchWord) {
+        throw new ErrorCustom(400, '검색어를 입력해주세요.');
+      }
+
+      const searchResults = await this.selectService.searchSelect(searchWord);
+
+      res.status(200).json({
+        ok: true,
+        msg: '선택글 검색 조회 성공',
+        result: searchResults.map((e) => {
+          return {
+            total: e.dataValues.total,
+            selectKey: e.selectKey,
+            title: e.title,
+            category: e.category,
+            deadLine: e.deadLine,
+            completion: e.completion,
+            nickname: e.User.nickname,
+            options: e.options,
+          };
+        }),
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
   getDetailSelect = async (req, res, next) => {
     try {
       const { selectKey } = joi.selectKeySchema.validate(req.params).value;
