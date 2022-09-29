@@ -99,7 +99,7 @@ class SelectController {
 
       res.status(200).json({
         msg: '인기글이 조회되었습니다.',
-        result: filters.map((e) => {
+        data: filters.map((e) => {
           return {
             total: e.dataValues.total,
             selectKey: e.selectKey,

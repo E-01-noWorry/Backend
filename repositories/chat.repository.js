@@ -110,11 +110,15 @@ class ChatRepository {
       where: { roomKey, chat: `${nickname}님이 입장했습니다.` },
     });
 
+    const chatTime = new Date(firstChat.createdAt).setHours(
+      new Date(firstChat.createdAt).getHours() - 9
+    );
+
     const loadChats = await Chat.findAll({
       where: {
         roomKey,
         createdAt: {
-          [Op.gte]: new Date(firstChat.createdAt),
+          [Op.gte]: chatTime,
         },
       },
       attributes: ['chat', 'userKey', 'createdAt'],
