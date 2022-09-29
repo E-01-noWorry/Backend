@@ -99,7 +99,10 @@ class ChatController {
 
       const room = await this.chatService.entranceChat(userKey, roomKey);
 
-      return res.status(200).json(room);
+      return res.status(200).json({
+        ok: true,
+        msg: '채팅방 입장 성공',
+      });
     } catch (err) {
       next(err);
     }
@@ -123,7 +126,7 @@ class ChatController {
       const { userKey, nickname } = res.locals.user;
       const { roomKey } = joi.roomKeySchema.validate(req.params).value;
 
-      const room = await this.chatService.detailChat(roomKey);
+      const room = await this.chatService.detailChat(roomKey, nickname);
 
       return res.status(200).json(room);
     } catch (err) {

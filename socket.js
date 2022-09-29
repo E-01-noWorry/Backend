@@ -59,7 +59,7 @@ io.on('connection', (socket) => {
   // 채팅방 목록? 접속(입장전)
   socket.on('join-room', async (data) => {
     let { roomKey, userKey } = data;
-    const enterUser = await Participant.findOne({
+    let enterUser = await Participant.findOne({
       where: { roomKey, userKey },
       include: [
         { model: User, attributes: ['nickname'] },
@@ -67,22 +67,7 @@ io.on('connection', (socket) => {
       ],
     });
 
-    // 해당 채팅방 입장
-    socket.join(enterUser.Room.title);
-
-    // 지금은 api에서 참가자 디비를 만들어서 입장을 하고 Chat에서 처음인지 재방문인지 확인하는데
-    // api에서 참가자 디비를 만들지 않고, 소캣통신에 들어오고나서 참가자 정보 유무로 처음인지 재방문인지 확인하고 참가자를 만든다면, 방대한 Chat에 접근 안해도됨+입장퇴장메세지 잘보여줌
-    // 하지만 위와 같이 하면 결국 채팅방title, 유저nickname을 알기위해 추가적으로 디비테이블에 접근을 해야하는 문제가 생김(무엇이 더 효율적일까?)
-    const enterMsg = await Chat.findOne({
-      where: {
-        roomKey,
-        userKey: 12,
-        chat: `${enterUser.User.nickname}님이 입장했습니다.`,
-      },
-    });
-
-    // 처음입장이라면 환영 메세지가 없을테니
-    if (!enterMsg) {
+    if (!enterUser) {
       const today = dayjs().tz().format('YYYY-MM-DD 00:00:00');
       const chatTime = new Date(today).setHours(new Date(today).getHours() - 9);
 
@@ -101,17 +86,29 @@ io.on('connection', (socket) => {
         });
       }
 
+      await Participant.create({ userKey, roomKey });
+
+      enterUser = await Participant.findOne({
+        where: { roomKey, userKey },
+        include: [
+          { model: User, attributes: ['nickname'] },
+          { model: Room, attributes: ['title'] },
+        ],
+      });
+
       await Chat.create({
         roomKey,
         userKey: 12, // 관리자 유저키
         chat: `${enterUser.User.nickname}님이 입장했습니다.`,
       });
 
-      // 관리자 환영메세지 보내기
+      socket.join(enterUser.Room.title);
+
       let param = { nickname: enterUser.User.nickname };
       io.to(enterUser.Room.title).emit('welcome', param);
     } else {
-      // 재입장이라면 아무것도 없음
+      // 해당 채팅방 입장
+      socket.join(enterUser.Room.title);
     }
   });
 
@@ -209,13 +206,7 @@ io.on('connection', (socket) => {
         userKey: 12, // 관리자 유저키
         chat: `${leaveUser.User.nickname}님이 퇴장했습니다.`,
       });
-      await Chat.destroy({
-        where: {
-          roomKey,
-          userKey: 12, // 관리자 유저키
-          chat: `${leaveUser.User.nickname}님이 입장했습니다.`,
-        },
-      });
+
       let param = { nickname: leaveUser.User.nickname };
       io.to(leaveUser.Room.title).emit('bye', param);
     }
@@ -246,12 +237,11 @@ io.on('connection', (socket) => {
     let { roomKey, userKey } = data;
     const room = await Room.findOne({ where: roomKey });
     const recommendUser = await User.increment(
-      { point: 3 },
+      { point: 5 },
       { where: { userKey } }
     );
 
     let param = { userKey: recommendUser.userKey };
-    console.log(param);
     io.to(room.title).emit('recommend', param);
   });
 });

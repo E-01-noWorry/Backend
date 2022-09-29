@@ -59,7 +59,7 @@ class UserController {
 
   changeNickname = async (req, res, next) => {
     try {
-      const { userKey } = joi.userKeySchema.validate(req.params).value;
+      const { userKey } = res.locals.user;
 
       const validation = joi.nicknameSchema.validate(req.body);
 
@@ -69,23 +69,32 @@ class UserController {
 
       const { nickname } = validation.value;
 
-      const user = await this.userService.changeUser(userKey, nickname);
+      await this.userService.changeNic(userKey, nickname);
 
-      return res.status(201).json(user);
+      return res.status(201).json({
+        userKey,
+        nickname,
+        msg: '닉네임 변경이 완료되었습니다.',
+      });
     } catch (error) {
       next(error);
     }
   };
 
-  deleteUser = async (req, res) => {
-    const { user } = res.locals;
+  deleteUser = async (req, res, next) => {
+    try {
+      const { userKey } = res.locals.user;
 
-    const { userKey } = joi.userKeySchema.validate(req.params).value;
+      await this.userService.deleteUser(userKey);
 
-    const delUser = await this.userService.deleteUser(userKey);
-    // const deleteUser = await user.destroy({ where: { userKey:user.userKey } });
-
-    res.status(200).json(delUser);
+      res.status(200).json({
+        ok: true,
+        userKey,
+        msg: '회원 정보가 삭제되었습니다.',
+      });
+    } catch (error) {
+      next(error);
+    }
   };
 }
 

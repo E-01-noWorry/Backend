@@ -64,24 +64,11 @@ class ChatService {
     });
 
     if (users.includes(userKey)) {
-      return {
-        ok: true,
-        msg: '채팅방 입장 성공',
-      };
+      return room;
     }
 
     if (room.Participants.length >= room.max) {
       throw new ErrorCustom(400, '입장 가능 인원을 초과했습니다.');
-    } else {
-      await Participant.create({
-        userKey,
-        roomKey: room.roomKey,
-      });
-
-      return {
-        ok: true,
-        msg: '채팅방 입장 성공',
-      };
     }
   };
 
@@ -109,7 +96,7 @@ class ChatService {
     }
   };
 
-  detailChat = async (roomKey) => {
+  detailChat = async (roomKey, nickname) => {
     const room = await this.chatRepository.detailChat(roomKey);
 
     if (!room) {
@@ -120,7 +107,7 @@ class ChatService {
       return { userKey: e.userKey, nickname: e.User.nickname };
     });
 
-    const loadChats = await this.chatRepository.loadChats(roomKey);
+    const loadChats = await this.chatRepository.loadChats(roomKey, nickname);
 
     return {
       ok: true,

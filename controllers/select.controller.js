@@ -99,7 +99,7 @@ class SelectController {
 
       res.status(200).json({
         msg: '인기글이 조회되었습니다.',
-        data: filters.map((e) => {
+        result: filters.map((e) => {
           return {
             total: e.dataValues.total,
             selectKey: e.selectKey,
@@ -146,6 +146,70 @@ class SelectController {
             nickname: c.User.nickname,
             options: c.options,
             total: c.Votes.length,
+          };
+        }),
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  getOngoing = async (req, res, next) => {
+    try {
+      const pageNum = joi.pageSchema.validate(req.query.page).value;
+
+      let offset = 0;
+      const limit = 5;
+      if (pageNum > 1) {
+        offset = limit * (pageNum - 1);
+      }
+
+      const ongoings = await this.selectService.ongoingSelect(offset, limit);
+
+      res.status(200).json({
+        ok: true,
+        msg: '진행중 선택글 조회 성공',
+        result: ongoings.map((e) => {
+          return {
+            total: e.dataValues.total,
+            selectKey: e.selectKey,
+            title: e.title,
+            category: e.category,
+            deadLine: e.deadLine,
+            completion: e.completion,
+            nickname: e.User.nickname,
+            options: e.options,
+          };
+        }),
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  searchSelect = async (req, res, next) => {
+    try {
+      const { searchWord } = joi.searchSchema.validate(req.query).value;
+
+      if (!searchWord) {
+        throw new ErrorCustom(400, '검색어를 입력해주세요.');
+      }
+
+      const searchResults = await this.selectService.searchSelect(searchWord);
+
+      res.status(200).json({
+        ok: true,
+        msg: '선택글 검색 조회 성공',
+        result: searchResults.map((e) => {
+          return {
+            total: e.dataValues.total,
+            selectKey: e.selectKey,
+            title: e.title,
+            category: e.category,
+            deadLine: e.deadLine,
+            completion: e.completion,
+            nickname: e.User.nickname,
+            options: e.options,
           };
         }),
       });

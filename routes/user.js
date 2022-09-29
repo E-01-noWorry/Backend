@@ -16,9 +16,9 @@ router.post('/login', userController.userLogin);
 router.get('/me', authMiddleware, userController.confirmUser);
 
 // 유저 닉네임 수정
-router.put('/:userKey', authMiddleware, userController.changeNickname);
+router.put('/nickname', authMiddleware, userController.changeNickname);
 
 //회원탈퇴
-router.delete('/:userKey', authMiddleware, userController.deleteUser);
+router.delete('/del', authMiddleware, userController.deleteUser);
 
 module.exports = router;
