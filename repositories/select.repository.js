@@ -37,7 +37,7 @@ class SelectRepository {
 
   incrementPoint = async (userKey) => {
     const incrementPoint = await User.increment(
-      { point: 3 },
+      { point: 5 },
       { where: { userKey } }
     );
 
