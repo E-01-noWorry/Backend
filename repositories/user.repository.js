@@ -37,16 +37,18 @@ class UserRepository {
     return updateRefresh;
   };
 
-  changeNic = async (userKey, nickname) => {
-    const changeNic = await User.update({ nickname }, { where: { userKey } });
+  findOneNic = async (nickname) => {
+    const findOneNic = await User.findOne({ where: { nickname } });
 
-    return changeNic;
+    return findOneNic;
+  };
+
+  changeNic = async (userKey, nickname) => {
+    await User.update({ nickname }, { where: { userKey } });
   };
 
   delUser = async (userKey) => {
-    const delUser = await User.destroy({ where: { userKey } });
-
-    return delUser;
+    await User.destroy({ where: { userKey } });
   };
 }
 

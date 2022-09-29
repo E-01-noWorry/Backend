@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-// const { Select } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
 const upload = require('../middlewares/multer');
 
@@ -18,11 +17,14 @@ router.post(
 // 선택글 모두 조회
 router.get('/', selectController.getAllSelect);
 
-//선택글 정렬(인기순)
+// 선택글 정렬(인기순)
 router.get('/filter', selectController.getFilter);
 
-//선택글 카테고리별 조회
+// 선택글 카테고리별 조회
 router.get('/category/:category', selectController.getCategory);
+
+// 진행중인 선택글 조회
+router.get('/ongoing', selectController.getOngoing);
 
 // 선택글 상세조회
 router.get('/:selectKey', selectController.getDetailSelect);

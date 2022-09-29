@@ -10,7 +10,7 @@ class SelectRepository {
       },
       attributes: ['createdAt'],
     });
-    
+
     return fiveMinSelect;
   };
 
@@ -90,8 +90,8 @@ class SelectRepository {
     return findAllSelect;
   };
 
-  findAllfilter = async (offset, limit) => {
-    const findAllfilter = await Select.findAll({
+  findAllFilter = async (offset, limit) => {
+    const findAllFilter = await Select.findAll({
       attributes: {
         include: [
           [Sequelize.fn('COUNT', Sequelize.col('Votes.selectKey')), 'total'],
@@ -112,11 +112,11 @@ class SelectRepository {
       limit: limit,
     });
 
-    return findAllfilter;
+    return findAllFilter;
   };
 
-  findAllcategory = async (category, offset, limit) => {
-    const findAllcategory = await Select.findAll({
+  findAllCategory = async (category, offset, limit) => {
+    const findAllCategory = await Select.findAll({
       where: {
         [Op.or]: [{ category: { [Op.like]: `%${category}%` } }],
       },
@@ -126,13 +126,23 @@ class SelectRepository {
       limit: limit,
     });
 
-    return findAllcategory;
+    return findAllCategory;
+  };
+
+  findAllOngoing = async (offset, limit) => {
+    const findAllOngoing = await Select.findAll({
+      where: { completion: false },
+      include: [{ model: User, attributes: ['nickname'] }, { model: Vote }],
+      order: [['selectKey', 'DESC']],
+      offset: offset,
+      limit: limit,
+    });
+
+    return findAllOngoing;
   };
 
   delSelect = async (selectKey) => {
-    const delSelect = await Select.destroy({ where: { selectKey } });
-
-    return delSelect;
+    await Select.destroy({ where: { selectKey } });
   };
 }
 

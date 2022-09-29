@@ -18,6 +18,12 @@ class UserService {
       throw new ErrorCustom(400, '이미 사용중인 아이디입니다.');
     }
 
+    const oneNic = await this.userRepository.findOneNic(nickname);
+
+    if (oneNic) {
+      throw new ErrorCustom(400, '중복된 닉네임입니다.');
+    }
+
     const salt = await bcrypt.genSalt(10); //기본이 10, 숫자가 높을 수록 연산 시간과 보안이 높아짐.
     const pwHash = await bcrypt.hash(password, salt);
 
@@ -67,23 +73,18 @@ class UserService {
     return existUser;
   };
 
-  changeUser = async (userKey, nickname) => {
-    await this.userRepository.changeNic(userKey, nickname);
+  changeNic = async (userKey, nickname) => {
+    const oneNic = await this.userRepository.findOneNic(nickname);
 
-    return {
-      userKey,
-      nickname,
-      msg: '닉네임 변경이 완료되었습니다.',
-    };
+    if (oneNic) {
+      throw new ErrorCustom(400, '중복된 닉네임입니다.');
+    }
+
+    await this.userRepository.changeNic(userKey, nickname);
   };
 
   deleteUser = async (userKey) => {
-    const delUser = await this.userRepository.delUser(userKey);
-
-    return {
-      userKey,
-      msg: '회원 정보가 삭제되었습니다.',
-    };
+    await this.userRepository.delUser(userKey);
   };
 }
 
