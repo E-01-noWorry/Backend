@@ -1,26 +1,22 @@
 const { Room, Chat, User, Participant } = require('../models');
 const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
+const dayjs = require('dayjs');
+
+const ChatRepository = require('../repositories/chat.repository');
 
 class ChatService {
+  chatRepository = new ChatRepository();
+
   createChat = async (userKey, nickname, title, max, hashTag) => {
-    const newRoom = await Room.create({
-      max:max,
-      hashTag:hashTag,
-      title:title,
+    const newRoom = await this.chatRepository.createChat(
       userKey,
-    });
-    console.log(newRoom, '확인')
+      title,
+      max,
+      hashTag
+    );
 
-    //     // Participant에 방금 생성한 유저 생성하고 바로 채팅방 안으로 들어가야함
-    await Participant.create({
-      userKey,
-      roomKey: newRoom.roomKey,
-    });
-
-    //     //채팅방 생성시 +3점씩 포인트 지급
-    let roomPoint = await User.findOne({ where: { userKey } });
-    await roomPoint.update({ point: roomPoint.point + 3 });
+    await this.chatRepository.incrementPoint(userKey);
 
     return {
       ok: true,
@@ -33,101 +29,111 @@ class ChatService {
         hashTag: newRoom.hashTag,
         host: nickname,
         userKey,
-        roomPoint: roomPoint.point,
+        // roomPoint: roomPoint.point,
       },
     };
   };
 
   searchChat = async (searchWord) => {
-    const searchResult = await Room.findAll({
-      where: {
-        [Op.or]: [
-          { title: { [Op.like]: `%${searchWord}%` } },
-          { hashTag: { [Op.substring]: `%${searchWord}%` } },
-        ],
-      },
-      include: [
-        { model: User, attributes: ['nickname'] },
-        { model: Participant, attributes: ['userKey'] },
-      ],
-      order: [['roomKey', 'DESC']],
-    });
+    const searchResults = await this.chatRepository.findAllSearchWord(
+      searchWord
+    );
 
-    if (!searchWord) {
-      throw new ErrorCustom(400, '검색어를 입력해주세요.');
-    }
-
-    if (searchResult.length == 0) {
+    if (searchResults.length == 0) {
       throw new ErrorCustom(400, '키워드와 일치하는 검색결과가 없습니다.');
     }
 
-    return searchResult;
+    return searchResults;
   };
 
   allChat = async (offset, limit) => {
-    const allRoom = await Room.findAll({
-      include: [
-        { model: User, attributes: ['nickname'] },
-        { model: Participant, attributes: ['userKey'] },
-      ],
-      order: [['roomKey', 'DESC']],
-      offset: offset,
-      limit: limit,
-    });
+    const allRooms = await this.chatRepository.findAllRoom(offset, limit);
 
-    return allRoom;
+    return allRooms;
   };
 
-  entranceChat = async (userKey, nickname, roomKey) => {
-    const room = await Room.findOne({
-      where: { roomKey },
-      include: [
-        { model: User, attributes: ['nickname'] },
-        { model: Participant, attributes: ['userKey'] },
-      ],
-    });
+  entranceChat = async (userKey, roomKey) => {
+    const room = await this.chatRepository.findOneRoom(roomKey);
 
     if (!room) {
       throw new ErrorCustom(400, '해당 채팅방이 존재하지 않습니다.');
     }
 
-    return room;
+    const users = room.Participants.map((e) => {
+      return e.userKey;
+    });
+
+    if (users.includes(userKey)) {
+      return room;
+    }
+
+    if (room.Participants.length >= room.max) {
+      throw new ErrorCustom(400, '입장 가능 인원을 초과했습니다.');
+    }
   };
 
   leaveChet = async (userKey, nickname, roomKey) => {
-    const room = await Room.findOne({
-      where: { roomKey },
-      include: [
-        { model: User, attributes: ['nickname'] },
-        { model: Participant, attributes: ['userKey'] },
-      ],
-    });
+    const room = await this.chatRepository.findOneRoom(roomKey);
 
     if (!room) {
       throw new ErrorCustom(400, '해당 채팅방이 존재하지 않습니다.');
     }
 
-    return room;
+    if (userKey === room.userKey) {
+      await this.chatRepository.delRoom(roomKey);
+
+      return {
+        ok: true,
+        msg: '채팅방 호스트가 나가 채팅방이 삭제 됩니다.',
+      };
+    } else {
+      await this.chatRepository.delParticipant(userKey, roomKey);
+
+      return {
+        ok: true,
+        msg: '채팅방에서 나왔습니다.',
+      };
+    }
   };
 
-  detailChat = async (userKey, nickname, roomKey) => {
-    const room = await Room.findOne({
-      where: { roomKey },
-      include: [
-        { model: User, attributes: ['nickname'] },
-        {
-          model: Participant,
-          attributes: ['userKey'],
-          include: [{ model: User, attributes: ['nickname'] }],
-        },
-      ],
-    });
+  detailChat = async (roomKey, nickname) => {
+    const room = await this.chatRepository.detailChat(roomKey);
 
     if (!room) {
       throw new ErrorCustom(400, '해당 채팅방이 존재하지 않습니다.');
     }
 
-    return room;
+    const people = room.Participants.map((e) => {
+      return { userKey: e.userKey, nickname: e.User.nickname };
+    });
+
+    const loadChats = await this.chatRepository.loadChats(roomKey, nickname);
+
+    return {
+      ok: true,
+      msg: '채팅방 정보, 메세지 조회 성공',
+      result: {
+        roomKey: room.roomKey,
+        title: room.title,
+        max: room.max,
+        currentPeople: room.Participants.length,
+        hashTag: room.hashTag,
+        host: room.User.nickname,
+        userKey: room.userKey,
+      },
+      Participants: people,
+      loadChat: loadChats.map((l) => {
+        return {
+          chat: l.chat,
+          userKey: l.userKey,
+          createdAt: dayjs(l.createdAt).add(15, 'h').format(),
+          User: {
+            nickname: l.User.nickname,
+            point: l.User.point,
+          },
+        };
+      }),
+    };
   };
 }
 

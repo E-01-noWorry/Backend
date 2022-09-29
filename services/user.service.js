@@ -1,29 +1,40 @@
 const jwt = require('jsonwebtoken');
-const joi = require('../advice/joiSchema');
-const { Op } = require('sequelize');
-const { User } = require('../models');
 const bcrypt = require('bcrypt');
 const ErrorCustom = require('../advice/errorCustom');
 
-class UserService {
-  createUser = async (userId, nickname, password, confirm) => {
-    const exitUsers = await User.findAll({
-      where: { [Op.or]: { userId } },
-    });
+const UserRepository = require('../repositories/user.repository');
 
-    if (exitUsers.length) {
+class UserService {
+  userRepository = new UserRepository();
+
+  createUser = async (userId, nickname, password, confirm) => {
+    if (password !== confirm) {
+      throw new ErrorCustom(400, '패스워드가 일치하지 않습니다.');
+    }
+
+    const findId = await this.userRepository.findOneId(userId);
+
+    if (findId) {
       throw new ErrorCustom(400, '이미 사용중인 아이디입니다.');
+    }
+
+    const oneNic = await this.userRepository.findOneNic(nickname);
+
+    if (oneNic) {
+      throw new ErrorCustom(400, '중복된 닉네임입니다.');
     }
 
     const salt = await bcrypt.genSalt(10); //기본이 10, 숫자가 높을 수록 연산 시간과 보안이 높아짐.
     const pwHash = await bcrypt.hash(password, salt);
-    await User.create({ userId, nickname, password: pwHash, point: 0 });
+
+    await this.userRepository.createUser(userId, nickname, pwHash);
 
     return { msg: '회원가입에 성공하였습니다.' };
   };
 
   loginUser = async (userId, password) => {
-    const user = await User.findOne({ where: { userId } });
+    const user = await this.userRepository.findOneId(userId);
+
     if (!user || !bcrypt.compareSync(password, user.password)) {
       throw new ErrorCustom(400, '아이디 또는 패스워드가 잘못되었습니다.');
     }
@@ -45,7 +56,7 @@ class UserService {
     console.log(accessToken, 'access토큰 확인');
     console.log(refreshToken, 'refresh토큰 확인');
 
-    await user.update({ refreshToken }, { where: { userKey: user.userKey } });
+    await this.userRepository.updateRefresh(refreshToken, user);
 
     return {
       nickname: user.nickname,
@@ -56,22 +67,24 @@ class UserService {
     };
   };
 
-  checkUser = async (userKey, nickname, userId) => {
-    const existUser = await User.findOne({ where: { userKey } });
+  checkUser = async (userKey) => {
+    const existUser = await this.userRepository.findOneUser(userKey);
 
     return existUser;
   };
 
-  changeUser = async (userKey, nickname) => {
-    const user = await User.findOne({ where: { userKey } });
+  changeNic = async (userKey, nickname) => {
+    const oneNic = await this.userRepository.findOneNic(nickname);
 
-    await User.update({ nickname }, { where: { userKey } });
+    if (oneNic) {
+      throw new ErrorCustom(400, '중복된 닉네임입니다.');
+    }
 
-    return {
-      userKey,
-      nickname,
-      msg: '닉네임 변경이 완료되었습니다.',
-    };
+    await this.userRepository.changeNic(userKey, nickname);
+  };
+
+  deleteUser = async (userKey) => {
+    await this.userRepository.delUser(userKey);
   };
 }
 

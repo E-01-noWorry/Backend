@@ -85,7 +85,7 @@ class SelectService {
   };
 
   filterSelect = async (offset, limit) => {
-    const filterSelects = await this.selectRepository.findAllfilter(
+    const filterSelects = await this.selectRepository.findAllFilter(
       offset,
       limit
     );
@@ -94,7 +94,7 @@ class SelectService {
   };
 
   categorySelect = async (category, offset, limit) => {
-    const categorySelects = await this.selectRepository.findAllcategory(
+    const categorySelects = await this.selectRepository.findAllCategory(
       category,
       offset,
       limit
@@ -105,6 +105,27 @@ class SelectService {
     }
 
     return categorySelects;
+  };
+
+  ongoingSelect = async (offset, limit) => {
+    const ongoingSelects = await this.selectRepository.findAllOngoing(
+      offset,
+      limit
+    );
+
+    return ongoingSelects;
+  };
+
+  searchSelect = async (searchWord) => {
+    const searchSelects = await this.selectRepository.findAllSearchWord(
+      searchWord
+    );
+
+    if (searchSelects.length == 0) {
+      throw new ErrorCustom(400, '키워드와 일치하는 검색결과가 없습니다.');
+    }
+
+    return searchSelects;
   };
 
   detailSelect = async (selectKey) => {

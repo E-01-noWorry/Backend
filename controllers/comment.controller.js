@@ -33,9 +33,9 @@ class CommentController {
     try {
       const { selectKey } = joi.selectSchema.validate(req.params).value;
 
-      const allComment = await this.commentService.allComments(selectKey);
+      const allComments = await this.commentService.allComments(selectKey);
 
-      res.status(200).json(allComment);
+      res.status(200).json(allComments);
     } catch (err) {
       next(err);
     }

@@ -1,38 +1,39 @@
-const { User, Comment, Recomment } = require('../models');
 const ErrorCustom = require('../advice/errorCustom');
 const admin = require('firebase-admin');
 
-class RecommentService {
-  createRecomment = async (userKey, commentKey, comment, nickname) => {
-    const data = await Comment.findOne({
-      where: { commentKey },
-      include: [{ model: User, attributes: ['deviceToken'] }],
-    });
+const RecommentRepository = require('../repositories/recomment.repository');
 
-    if (!data) {
+class RecommentService {
+  recommentRepository = new RecommentRepository();
+
+  createRecomment = async (userKey, commentKey, comment, nickname) => {
+    const oneComment = await this.recommentRepository.findOneComment(
+      commentKey
+    );
+
+    if (!oneComment) {
       throw new ErrorCustom(400, '해당 댓글이 존재하지 않습니다.');
     }
 
-    const createRecomment = await Recomment.create({
+    const createRecomment = await this.recommentRepository.createRecomment(
       commentKey,
       comment,
-      userKey,
-    });
+      userKey
+    );
 
-    const findRecomment = await Recomment.findOne({
-      where: { commentKey },
-      include: [{ model: User, attributes: ['nickname', 'point'] }],
-    });
+    const findRecomment = await this.recommentRepository.findRecomment(
+      createRecomment
+    );
 
-    if (data.User.deviceToken) {
-      let target_token = data.User.deviceToken;
+    if (oneComment.User.deviceToken) {
+      let target_token = oneComment.User.deviceToken;
 
       const message = {
         token: target_token,
         data: {
           title: '곰곰',
           body: '작성한 댓글에 대댓글이 달렸습니다!',
-          link: `detail/${data.selectKey}`,
+          link: `detail/${oneComment.selectKey}`,
         },
       };
 
@@ -62,23 +63,22 @@ class RecommentService {
   };
 
   putRecomment = async (userKey, recommentKey, comment, nickname) => {
-    const data = await Recomment.findOne({
-      where: { recommentKey },
-    });
+    const oneRecomment = await this.recommentRepository.findOneRecomment(
+      recommentKey
+    );
 
-    if (!data) {
+    if (!oneRecomment) {
       throw new ErrorCustom(400, '해당 대댓글이 존재하지 않습니다.');
     }
 
-    if (userKey !== data.userKey) {
+    if (userKey !== oneRecomment.userKey) {
       throw new ErrorCustom(400, '작성자가 다릅니다.');
     } else {
-      await Recomment.update({ comment }, { where: { recommentKey, userKey } });
+      await this.recommentRepository.updateRecomment(comment, recommentKey);
 
-      const updateCmt = await Recomment.findOne({
-        where: { recommentKey },
-        include: [{ model: User, attributes: ['nickname', 'point'] }],
-      });
+      const updateCmt = await this.recommentRepository.findOneRecomment(
+        recommentKey
+      );
 
       return {
         ok: true,
@@ -99,24 +99,26 @@ class RecommentService {
   };
 
   deleteRecomment = async (userKey, recommentKey, nickname) => {
-    const data = await Recomment.findOne({ where: { recommentKey } });
+    const oneRecomment = await this.recommentRepository.findOneRecomment(
+      recommentKey
+    );
 
-    if (!data) {
+    if (!oneRecomment) {
       throw new ErrorCustom(400, '해당 대댓글이 존재하지 않습니다.');
     }
 
-    if (userKey !== data.userKey) {
+    if (userKey !== oneRecomment.userKey) {
       throw new ErrorCustom(400, '작성자가 다릅니다.');
     } else {
-      await Recomment.destroy({ where: { recommentKey, userKey } });
+      await this.recommentRepository.delRecomment(recommentKey);
 
       return {
         ok: true,
         msg: '대댓글 삭제 성공',
         result: {
-          commentKey: data.commentKey,
+          commentKey: oneRecomment.commentKey,
           recommentKey,
-          comment: data.comment,
+          comment: oneRecomment.comment,
           nickname,
           userKey,
         },

@@ -1,13 +1,7 @@
-const jwt = require('jsonwebtoken');
 const joi = require('../advice/joiSchema');
-const bcrypt = require('bcrypt');
-const { Op } = require('sequelize');
-const { User } = require('../models');
 const ErrorCustom = require('../advice/errorCustom');
 
 const UserService = require('../services/user.service');
-
-//작업시작
 
 class UserController {
   userService = new UserService();
@@ -19,14 +13,12 @@ class UserController {
         throw new ErrorCustom(400, '형식에 맞게 모두 입력해주세요');
       }
       const { userId, nickname, password, confirm } = result.value;
-      if (password !== confirm) {
-        throw new ErrorCustom(400, '패스워드가 일치하지 않습니다.');
-      }
 
       const createUser = await this.userService.createUser(
         userId,
         nickname,
-        password
+        password,
+        confirm
       );
 
       res.status(201).json(createUser);
@@ -52,11 +44,7 @@ class UserController {
       const { userKey, nickname, userId } = res.locals.user;
       const { accessToken } = res.locals;
 
-      const existUser = await this.userService.checkUser(
-        userKey,
-        nickname,
-        userId
-      );
+      const existUser = await this.userService.checkUser(userKey);
 
       res.status(200).json({
         ok: true,
@@ -69,9 +57,9 @@ class UserController {
     }
   };
 
-  changeNickname = async (req, res) => {
+  changeNickname = async (req, res, next) => {
     try {
-      const { userKey } = joi.userKeySchema.validate(req.params).value;
+      const { userKey } = res.locals.user;
 
       const validation = joi.nicknameSchema.validate(req.body);
 
@@ -81,9 +69,29 @@ class UserController {
 
       const { nickname } = validation.value;
 
-      const user = await this.userService.changeUser(userKey, nickname);
+      await this.userService.changeNic(userKey, nickname);
 
-      return res.status(201).json( user );
+      return res.status(201).json({
+        userKey,
+        nickname,
+        msg: '닉네임 변경이 완료되었습니다.',
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  deleteUser = async (req, res, next) => {
+    try {
+      const { userKey } = res.locals.user;
+
+      await this.userService.deleteUser(userKey);
+
+      res.status(200).json({
+        ok: true,
+        userKey,
+        msg: '회원 정보가 삭제되었습니다.',
+      });
     } catch (error) {
       next(error);
     }

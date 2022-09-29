@@ -1,33 +1,31 @@
-const { Select, User, Comment, Recomment } = require('../models');
 const ErrorCustom = require('../advice/errorCustom');
 const admin = require('firebase-admin');
 
-//commit 
-class CommentService {
-  createComment = async (comment, selectKey, userKey, nickname) => {
-    const data = await Select.findOne({
-      where: { selectKey },
-      include: [{ model: User, attributes: ['deviceToken'] }],
-    });
+const CommentRepository = require('../repositories/comment.repository');
 
-    if (!data) {
+class CommentService {
+  commentRepository = new CommentRepository();
+
+  createComment = async (comment, selectKey, userKey, nickname) => {
+    const oneComment = await this.commentRepository.findOneSelect(selectKey);
+
+    if (!oneComment) {
       throw new ErrorCustom(400, '해당 선택글이 존재하지 않습니다.');
     }
 
-    const createComment = await Comment.create({
+    const createComment = await this.commentRepository.createComment(
       comment,
       selectKey,
-      userKey,
-    });
+      userKey
+    );
 
-    const findComment = await Comment.findOne({
-      where: { commentKey: createComment.commentKey },
-      include: [{ model: User, attributes: ['nickname', 'point'] }],
-    });
+    const findComment = await this.commentRepository.findOneComment(
+      createComment
+    );
 
     // 글쓴이 토큰 유무 확인 후 알림 보내주기
-    if (data.User.deviceToken) {
-      let target_token = data.User.deviceToken;
+    if (oneComment.User.deviceToken) {
+      let target_token = oneComment.User.deviceToken;
 
       const message = {
         token: target_token,
@@ -52,7 +50,7 @@ class CommentService {
       result: {
         commentKey: createComment.commentKey,
         comment,
-        nickname: nickname,
+        nickname,
         userKey,
         point: findComment.User.point,
         updatedAt: findComment.updatedAt,
@@ -61,28 +59,18 @@ class CommentService {
   };
 
   allComments = async (selectKey) => {
-    const data = await Select.findOne({ where: { selectKey } });
+    const oneComment = await this.commentRepository.findOneSelect(selectKey);
 
-    if (!data) {
+    if (!oneComment) {
       throw new ErrorCustom(400, '해당 선택글이 존재하지 않습니다.');
     }
 
-    const datas = await Comment.findAll({
-      where: { selectKey },
-      include: [
-        { model: User, attributes: ['nickname', 'point'] },
-        {
-          model: Recomment,
-          include: [{ model: User, attributes: ['nickname', 'point'] }],
-        },
-      ],
-      order: [['commentKey', 'ASC']],
-    });
+    const allComments = await this.commentRepository.findAllComments(selectKey);
 
     return {
       ok: true,
       msg: '대댓글 조회 성공',
-      result: datas.map((e) => {
+      result: allComments.map((e) => {
         return {
           commentKey: e.commentKey,
           comment: e.comment,
@@ -97,24 +85,18 @@ class CommentService {
   };
 
   putComment = async (userKey, commentKey, comment, nickname) => {
-    const data = await Comment.findOne({ where: { commentKey } });
+    const oneCmt = await this.commentRepository.findOneCmt(commentKey);
 
-    if (!data) {
+    if (!oneCmt) {
       throw new ErrorCustom(400, '해당 댓글이 존재하지 않습니다.');
     }
 
-    if (userKey !== data.userKey) {
+    if (userKey !== oneCmt.userKey) {
       throw new ErrorCustom(400, '작성자가 다릅니다.');
     } else {
-      const updateComment = await Comment.update(
-        { comment },
-        { where: { commentKey } }
-      );
+      await this.commentRepository.updateComment(comment, commentKey);
 
-      const updateCmt = await Comment.findOne({
-        where: { commentKey },
-        include: [{ model: User, attributes: ['nickname', 'point'] }],
-      });
+      const updatedCmt = await this.commentRepository.findOneCmt(commentKey);
 
       return {
         ok: true,
@@ -122,38 +104,38 @@ class CommentService {
         result: {
           commentKey,
           comment,
-          nickname: nickname,
+          nickname,
           userKey,
-          point: updateCmt.User.point,
-          updatedAt: updateCmt.updatedAt,
+          point: updatedCmt.User.point,
+          updatedAt: updatedCmt.updatedAt,
         },
       };
     }
   };
 
   deleteComment = async (userKey, commentKey, nickname) => {
-    const data = await Comment.findOne({ where: { commentKey } });
+    const oneComment = await this.commentRepository.findOneCmt(commentKey);
 
-    if (!data) {
+    if (!oneComment) {
       throw new ErrorCustom(400, '해당 댓글이 존재하지 않습니다.');
     }
 
-    if (userKey !== data.userKey) {
+    if (userKey !== oneComment.userKey) {
       throw new ErrorCustom(400, '작성자가 다릅니다.');
     } else {
-      await Comment.destroy({ where: { commentKey, userKey } });
-
-      return {
-        ok: true,
-        msg: '댓글 삭제 성공',
-        result: {
-          commentKey: data.commentKey,
-          comment: data.comment,
-          nickname: nickname,
-          userKey,
-        },
-      };
+      await this.commentRepository.delComment(commentKey, userKey);
     }
+
+    return {
+      ok: true,
+      msg: '댓글 삭제 성공',
+      result: {
+        commentKey,
+        comment: oneComment.comment,
+        nickname,
+        userKey,
+      },
+    };
   };
 }
 
