@@ -99,7 +99,10 @@ class ChatController {
 
       const room = await this.chatService.entranceChat(userKey, roomKey);
 
-      return res.status(200).json(room);
+      return res.status(200).json({
+        ok: true,
+        msg: '채팅방 입장 성공',
+      });
     } catch (err) {
       next(err);
     }

@@ -64,24 +64,11 @@ class ChatService {
     });
 
     if (users.includes(userKey)) {
-      return {
-        ok: true,
-        msg: '채팅방 입장 성공',
-      };
+      return room;
     }
 
     if (room.Participants.length >= room.max) {
       throw new ErrorCustom(400, '입장 가능 인원을 초과했습니다.');
-    } else {
-      await Participant.create({
-        userKey,
-        roomKey: room.roomKey,
-      });
-
-      return {
-        ok: true,
-        msg: '채팅방 입장 성공',
-      };
     }
   };
 
