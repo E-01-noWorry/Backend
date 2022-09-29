@@ -28,7 +28,7 @@ exports.selectKeySchema = joi.object({
 });
 
 exports.selectSchema = joi.object({
-  title: joi.string().max(40).required(),
+  title: joi.string().max(60).required(),
   category: joi.string().required(),
   time: joi.number().required(),
   options: joi.string().required(),
