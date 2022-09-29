@@ -105,9 +105,18 @@ class ChatRepository {
     return room;
   };
 
-  loadChats = async (roomKey) => {
+  loadChats = async (roomKey, nickname) => {
+    const firstChat = await Chat.findOne({
+      where: { roomKey, chat: `${nickname}님이 입장했습니다.` },
+    });
+
     const loadChats = await Chat.findAll({
-      where: { roomKey },
+      where: {
+        roomKey,
+        createdAt: {
+          [Op.gte]: new Date(firstChat.createdAt),
+        },
+      },
       attributes: ['chat', 'userKey', 'createdAt'],
       include: [{ model: User, attributes: ['nickname', 'point'] }],
     });

@@ -109,7 +109,7 @@ class ChatService {
     }
   };
 
-  detailChat = async (roomKey) => {
+  detailChat = async (roomKey, nickname) => {
     const room = await this.chatRepository.detailChat(roomKey);
 
     if (!room) {
@@ -120,7 +120,7 @@ class ChatService {
       return { userKey: e.userKey, nickname: e.User.nickname };
     });
 
-    const loadChats = await this.chatRepository.loadChats(roomKey);
+    const loadChats = await this.chatRepository.loadChats(roomKey, nickname);
 
     return {
       ok: true,
