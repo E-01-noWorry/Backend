@@ -64,7 +64,7 @@ class ChatRepository {
     const findOneRoom = await Room.findOne({
       where: { roomKey },
       include: [
-        { model: User, attributes: ['nickname'] },
+        { model: User, attributes: ['nickname', 'point'] },
         { model: Participant, attributes: ['userKey'] },
       ],
     });
