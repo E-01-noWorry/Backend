@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { User, Comment, Recomment } = require('../models');
 const authMiddleware = require('../middlewares/authMiddlware');
+
 const RecommentController = require('../controllers/recomment.controller');
 const recommentController = new RecommentController();
 
@@ -12,6 +12,10 @@ router.post('/:commentKey', authMiddleware, recommentController.postRecomment);
 router.put('/:recommentKey', authMiddleware, recommentController.putRecomment);
 
 // 대댓글 삭제
-router.delete('/:recommentKey', authMiddleware, recommentController.deleteRecomment);
+router.delete(
+  '/:recommentKey',
+  authMiddleware,
+  recommentController.deleteRecomment
+);
 
 module.exports = router;

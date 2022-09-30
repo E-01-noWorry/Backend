@@ -1,6 +1,5 @@
 const joi = require('../advice/joiSchema');
 const ErrorCustom = require('../advice/errorCustom');
-const dayjs = require('dayjs');
 
 const ChatService = require('../services/chat.service');
 

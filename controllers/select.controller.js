@@ -99,7 +99,7 @@ class SelectController {
 
       res.status(200).json({
         msg: '인기글이 조회되었습니다.',
-        result: filters.map((e) => {
+        data: filters.map((e) => {
           return {
             total: e.dataValues.total,
             selectKey: e.selectKey,
@@ -171,7 +171,7 @@ class SelectController {
         msg: '진행중 선택글 조회 성공',
         result: ongoings.map((e) => {
           return {
-            total: e.dataValues.total,
+            total: e.Votes.length,
             selectKey: e.selectKey,
             title: e.title,
             category: e.category,
@@ -202,7 +202,7 @@ class SelectController {
         msg: '선택글 검색 조회 성공',
         result: searchResults.map((e) => {
           return {
-            total: e.dataValues.total,
+            total: e.Votes.length,
             selectKey: e.selectKey,
             title: e.title,
             category: e.category,

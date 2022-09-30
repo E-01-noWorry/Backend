@@ -13,15 +13,6 @@ class ChatRepository {
     return newRoom;
   };
 
-  createParticipant = async (userKey, newRoom) => {
-    const createParticipant = await Participant.create({
-      userKey,
-      roomKey: newRoom.roomKey,
-    });
-
-    return createParticipant;
-  };
-
   incrementPoint = async (userKey) => {
     const incrementPoint = await User.increment(
       { point: 3 },
@@ -110,11 +101,19 @@ class ChatRepository {
       where: { roomKey, chat: `${nickname}님이 입장했습니다.` },
     });
 
+    if (!firstChat) {
+      return [];
+    }
+
+    const chatTime = new Date(firstChat.createdAt).setHours(
+      new Date(firstChat.createdAt).getHours() - 9
+    );
+
     const loadChats = await Chat.findAll({
       where: {
         roomKey,
         createdAt: {
-          [Op.gte]: new Date(firstChat.createdAt),
+          [Op.gte]: chatTime,
         },
       },
       attributes: ['chat', 'userKey', 'createdAt'],
