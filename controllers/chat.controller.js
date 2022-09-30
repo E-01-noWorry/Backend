@@ -105,6 +105,16 @@ class ChatController {
       return res.status(200).json({
         ok: true,
         msg: '채팅방 입장 성공',
+        result: {
+          roomKey: room.roomKey,
+          title: room.title,
+          max: room.max,
+          currentPeople: room.Participants.length,
+          hashTag: room.hashTag,
+          host: room.User.nickname,
+          userKey: room.userKey,
+          point: room.User.point,
+        },
       });
     } catch (err) {
       next(err);

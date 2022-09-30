@@ -84,6 +84,8 @@ class ChatService {
     if (room.Participants.length >= room.max) {
       throw new ErrorCustom(400, '입장 가능 인원을 초과했습니다.');
     }
+
+    return room;
   };
 
   leaveChet = async (userKey, nickname, roomKey) => {
