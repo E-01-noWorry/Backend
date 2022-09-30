@@ -252,7 +252,9 @@ io.on('connection', (socket) => {
     let { roomKey, userKey } = data;
     const room = await Room.findOne({ where: roomKey });
 
-    const expulsionUser = await Participant.destroy({ roomKey, userKey });
+    const expulsionUser = Participant.destroy({
+      where: { roomKey, userKey },
+    });
     console.log(expulsionUser, "내보낼 사람")
 
     const nickname = await User.findOne({ where: { userKey } });
