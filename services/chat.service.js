@@ -1,5 +1,3 @@
-const { Room, Chat, User, Participant } = require('../models');
-const { Op } = require('sequelize');
 const ErrorCustom = require('../advice/errorCustom');
 const dayjs = require('dayjs');
 
@@ -50,6 +48,22 @@ class ChatService {
     const allRooms = await this.chatRepository.findAllRoom(offset, limit);
 
     return allRooms;
+  };
+
+  isRoom = async (user) => {
+    if (!user) {
+      return [];
+    } else {
+      const userKey = user.userKey;
+
+      const enterRoom = await this.chatRepository.findAllEnter(userKey);
+
+      let isRoom = enterRoom.map((e) => {
+        return e.roomKey;
+      });
+
+      return isRoom;
+    }
   };
 
   entranceChat = async (userKey, roomKey) => {

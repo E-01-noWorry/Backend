@@ -38,15 +38,10 @@ class SelectService {
     schedule.scheduleJob(deadLine, async () => {
       console.log('게시물 마감처리');
       await this.selectRepository.updateCompletion(createSelect);
-      // await createSelect.update({ completion: true });
 
       const completionVote = await this.selectRepository.completionVote(
         createSelect
       );
-      // await Vote.findAll({
-      //   where: { selectKey: createSelect.selectKey },
-      //   include: [{ model: User }],
-      // });
 
       const count = [0, 0, 0, 0];
       completionVote.map((e) => {
