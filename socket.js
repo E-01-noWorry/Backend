@@ -247,21 +247,26 @@ io.on('connection', (socket) => {
 
   // 강퇴하기
   socket.on('expulsion', async (data) => {
+    console.log(data, "받은값")
     // 여기서 유저키는 내보낼 사람의 유저키
     let { roomKey, userKey } = data;
     const room = await Room.findOne({ where: roomKey });
 
-    const expulsionUser = await Participant.destroy({ roomKey, userKey });
+    const expulsionUser = Participant.destroy({
+      where: { roomKey, userKey },
+    });
+    console.log(expulsionUser, "내보낼 사람")
 
     const nickname = await User.findOne({ where: { userKey } });
 
     await Chat.create({
       roomKey,
       userKey: 12, // 관리자 유저키
-      chat: `${nickname}님이 강퇴되었습니다.`,
+      chat: `${nickname.nickname}님이 강퇴되었습니다.`,
     });
+    console.log("퇴장메세지 저장")
 
-    let param = { userKey: expulsionUser.userKey, nickname };
+    let param = { userKey: expulsionUser.userKey, nickname: nickname.nickname };
     io.to(room.title).emit('expulsion', param);
   });
 });
