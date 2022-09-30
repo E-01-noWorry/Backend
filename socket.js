@@ -251,17 +251,24 @@ io.on('connection', (socket) => {
     let { roomKey, userKey } = data;
     const room = await Room.findOne({ where: roomKey });
 
-    const expulsionUser = await Participant.destroy({ roomKey, userKey });
+    await Participant.destroy({
+      where: { roomKey, userKey },
+    });
 
-    const nickname = await User.findOne({ where: { userKey } });
+    const expulsionUser = await User.findOne({ where: { userKey } });
 
     await Chat.create({
       roomKey,
       userKey: 12, // 관리자 유저키
-      chat: `${nickname}님이 강퇴되었습니다.`,
+      chat: `${nickname.nickname}님이 강퇴되었습니다.`,
     });
 
-    let param = { userKey: expulsionUser.userKey, nickname };
+    const blackList = room.blackList;
+    blackList.push(userKey);
+
+    await Room.update({ blackList }, { where: { roomKey } });
+
+    let param = { userKey, nickname: expulsionUser.nickname };
     io.to(room.title).emit('expulsion', param);
   });
 });

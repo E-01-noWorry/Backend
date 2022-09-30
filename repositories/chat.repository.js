@@ -8,6 +8,7 @@ class ChatRepository {
       title,
       max,
       hashTag,
+      blackList: [],
     });
 
     return newRoom;

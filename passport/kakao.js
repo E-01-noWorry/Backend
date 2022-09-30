@@ -22,13 +22,14 @@ module.exports = () => {
             // 카카오 플랫폼에서 로그인 했고 & snsId필드에 카카오 아이디가 일치할경우
             where: { snsId: profile.id, provider: 'kakao' },
           });
+          let nickname = ''
           // 이미 가입된 카카오 프로필이면 성공
           if (exUser) {
             done(null, exUser);
             console.log(exUser, '카카오 로그인 성공!');
           } else {
             const newUser = await User.create({
-              nickname: profile.displayName,
+              nickname,
               snsId: profile.id,
               provider: 'kakao',
               point: 0,
