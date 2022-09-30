@@ -61,6 +61,7 @@ class ChatController {
 
   allChat = async (req, res, next) => {
     try {
+      const user = res.locals.user;
       let offset = 0;
       const limit = 5;
       const pageNum = joi.pageSchema.validate(req.query.page).value;
@@ -70,6 +71,8 @@ class ChatController {
       }
 
       const allRooms = await this.chatService.allChat(offset, limit);
+
+      const isRoom = await this.chatService.isRoom(user);
 
       return res.status(200).json({
         ok: true,
@@ -85,6 +88,7 @@ class ChatController {
             userKey: e.userKey,
           };
         }),
+        isRoom,
       });
     } catch (err) {
       next(err);

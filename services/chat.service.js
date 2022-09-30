@@ -50,6 +50,22 @@ class ChatService {
     return allRooms;
   };
 
+  isRoom = async (user) => {
+    if (!user) {
+      return [];
+    } else {
+      const userKey = user.userKey;
+
+      const enterRoom = await this.chatRepository.findAllEnter(userKey);
+
+      let isRoom = enterRoom.map((e) => {
+        return e.roomKey;
+      });
+
+      return isRoom;
+    }
+  };
+
   entranceChat = async (userKey, roomKey) => {
     const room = await this.chatRepository.findOneRoom(roomKey);
 

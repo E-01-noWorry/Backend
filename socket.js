@@ -244,6 +244,26 @@ io.on('connection', (socket) => {
     let param = { userKey: recommendUser.userKey };
     io.to(room.title).emit('recommend', param);
   });
+
+  // 강퇴하기
+  socket.on('expulsion', async (data) => {
+    // 여기서 유저키는 내보낼 사람의 유저키
+    let { roomKey, userKey } = data;
+    const room = await Room.findOne({ where: roomKey });
+
+    const expulsionUser = await Participant.destroy({ roomKey, userKey });
+
+    const nickname = await User.findOne({ where: { userKey } });
+
+    await Chat.create({
+      roomKey,
+      userKey: 12, // 관리자 유저키
+      chat: `${nickname}님이 강퇴되었습니다.`,
+    });
+
+    let param = { userKey: expulsionUser.userKey, nickname };
+    io.to(room.title).emit('expulsion', param);
+  });
 });
 
 module.exports = { server };
