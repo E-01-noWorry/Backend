@@ -40,6 +40,12 @@ class ChatRepository {
     return searchResult;
   };
 
+  findAllEnter = async (userKey) => {
+    const findAllEnter = await Participant.findAll({ where: { userKey } });
+
+    return findAllEnter;
+  };
+
   findAllRoom = async (offset, limit) => {
     const findAllRoom = await Room.findAll({
       include: [

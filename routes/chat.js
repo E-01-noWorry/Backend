@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middlewares/authMiddlware');
+const isLoginMiddlware = require('../middlewares/isLoginMiddlware');
 
 const ChatController = require('../controllers/chat.controller');
 const chatController = new ChatController();
@@ -12,7 +13,7 @@ router.post('/', authMiddleware, chatController.postChat);
 router.get('/search', chatController.searchChat);
 
 // 채팅방 전체 조회
-router.get('/', chatController.allChat);
+router.get('/', isLoginMiddlware, chatController.allChat);
 
 // 채팅방 입장
 // 호스트 유저는 방만들때 Participant에 생성했음
