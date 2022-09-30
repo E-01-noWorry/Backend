@@ -50,6 +50,22 @@ class ChatService {
     return allRooms;
   };
 
+  isRoom = async (user) => {
+    if (!user) {
+      return [];
+    } else {
+      const userKey = user.userKey;
+
+      const enterRoom = await this.chatRepository.findAllEnter(userKey);
+
+      let isRoom = enterRoom.map((e) => {
+        return e.roomKey;
+      });
+
+      return isRoom;
+    }
+  };
+
   entranceChat = async (userKey, roomKey) => {
     const room = await this.chatRepository.findOneRoom(roomKey);
 
@@ -68,6 +84,8 @@ class ChatService {
     if (room.Participants.length >= room.max) {
       throw new ErrorCustom(400, '입장 가능 인원을 초과했습니다.');
     }
+
+    return room;
   };
 
   leaveChet = async (userKey, nickname, roomKey) => {

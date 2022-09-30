@@ -40,6 +40,12 @@ class ChatRepository {
     return searchResult;
   };
 
+  findAllEnter = async (userKey) => {
+    const findAllEnter = await Participant.findAll({ where: { userKey } });
+
+    return findAllEnter;
+  };
+
   findAllRoom = async (offset, limit) => {
     const findAllRoom = await Room.findAll({
       include: [
@@ -58,7 +64,7 @@ class ChatRepository {
     const findOneRoom = await Room.findOne({
       where: { roomKey },
       include: [
-        { model: User, attributes: ['nickname'] },
+        { model: User, attributes: ['nickname', 'point'] },
         { model: Participant, attributes: ['userKey'] },
       ],
     });

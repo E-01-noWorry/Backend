@@ -61,6 +61,7 @@ class ChatController {
 
   allChat = async (req, res, next) => {
     try {
+      const user = res.locals.user;
       let offset = 0;
       const limit = 5;
       const pageNum = joi.pageSchema.validate(req.query.page).value;
@@ -70,6 +71,8 @@ class ChatController {
       }
 
       const allRooms = await this.chatService.allChat(offset, limit);
+
+      const isRoom = await this.chatService.isRoom(user);
 
       return res.status(200).json({
         ok: true,
@@ -85,6 +88,7 @@ class ChatController {
             userKey: e.userKey,
           };
         }),
+        isRoom,
       });
     } catch (err) {
       next(err);
@@ -101,6 +105,16 @@ class ChatController {
       return res.status(200).json({
         ok: true,
         msg: '채팅방 입장 성공',
+        result: {
+          roomKey: room.roomKey,
+          title: room.title,
+          max: room.max,
+          currentPeople: room.Participants.length,
+          hashTag: room.hashTag,
+          host: room.User.nickname,
+          userKey: room.userKey,
+          point: room.User.point,
+        },
       });
     } catch (err) {
       next(err);
