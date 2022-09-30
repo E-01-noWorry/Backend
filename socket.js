@@ -262,7 +262,7 @@ io.on('connection', (socket) => {
     await Chat.create({
       roomKey,
       userKey: 12, // 관리자 유저키
-      chat: `${nickname}님이 강퇴되었습니다.`,
+      chat: `${nickname.nickname}님이 강퇴되었습니다.`,
     });
     console.log("퇴장메세지 저장")
 
