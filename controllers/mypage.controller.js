@@ -1,4 +1,3 @@
-const { Select, User, Vote, Room, Participant } = require('../models');
 const joi = require('../advice/joiSchema');
 
 const MypageService = require('../services/mypage.service'); //

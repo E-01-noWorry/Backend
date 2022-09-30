@@ -2,9 +2,9 @@ name: gomgom CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
 
 jobs:
   deploy:
@@ -23,7 +23,7 @@ jobs:
           host: ${{ secrets.EC2_IP }}
           username: ${{ secrets.EC2_NAME }}
           script: |
-            cd /home/ubuntu/Backend
+            cd ${{ secrets.EC2_PATH }}
             sudo git pull origin main
             npm install
             sudo pm2 restart server.js

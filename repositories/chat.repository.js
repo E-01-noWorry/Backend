@@ -13,15 +13,6 @@ class ChatRepository {
     return newRoom;
   };
 
-  createParticipant = async (userKey, newRoom) => {
-    const createParticipant = await Participant.create({
-      userKey,
-      roomKey: newRoom.roomKey,
-    });
-
-    return createParticipant;
-  };
-
   incrementPoint = async (userKey) => {
     const incrementPoint = await User.increment(
       { point: 3 },
