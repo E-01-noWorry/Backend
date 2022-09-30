@@ -73,6 +73,10 @@ class ChatService {
       throw new ErrorCustom(400, '해당 채팅방이 존재하지 않습니다.');
     }
 
+    if (room.blackList.includes(userKey)) {
+      throw new ErrorCustom(400, '강퇴 당한 방에는 입장이 불가능 합니다.');
+    }
+
     const users = room.Participants.map((e) => {
       return e.userKey;
     });
