@@ -266,7 +266,7 @@ io.on('connection', (socket) => {
     });
     console.log("퇴장메세지 저장")
 
-    let param = { userKey: expulsionUser.userKey, nickname };
+    let param = { userKey: expulsionUser.userKey, nickname: nickname.nickname };
     io.to(room.title).emit('expulsion', param);
   });
 });
