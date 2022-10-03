@@ -165,7 +165,7 @@
 | ------ | ------ | ----------------------------------------- |
 | BE🔰   | 시진엽 | [GitHub](https://github.com/Edward-SI03)  |
 | BE     | 김대린 | [GitHub](https://github.com/kimdaerin)    |
-| BE     | 조은지 | [GitHub](hhttps://github.com/Aaron-Kim33) |
+| BE     | 조은지 | [GitHub](https://github.com/JJooonji) |
 | FE🔰   | 김영진 | [GitHub](https://github.com/devyouth94)   |
 | FE     | 김윤철 | [GitHub](https://github.com/Aaron-Kim33)  |
 | Design | 김민수 | 디자인 담당                               |
