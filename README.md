@@ -149,20 +149,9 @@
 
 ## 🧰Back-end 기술 Tools 소개
 
-<img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white" width="10%" height="10%"/>
-&nbsp; <img src="https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white" width="11%" height="11%"/>
-&nbsp; <img src="https://img.shields.io/badge/Amazon AWS-232F3E?style=flat-square&logo=Amazon AWS&logoColor=white" width="15%" height="15%"/>
-&nbsp; <img src="https://img.shields.io/badge/javascript-333333?style=flat-square&logo=javascript&logoColor=yellow" width="12%" height="12%"/> <br><br>
-<img src="https://img.shields.io/badge/Amazon EC2-FF9900?style=flat-square&logo=Amazon EC2&logoColor=white" width="13%" height="13%"/> 
-&nbsp; <img src="https://img.shields.io/badge/Amazon S3-569A31?style=flat-square&logo=Amazon S32&logoColor=white" width="10%" height="10%"/>
-&nbsp; <img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=MySQL&logoColor=white" width="9%" height="9%"/>
-&nbsp; <img src="https://img.shields.io/badge/Sequelize-52B0E7?style=flat-square&logo=Sequelize&logoColor=white" width="10%" height="10%"/>
-&nbsp;<img src="https://img.shields.io/badge/npm-CB3837?style=flat-square&logo=npm&logoColor=white" width="7%" height="7%"/><br><br>
-<img src="https://img.shields.io/badge/Let's Encrypt-003A70?style=flat-square&logo=Let's Encrypt&logoColor=black" width="13%" height="13%"/>
-&nbsp;<img src="https://img.shields.io/badge/Passport-34E27A?style=flat-square&logo=Passport&logoColor=white" width="9%" height="9%"/>
-&nbsp;<img src="https://img.shields.io/badge/JSON Web Tokens-000000?style=flat-square&logo=JSON Web Tokens&logoColor=white" width="17%" height="17%"/>
-&nbsp;<img src="https://img.shields.io/badge/Socket.io-010101?style=flat-square&logo=Socket.io&logoColor=white" width="11%" height="11%"/>
-&nbsp;<img src="https://img.shields.io/badge/github-181717?style=flat-square&logo=github&logoColor=white" width="9%" height="9%"/>
+<img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white" width="10%" height="10%"/>&nbsp; <img src="https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white" width="11%" height="11%"/>&nbsp; <img src="https://img.shields.io/badge/Amazon AWS-232F3E?style=flat-square&logo=Amazon AWS&logoColor=white" width="15%" height="15%"/>&nbsp; <img src="https://img.shields.io/badge/javascript-333333?style=flat-square&logo=javascript&logoColor=yellow" width="12%" height="12%"/> <br><br>
+<img src="https://img.shields.io/badge/Amazon EC2-FF9900?style=flat-square&logo=Amazon EC2&logoColor=white" width="13%" height="13%"/>&nbsp; <img src="https://img.shields.io/badge/Amazon S3-569A31?style=flat-square&logo=Amazon S32&logoColor=white" width="10%" height="10%"/>&nbsp; <img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=MySQL&logoColor=white" width="9%" height="9%"/>&nbsp; <img src="https://img.shields.io/badge/Sequelize-52B0E7?style=flat-square&logo=Sequelize&logoColor=white" width="10%" height="10%"/>&nbsp;<img src="https://img.shields.io/badge/npm-CB3837?style=flat-square&logo=npm&logoColor=white" width="7%" height="7%"/><br><br>
+<img src="https://img.shields.io/badge/Let's Encrypt-003A70?style=flat-square&logo=Let's Encrypt&logoColor=black" width="13%" height="13%"/>&nbsp;<img src="https://img.shields.io/badge/Passport-34E27A?style=flat-square&logo=Passport&logoColor=white" width="9%" height="9%"/>&nbsp;<img src="https://img.shields.io/badge/JSON Web Tokens-000000?style=flat-square&logo=JSON Web Tokens&logoColor=white" width="17%" height="17%"/>&nbsp;<img src="https://img.shields.io/badge/Socket.io-010101?style=flat-square&logo=Socket.io&logoColor=white" width="11%" height="11%"/>&nbsp;<img src="https://img.shields.io/badge/github-181717?style=flat-square&logo=github&logoColor=white" width="9%" height="9%"/>
 
 <br>
 
