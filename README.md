@@ -29,7 +29,7 @@
 | `Redux toolkit` | Redux Toolkit vs Recoil<br><br>전역 상태를 효율적으로 관리 하기 위해 라이브러리를 도입하였습니다.<br>사용자가 많아 오픈소스 양이 많은 redux로 채택했습니다.<br>그 중에서도 redux 패키지 설치가 용이하고, 보일러 플레이트가 훨씬 줄어든 redux-toolkit으로 결정했습니다. |
 | `Axios` | Axios vs JS Fetch API<br><br>response timeout (fetch에는 없는 기능) 처리 방법이 존재<br>Promise 기반으로 만들어졌기 때문에 데이터를 다루기 편리합니다.<br>브라우저 호환이 fetch보다 뛰어나기 때문에 웹 앱을 염두한 곰곰 서비스에 적합하다고 생각했습니다. |
 | `Styled components` | CSS-in-JS vs CSS-in-CSS<br><br>css를 파일 분리 없이 유지 보수 할 수 있는점이 장점이라 생각했습니다.<br>props나 state에 따른 동적 스타일링이 가능합니다.<br>그 중 점유율이 높은 styled components를 사용하기로 결정했습니다. |
-| `S3<br>Cloud Front<br>Route 53` | vs Vercel<br><br>배포가 간편한 vercel을 사용할까 고민했지만, aws의 배포 플랫폼들을 경험해보고 싶었습니다. |
+| `S3`<br>`Cloud Front`<br>`Route 53` | vs Vercel<br><br>배포가 간편한 vercel을 사용할까 고민했지만, aws의 배포 플랫폼들을 경험해보고 싶었습니다. |
 | `Github actions` | 프론트엔드와 백엔드의 효율적인 협업을 위해, 자동배포를 진행하였습니다. |
 <br>
 
