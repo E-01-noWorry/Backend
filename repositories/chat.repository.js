@@ -8,18 +8,14 @@ class ChatRepository {
       title,
       max,
       hashTag,
+      blackList: [],
     });
 
     return newRoom;
   };
 
   incrementPoint = async (userKey) => {
-    const incrementPoint = await User.increment(
-      { point: 3 },
-      { where: { userKey } }
-    );
-
-    return incrementPoint;
+    await User.increment({ point: 3 }, { where: { userKey } });
   };
 
   findAllSearchWord = async (searchWord) => {
@@ -73,17 +69,11 @@ class ChatRepository {
   };
 
   delRoom = async (roomKey) => {
-    const delRoom = await Room.destroy({ where: { roomKey } });
-
-    return delRoom;
+    await Room.destroy({ where: { roomKey } });
   };
 
   delParticipant = async (userKey, roomKey) => {
-    const delParticipant = await Participant.destroy({
-      where: { userKey, roomKey },
-    });
-
-    return delParticipant;
+    await Participant.destroy({ where: { userKey, roomKey } });
   };
 
   detailChat = async (roomKey) => {

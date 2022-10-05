@@ -1,8 +1,9 @@
 const express = require('express');
 const Router = require('./routes/index');
 require('dotenv').config();
+const app = express();
+
 const errorHandler = require('./advice/errorHandler');
-const logger = require('./advice/winston');
 const morganMiddleware = require('./middlewares/morgan');
 const scheduler = require('./advice/scheduler');
 
@@ -13,14 +14,7 @@ const session = require('cookie-session');
 const passport = require('passport');
 const passportConfig = require('./passport');
 
-const app = express();
-
 app.use(morganMiddleware);
-
-//
-// const path = require('path');
-// app.use(express.static(path.join(__dirname, 'src')));
-//
 
 app.use(
   cors({
@@ -28,11 +22,9 @@ app.use(
     credentials: true,
   })
 );
-
 app.use(helmet());
 
 passportConfig();
-
 app.use(express.json());
 app.use(express.static('public'));
 app.use(

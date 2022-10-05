@@ -38,23 +38,17 @@ class RecommentRepository {
   };
 
   updateRecomment = async (comment, recommentKey) => {
-    const updateRecomment = await Recomment.update(
+    await Recomment.update(
       { comment },
       {
         where: { recommentKey },
         include: [{ model: User, attributes: ['nickname', 'point'] }],
       }
     );
-
-    return updateRecomment;
   };
 
   delRecomment = async (recommentKey) => {
-    const delRecomment = await Recomment.destroy({
-      where: { recommentKey },
-    });
-
-    return delRecomment;
+    await Recomment.destroy({ where: { recommentKey } });
   };
 }
 

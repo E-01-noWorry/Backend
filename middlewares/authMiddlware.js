@@ -8,9 +8,6 @@ module.exports = async (req, res, next) => {
     const accessToken = req.headers.accesstoken;
     const refreshToken = req.headers.refreshtoken;
 
-    console.log(accessToken, 'accessToken확인');
-    console.log(refreshToken, 'refreshToken확인');
-
     if (!accessToken) {
       throw new ErrorCustom(401, '다시 로그인 해주세요.');
     }
@@ -49,12 +46,12 @@ module.exports = async (req, res, next) => {
     }
 
     try {
-      //1.access토큰, refresh토큰 모두 사용 불가
+      // 1.access토큰, refresh토큰 모두 사용 불가
       if (!accessVerified && !refreshVerified) {
         throw new ErrorCustom(401, '로그인 기한이 만료되었습니다.');
       }
 
-      //2.access토큰은 만료되었지만 refresh토큰이 존재한다면 db에서 토큰을 비교하여 accessToken 발급
+      // 2.access토큰은 만료되었지만 refresh토큰이 존재한다면 accessToken 발급
       if (!accessVerified && refreshVerified) {
         const existUser = await User.findOne({
           where: { refreshToken: refreshAuthToken },
@@ -79,7 +76,7 @@ module.exports = async (req, res, next) => {
         });
       }
 
-      //3.access토큰은 있지만, refresh토큰 사용 불가하다면 refreshToken 발급
+      // 3.access토큰은 있지만, refresh토큰 사용 불가하다면 refreshToken 발급
       if (accessVerified && !refreshVerified) {
         const { userKey } = accessVerified;
 
@@ -92,8 +89,11 @@ module.exports = async (req, res, next) => {
           expiresIn: '14d',
         });
         console.log(newRefreshToken, 'newRefreshToken 확인');
-        // refreshToken 발급 후 db에 저장
-        User.update({ refreshToken: newRefreshToken }, { where: { userKey } });
+
+        await User.update(
+          { refreshToken: newRefreshToken },
+          { where: { userKey } }
+        );
 
         return res.status(201).json({
           accessToken: accessAuthToken,

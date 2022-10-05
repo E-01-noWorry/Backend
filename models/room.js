@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       title: DataTypes.STRING,
       max: DataTypes.INTEGER,
       hashTag: DataTypes.JSON,
+      blackList: DataTypes.JSON,
     },
     {
       timestamp: true,
