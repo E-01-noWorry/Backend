@@ -1,39 +1,18 @@
 # 🐻같이 고민해요, 곰곰
 
-혼자 선택하기 어려운 고민, 익명으로 나누고 싶은 고민이 있다면 ‘곰곰’에서 함께 고민해드립니다!
+혼자 선택하기 어려운 고민, 익명으로 나누고 싶은 고민이 있다면 ‘곰곰’에서 함께 고민해드립니다!<br><br>
 <img width="1080" src="https://user-images.githubusercontent.com/107025988/193507282-9ab12908-9fca-4e38-9214-03b2e73da287.png">
 
 ## 👉 [곰곰 둘러보기](https://www.gomgom.site)
+<br>
+
+### 👉 [곰곰 노션](https://www.notion.so/c8bbb8119d4a46e996c2806e41e2be4c)
 
 <br><br>
 
+
 # 🎆 프로젝트 소개
 
-## ⚙️ Architecture
-
-<br>
-
-![아키텍쳐](https://user-images.githubusercontent.com/107025988/193801322-f95faa04-f107-4354-9df0-0453ce9ea166.png)
-
-<br>
-
-## 🔧 기술적 의사결정
-| 사용 기술 | 기술 결정 이유   |
-| ------ | ------ |
-| `MySQL` | mongoDB vs MySQL<br><br> mongoDB보다 상대적으로 익숙한 MySQL을 이용하는 것이 원활한 프로젝트 진행이 될 것 같다고 판단했고, 선택글-투표-댓글 / 채팅방-참가자-채팅 등 데이터들 간의 관계성이 중요하여 관계형 DBMS를 사용했습니다. |
-| `socket.io` | socket.io vs WebSocket<br><br>socket.io는 room 개념을 이용해 각각의 채팅방을 개설하여 방에 입장한 유저들끼리 통신을 주고 받을 수 있도록 https를 이용한 실시간 데이터 통신이 가능한 socket.io 사용을 결정했습니다 |
-| `dayjs` | dayjs vs new Date() vs moment<br><br>시간을 사용하는 기능을 new Date()로 구현했지만, 배포 EC2의 타임존이 다른 문제로 시간설정을 현재 한국시간으로 맞추는데 애로사항이 있었습니다. 이에 dayjs와 moment 라이브러리 중 지속적인 업데이트를 지원하고, 좀더 가볍고 사용법이 쉬운 dayjs를 선택하여 한국으로 타임존을 맞추고 현재시간을 설정했습니다. |
-| `node-schedule` | node-schedule vs node-cron<br><br>schedule과 cron 차이는 크게 없지만, 복잡한 시간설정이 가능한 schedule를 이용하여 설정한 투표 종료시간이 되면 자동으로 db에 접근하여 값을 수정하도록 했습니다. 또한, 서버 재시작시 schedule 큐에 쌓인 스택이 초기화되는 것을 해결하기 위해 schedule를 이용해 주기적으로 db에 접근할 수 있도록 했습니다. |
-| `FCM` | 자신의 선택글, 상담방 등에 다른 유저의 상호작용 발생 시 실시간 푸시알림을 보내주어 활발한 사이트 이용을 유도했습니다. |
-| `PWA` | 웹앱 설치를 유도하여 재사용성 증가, 백그라운드 푸시 알림 등을 구현하기 위해 도입하였습니다. |
-| `Redux toolkit` | Redux Toolkit vs Recoil<br><br>전역 상태를 효율적으로 관리 하기 위해 라이브러리를 도입하였습니다.<br>사용자가 많아 오픈소스 양이 많은 redux로 채택했습니다.<br>그 중에서도 redux 패키지 설치가 용이하고, 보일러 플레이트가 훨씬 줄어든 redux-toolkit으로 결정했습니다. |
-| `Axios` | Axios vs JS Fetch API<br><br>response timeout (fetch에는 없는 기능) 처리 방법이 존재<br>Promise 기반으로 만들어졌기 때문에 데이터를 다루기 편리합니다.<br>브라우저 호환이 fetch보다 뛰어나기 때문에 웹 앱을 염두한 곰곰 서비스에 적합하다고 생각했습니다. |
-| `Styled components` | CSS-in-JS vs CSS-in-CSS<br><br>css를 파일 분리 없이 유지 보수 할 수 있는점이 장점이라 생각했습니다.<br>props나 state에 따른 동적 스타일링이 가능합니다.<br>그 중 점유율이 높은 styled components를 사용하기로 결정했습니다. |
-| `S3`<br>`Cloud Front`<br>`Route 53` | vs Vercel<br><br>배포가 간편한 vercel을 사용할까 고민했지만, aws의 배포 플랫폼들을 경험해보고 싶었습니다. |
-| `Github actions` | 프론트엔드와 백엔드의 효율적인 협업을 위해, 자동배포를 진행하였습니다. |
-<br>
-
----
 
 <br>
 
@@ -44,71 +23,7 @@
 
 ### 💻 Back-end
 [GitHub](https://github.com/E-01-noWorry/Backend)
-
-<br>
-
----
-
-<br>
-
-### 📝유저 피드백
-
-<details>
-<summary> ✒️유저 테스트 피드백(10.03 기준)✒️ </summary>
-<br>
-
-  - 사용자 피드백 응답 106개<br>
-  - 신규 회원 약 230명<br>
-  - 생성된 게시물 약 70개<br>
-  - 참여한 투표 수 약 600개<br>
-  - 작성한 댓글/대댓글 약 170개<br>
-  - 생성된 채팅방 약 20개<br>
-  - 채팅방 참가 약 230명<br>
-  - 주고받은 채팅 630개
-</details>
-
-<br>
-
-<details>
-<summary>  ⛳유저 피드백 반영⛳ </summary>
-<br>
- 
-  - UI 개선
-    - 고민투표글 검색 및 진행중인 투표 필터 기능 추가
-    - 상담방 UI 대폭 수정(상담방 입장모달 추가, 참여중인 상담방 목록에서 확인 가능, 현재 상담방 참여한 인원 확인 가능 등)
-    - 최상단 이동 버튼 추가
-  - 채팅방 강퇴기능 추가(강퇴시 재입장 불가능)
-  - 카카오 소셜로그인 시 닉네임 설정 화면으로 이동 추가
-  - 회원 탈퇴기능 추가
-
-</details>
-<br>
-
-#### 설문 링크 : https://forms.gle/MANwTgdAr3H2UC2s5
-<br>
-
----
-
-<br>
-
-### 🎬 기능 구현 영상
-
-<br>
-
-[유튜브 영상](나중에 넣기!!!)
-
-<br>
-
----
-
-<br>
-
-### 📘 팀 노션
-
-<br>
-
-[곰곰 노션](https://www.notion.so/c8bbb8119d4a46e996c2806e41e2be4c)
-<br>
+<br><br>
 
 ---
 
@@ -157,11 +72,11 @@
 
 <br>
 
-## 🧰Back-end 기술 Tools 소개
+### 🎬 기능 구현 영상
+<br>
 
-<img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white" width="10%" height="10%"/>&nbsp; <img src="https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white" width="11%" height="11%"/>&nbsp; <img src="https://img.shields.io/badge/Amazon AWS-232F3E?style=flat-square&logo=Amazon AWS&logoColor=white" width="15%" height="15%"/>&nbsp; <img src="https://img.shields.io/badge/javascript-333333?style=flat-square&logo=javascript&logoColor=yellow" width="12%" height="12%"/> <br><br>
-<img src="https://img.shields.io/badge/Amazon EC2-FF9900?style=flat-square&logo=Amazon EC2&logoColor=white" width="13%" height="13%"/>&nbsp; <img src="https://img.shields.io/badge/Amazon S3-569A31?style=flat-square&logo=Amazon S32&logoColor=white" width="10%" height="10%"/>&nbsp; <img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=MySQL&logoColor=white" width="9%" height="9%"/>&nbsp; <img src="https://img.shields.io/badge/Sequelize-52B0E7?style=flat-square&logo=Sequelize&logoColor=white" width="10%" height="10%"/>&nbsp;<img src="https://img.shields.io/badge/npm-CB3837?style=flat-square&logo=npm&logoColor=white" width="7%" height="7%"/><br><br>
-<img src="https://img.shields.io/badge/Let's Encrypt-003A70?style=flat-square&logo=Let's Encrypt&logoColor=black" width="13%" height="13%"/>&nbsp;<img src="https://img.shields.io/badge/Passport-34E27A?style=flat-square&logo=Passport&logoColor=white" width="9%" height="9%"/>&nbsp;<img src="https://img.shields.io/badge/JSON Web Tokens-000000?style=flat-square&logo=JSON Web Tokens&logoColor=white" width="17%" height="17%"/>&nbsp;<img src="https://img.shields.io/badge/Socket.io-010101?style=flat-square&logo=Socket.io&logoColor=white" width="11%" height="11%"/>&nbsp;<img src="https://img.shields.io/badge/github-181717?style=flat-square&logo=github&logoColor=white" width="9%" height="9%"/>
+#### 👉 [보러가기](https://youtu.be/2BKY5G8FlQg)
+
 
 <br>
 
@@ -169,17 +84,44 @@
 
 <br>
 
-## 👥 팀원소개
+## 🧰Back-end 기술 Tools 소개
 
-| 역할   | 이름   | github                                    |
-| ------ | ------ | ----------------------------------------- |
-| BE🔰   | 시진엽 | [GitHub](https://github.com/Edward-SI03)  |
-| BE     | 김대린 | [GitHub](https://github.com/kimdaerin)    |
-| BE     | 조은지 | [GitHub](https://github.com/JJooonji) |
-| FE🔰   | 김영진 | [GitHub](https://github.com/devyouth94)   |
-| FE     | 김윤철 | [GitHub](https://github.com/Aaron-Kim33)  |
-| Design | 김민수 | 디자인 담당                               |
+<img src="https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=node.js&logoColor=white" width="10%" height="10%"/>&nbsp; <img src="https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white" width="10%" height="10%"/>&nbsp; <img src="https://img.shields.io/badge/Amazon AWS-232F3E?style=flat-square&logo=Amazon AWS&logoColor=white" width="15%" height="15%"/>&nbsp; <img src="https://img.shields.io/badge/javascript-333333?style=flat-square&logo=javascript&logoColor=yellow" width="12%" height="12%"/> <br><br>
+<img src="https://img.shields.io/badge/Amazon EC2-FF9900?style=flat-square&logo=Amazon EC2&logoColor=white" width="13%" height="13%"/>&nbsp; <img src="https://img.shields.io/badge/Amazon S3-569A31?style=flat-square&logo=Amazon S32&logoColor=white" width="10%" height="10%"/>&nbsp; <img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=MySQL&logoColor=white" width="9%" height="9%"/>&nbsp; <img src="https://img.shields.io/badge/Sequelize-52B0E7?style=flat-square&logo=Sequelize&logoColor=white" width="11%" height="11%"/>&nbsp;<img src="https://img.shields.io/badge/npm-CB3837?style=flat-square&logo=npm&logoColor=white" width="8%" height="8%"/><br><br>
+<img src="https://img.shields.io/badge/Let's Encrypt-003A70?style=flat-square&logo=Let's Encrypt&logoColor=black" width="13%" height="13%"/>&nbsp;<img src="https://img.shields.io/badge/Passport-34E27A?style=flat-square&logo=Passport&logoColor=white" width="10%" height="10%"/>&nbsp;<img src="https://img.shields.io/badge/JSON Web Tokens-000000?style=flat-square&logo=JSON Web Tokens&logoColor=white" width="17%" height="17%"/>&nbsp;<img src="https://img.shields.io/badge/Socket.io-010101?style=flat-square&logo=Socket.io&logoColor=white" width="11%" height="11%"/>&nbsp;<img src="https://img.shields.io/badge/github-181717?style=flat-square&logo=github&logoColor=white" width="9%" height="9%"/>
 
+<br>
+
+---
+
+<br>
+
+## ⚙️ Architecture
+
+<br>
+
+![아키텍쳐](https://user-images.githubusercontent.com/107025988/193801322-f95faa04-f107-4354-9df0-0453ce9ea166.png)
+
+<br>
+
+---
+
+<br>
+
+## 🔧 기술적 의사결정
+| 사용 기술 | 기술 결정 이유   |
+| ------ | ------ |
+| `MySQL` | mongoDB vs MySQL<br><br> mongoDB보다 상대적으로 익숙한 MySQL을 이용하는 것이 원활한 프로젝트 진행이 될 것 같다고 판단했고, 선택글-투표-댓글 / 채팅방-참가자-채팅 등 데이터들 간의 관계성이 중요하여 관계형 DBMS를 사용했습니다. |
+| `socket.io` | socket.io vs WebSocket<br><br>socket.io는 room 개념을 이용해 각각의 채팅방을 개설하여 방에 입장한 유저들끼리 통신을 주고 받을 수 있도록 https를 이용한 실시간 데이터 통신이 가능한 socket.io 사용을 결정했습니다 |
+| `dayjs` | dayjs vs new Date() vs moment<br><br>시간을 사용하는 기능을 new Date()로 구현했지만, 배포 EC2의 타임존이 다른 문제로 시간설정을 현재 한국시간으로 맞추는데 애로사항이 있었습니다. 이에 dayjs와 moment 라이브러리 중 지속적인 업데이트를 지원하고, 좀더 가볍고 사용법이 쉬운 dayjs를 선택하여 한국으로 타임존을 맞추고 현재시간을 설정했습니다. |
+| `node-schedule` | node-schedule vs node-cron<br><br>schedule과 cron 차이는 크게 없지만, 복잡한 시간설정이 가능한 schedule를 이용하여 설정한 투표 종료시간이 되면 자동으로 db에 접근하여 값을 수정하도록 했습니다. 또한, 서버 재시작시 schedule 큐에 쌓인 스택이 초기화되는 것을 해결하기 위해 schedule를 이용해 주기적으로 db에 접근할 수 있도록 했습니다. |
+| `FCM` | 자신의 선택글, 상담방 등에 다른 유저의 상호작용 발생 시 실시간 푸시알림을 보내주어 활발한 사이트 이용을 유도했습니다. |
+| `PWA` | 웹앱 설치를 유도하여 재사용성 증가, 백그라운드 푸시 알림 등을 구현하기 위해 도입하였습니다. |
+| `Redux toolkit` | Redux Toolkit vs Recoil<br><br>전역 상태를 효율적으로 관리 하기 위해 라이브러리를 도입하였습니다.<br>사용자가 많아 오픈소스 양이 많은 redux로 채택했습니다.<br>그 중에서도 redux 패키지 설치가 용이하고, 보일러 플레이트가 훨씬 줄어든 redux-toolkit으로 결정했습니다. |
+| `Axios` | Axios vs JS Fetch API<br><br>response timeout (fetch에는 없는 기능) 처리 방법이 존재<br>Promise 기반으로 만들어졌기 때문에 데이터를 다루기 편리합니다.<br>브라우저 호환이 fetch보다 뛰어나기 때문에 웹 앱을 염두한 곰곰 서비스에 적합하다고 생각했습니다. |
+| `Styled components` | CSS-in-JS vs CSS-in-CSS<br><br>css를 파일 분리 없이 유지 보수 할 수 있는점이 장점이라 생각했습니다.<br>props나 state에 따른 동적 스타일링이 가능합니다.<br>그 중 점유율이 높은 styled components를 사용하기로 결정했습니다. |
+| `S3`<br>`Cloud Front`<br>`Route 53` | vs Vercel<br><br>배포가 간편한 vercel을 사용할까 고민했지만, aws의 배포 플랫폼들을 경험해보고 싶었습니다. |
+| `Github actions` | 프론트엔드와 백엔드의 효율적인 협업을 위해, 자동배포를 진행하였습니다. |
 <br>
 
 ---
@@ -269,3 +211,64 @@
   - 토큰이 모두 만료됐다면 서버에서 401에러와 함께 만료 메시지를 보냄
   - 그럴 경우에 interceptors로 로컬스토리지 값을 비워주는 로직을 구현함
 </details>
+
+<br>
+
+---
+
+<br>
+
+### 📝유저 피드백
+
+<details>
+<summary> ✒️유저 테스트 피드백(10.03 기준)✒️ </summary>
+<br>
+
+  - 사용자 피드백 응답 106개<br>
+  - 신규 회원 약 230명<br>
+  - 생성된 게시물 약 70개<br>
+  - 참여한 투표 수 약 600개<br>
+  - 작성한 댓글/대댓글 약 170개<br>
+  - 생성된 채팅방 약 20개<br>
+  - 채팅방 참가 약 230명<br>
+  - 주고받은 채팅 630개
+</details>
+
+<br>
+
+<details>
+<summary>  ⛳유저 피드백 반영⛳ </summary>
+<br>
+ 
+  - UI 개선
+    - 고민투표글 검색 및 진행중인 투표 필터 기능 추가
+    - 상담방 UI 대폭 수정(상담방 입장모달 추가, 참여중인 상담방 목록에서 확인 가능, 현재 상담방 참여한 인원 확인 가능 등)
+    - 최상단 이동 버튼 추가
+  - 채팅방 강퇴기능 추가(강퇴시 재입장 불가능)
+  - 카카오 소셜로그인 시 닉네임 설정 화면으로 이동 추가
+  - 회원 탈퇴기능 추가
+
+</details>
+<br>
+
+#### 설문 링크 : https://forms.gle/MANwTgdAr3H2UC2s5
+<br>
+
+---
+
+<br>
+
+## 👥 팀원소개
+
+| 역할   | 이름   | github                                    |
+| ------ | ------ | ----------------------------------------- |
+| BE🔰   | 시진엽 | [GitHub](https://github.com/Edward-SI03)  |
+| BE     | 김대린 | [GitHub](https://github.com/kimdaerin)    |
+| BE     | 조은지 | [GitHub](https://github.com/JJooonji) |
+| FE🔰   | 김영진 | [GitHub](https://github.com/devyouth94)   |
+| FE     | 김윤철 | [GitHub](https://github.com/Aaron-Kim33)  |
+| Design | 김민수 | 디자인 담당                               |
+
+<br>
+
+
