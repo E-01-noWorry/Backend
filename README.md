@@ -8,8 +8,6 @@
 
 ### 👉 [곰곰 노션](https://www.notion.so/c8bbb8119d4a46e996c2806e41e2be4c)
 
-<br>
-
 ---
 <br>
 
