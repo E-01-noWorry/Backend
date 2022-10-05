@@ -28,8 +28,6 @@ class UserService {
     const pwHash = await bcrypt.hash(password, salt);
 
     await this.userRepository.createUser(userId, nickname, pwHash);
-
-    return { msg: '회원가입에 성공하였습니다.' };
   };
 
   loginUser = async (userId, password) => {
@@ -54,13 +52,7 @@ class UserService {
 
     await this.userRepository.updateRefresh(refreshToken, user);
 
-    return {
-      nickname: user.nickname,
-      userKey: user.userKey,
-      accessToken,
-      refreshToken: user.refreshToken,
-      msg: '로그인에 성공하였습니다.',
-    };
+    return [user, accessToken];
   };
 
   checkUser = async (userKey) => {

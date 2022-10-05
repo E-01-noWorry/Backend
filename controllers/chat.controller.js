@@ -1,5 +1,6 @@
 const joi = require('../advice/joiSchema');
 const ErrorCustom = require('../advice/errorCustom');
+const dayjs = require('dayjs');
 
 const ChatService = require('../services/chat.service');
 
@@ -18,13 +19,24 @@ class ChatController {
 
       const newRoom = await this.chatService.createChat(
         userKey,
-        nickname,
         title,
         max,
         hashTag
       );
 
-      return res.status(200).json(newRoom);
+      return res.status(200).json({
+        ok: true,
+        msg: '채팅방 생성 성공',
+        result: {
+          roomKey: newRoom.roomKey,
+          title,
+          max,
+          currentPeople: 1,
+          hashTag,
+          host: nickname,
+          userKey,
+        },
+      });
     } catch (err) {
       next(err);
     }
@@ -129,7 +141,10 @@ class ChatController {
 
       const room = await this.chatService.leaveChet(userKey, nickname, roomKey);
 
-      return res.status(200).json(room);
+      return res.status(200).json({
+        ok: true,
+        msg: room,
+      });
     } catch (err) {
       next(err);
     }
@@ -142,7 +157,35 @@ class ChatController {
 
       const room = await this.chatService.detailChat(roomKey, nickname);
 
-      return res.status(200).json(room);
+      const people = await this.chatService.enterPeople(room);
+
+      const loadChats = await this.chatService.loadChats(roomKey, nickname);
+
+      return res.status(200).json({
+        ok: true,
+        msg: '채팅방 정보, 메세지 조회 성공',
+        result: {
+          roomKey: room.roomKey,
+          title: room.title,
+          max: room.max,
+          currentPeople: room.Participants.length,
+          hashTag: room.hashTag,
+          host: room.User.nickname,
+          userKey: room.userKey,
+        },
+        Participants: people,
+        loadChat: loadChats.map((l) => {
+          return {
+            chat: l.chat,
+            userKey: l.userKey,
+            createdAt: dayjs(l.createdAt).add(15, 'h').format(),
+            User: {
+              nickname: l.User.nickname,
+              point: l.User.point,
+            },
+          };
+        }),
+      });
     } catch (err) {
       next(err);
     }

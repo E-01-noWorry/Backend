@@ -36,19 +36,12 @@ class SelectRepository {
   };
 
   incrementPoint = async (userKey) => {
-    const incrementPoint = await User.increment(
-      { point: 5 },
-      { where: { userKey } }
-    );
-
-    return incrementPoint;
+    await User.increment({ point: 5 }, { where: { userKey } });
   };
 
   //
   updateCompletion = async (createSelect) => {
-    const updateCompletion = await createSelect.update({ completion: true });
-
-    return updateCompletion;
+    await createSelect.update({ completion: true });
   };
 
   completionVote = async (createSelect) => {

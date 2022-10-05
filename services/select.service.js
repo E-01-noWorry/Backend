@@ -93,10 +93,6 @@ class SelectService {
       limit
     );
 
-    if (!categorySelects) {
-      throw new ErrorCustom(400, '해당 카테고리에 글이 존재하지 않습니다.');
-    }
-
     return categorySelects;
   };
 

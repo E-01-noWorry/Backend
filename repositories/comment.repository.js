@@ -51,20 +51,11 @@ class CommentRepository {
   };
 
   updateComment = async (comment, commentKey) => {
-    const updateComment = await Comment.update(
-      { comment },
-      { where: { commentKey } }
-    );
-
-    return updateComment;
+    await Comment.update({ comment }, { where: { commentKey } });
   };
 
   delComment = async (commentKey, userKey) => {
-    const delComment = await Comment.destroy({
-      where: { commentKey, userKey },
-    });
-
-    return delComment;
+    await Comment.destroy({ where: { commentKey, userKey } });
   };
 }
 

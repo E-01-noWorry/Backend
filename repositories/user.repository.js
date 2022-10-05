@@ -14,23 +14,11 @@ class UserRepository {
   };
 
   createUser = async (userId, nickname, pwHash) => {
-    const createUser = await User.create({
-      userId,
-      nickname,
-      password: pwHash,
-      point: 0,
-    });
-
-    return createUser;
+    await User.create({ userId, nickname, password: pwHash, point: 0 });
   };
 
   updateRefresh = async (refreshToken, user) => {
-    const updateRefresh = await user.update(
-      { refreshToken },
-      { where: { userKey: user.userKey } }
-    );
-
-    return updateRefresh;
+    await user.update({ refreshToken }, { where: { userKey: user.userKey } });
   };
 
   findOneNic = async (nickname) => {

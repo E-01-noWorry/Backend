@@ -22,7 +22,9 @@ class UserController {
         confirm
       );
 
-      res.status(201).json(createUser);
+      res.status(201).json({
+        msg: '회원가입에 성공하였습니다.',
+      });
     } catch (error) {
       next(error);
     }
@@ -34,7 +36,13 @@ class UserController {
 
       const user = await this.userService.loginUser(userId, password);
 
-      res.status(200).json(user);
+      res.status(200).json({
+        nickname: user[0].nickname,
+        userKey: user[0].userKey,
+        accessToken: user[1],
+        refreshToken: user[0].refreshToken,
+        msg: '로그인에 성공하였습니다.',
+      });
     } catch (error) {
       next(error);
     }
