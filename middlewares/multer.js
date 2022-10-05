@@ -4,7 +4,6 @@ const s3 = require('../config/s3');
 require('dotenv').config();
 const path = require('path');
 const ErrorCustom = require('../advice/errorCustom');
-// aws.config.loadFromPath(__dirname + '/../config/s3.json');
 
 // 이미지 파일 확장자명
 const allowedExtensions = [

@@ -11,11 +11,7 @@ class CommentRepository {
   };
 
   createComment = async (comment, selectKey, userKey) => {
-    const createComment = await Comment.create({
-      comment,
-      selectKey,
-      userKey,
-    });
+    const createComment = await Comment.create({ comment, selectKey, userKey });
 
     return createComment;
   };
@@ -55,20 +51,11 @@ class CommentRepository {
   };
 
   updateComment = async (comment, commentKey) => {
-    const updateComment = await Comment.update(
-      { comment },
-      { where: { commentKey } }
-    );
-
-    return updateComment;
+    await Comment.update({ comment }, { where: { commentKey } });
   };
 
   delComment = async (commentKey, userKey) => {
-    const delComment = await Comment.destroy({
-      where: { commentKey, userKey },
-    });
-
-    return delComment;
+    await Comment.destroy({ where: { commentKey, userKey } });
   };
 }
 

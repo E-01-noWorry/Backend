@@ -1,12 +1,11 @@
 const ErrorCustom = require('../advice/errorCustom');
-const dayjs = require('dayjs');
 
 const ChatRepository = require('../repositories/chat.repository');
 
 class ChatService {
   chatRepository = new ChatRepository();
 
-  createChat = async (userKey, nickname, title, max, hashTag) => {
+  createChat = async (userKey, title, max, hashTag) => {
     const newRoom = await this.chatRepository.createChat(
       userKey,
       title,
@@ -16,20 +15,7 @@ class ChatService {
 
     await this.chatRepository.incrementPoint(userKey);
 
-    return {
-      ok: true,
-      msg: '채팅방 생성 성공',
-      result: {
-        roomKey: newRoom.roomKey,
-        title: newRoom.title,
-        max: newRoom.max,
-        currentPeople: 1,
-        hashTag: newRoom.hashTag,
-        host: nickname,
-        userKey,
-        // roomPoint: roomPoint.point,
-      },
-    };
+    return newRoom;
   };
 
   searchChat = async (searchWord) => {
@@ -102,17 +88,11 @@ class ChatService {
     if (userKey === room.userKey) {
       await this.chatRepository.delRoom(roomKey);
 
-      return {
-        ok: true,
-        msg: '채팅방 호스트가 나가 채팅방이 삭제 됩니다.',
-      };
+      return '채팅방 호스트가 나가 채팅방이 삭제 됩니다.';
     } else {
       await this.chatRepository.delParticipant(userKey, roomKey);
 
-      return {
-        ok: true,
-        msg: '채팅방에서 나왔습니다.',
-      };
+      return '채팅방에서 나왔습니다.';
     }
   };
 
@@ -123,37 +103,21 @@ class ChatService {
       throw new ErrorCustom(400, '해당 채팅방이 존재하지 않습니다.');
     }
 
-    const people = room.Participants.map((e) => {
+    return room;
+  };
+
+  enterPeople = async (room) => {
+    const enterPeople = room.Participants.map((e) => {
       return { userKey: e.userKey, nickname: e.User.nickname };
     });
 
+    return enterPeople;
+  };
+
+  loadChats = async (roomKey, nickname) => {
     const loadChats = await this.chatRepository.loadChats(roomKey, nickname);
 
-    return {
-      ok: true,
-      msg: '채팅방 정보, 메세지 조회 성공',
-      result: {
-        roomKey: room.roomKey,
-        title: room.title,
-        max: room.max,
-        currentPeople: room.Participants.length,
-        hashTag: room.hashTag,
-        host: room.User.nickname,
-        userKey: room.userKey,
-      },
-      Participants: people,
-      loadChat: loadChats.map((l) => {
-        return {
-          chat: l.chat,
-          userKey: l.userKey,
-          createdAt: dayjs(l.createdAt).add(15, 'h').format(),
-          User: {
-            nickname: l.User.nickname,
-            point: l.User.point,
-          },
-        };
-      }),
-    };
+    return loadChats;
   };
 }
 
