@@ -4,6 +4,7 @@
 <img width="1080" src="https://user-images.githubusercontent.com/107025988/193507282-9ab12908-9fca-4e38-9214-03b2e73da287.png">
 
 ## 👉 [곰곰 둘러보기](https://www.gomgom.site)
+
 <br>
 
 ### 👉 [곰곰 노션](https://www.notion.so/c8bbb8119d4a46e996c2806e41e2be4c)
