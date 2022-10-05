@@ -11,11 +11,7 @@ class CommentRepository {
   };
 
   createComment = async (comment, selectKey, userKey) => {
-    const createComment = await Comment.create({
-      comment,
-      selectKey,
-      userKey,
-    });
+    const createComment = await Comment.create({ comment, selectKey, userKey });
 
     return createComment;
   };

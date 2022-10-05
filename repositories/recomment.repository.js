@@ -50,9 +50,7 @@ class RecommentRepository {
   };
 
   delRecomment = async (recommentKey) => {
-    const delRecomment = await Recomment.destroy({
-      where: { recommentKey },
-    });
+    const delRecomment = await Recomment.destroy({ where: { recommentKey } });
 
     return delRecomment;
   };

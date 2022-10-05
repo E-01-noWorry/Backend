@@ -1,4 +1,5 @@
 const joi = require('../advice/joiSchema');
+const ErrorCustom = require('../advice/errorCustom');
 
 const CommentService = require('../services/comment.service');
 

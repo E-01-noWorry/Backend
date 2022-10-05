@@ -3,7 +3,7 @@ const passport = require('passport');
 const googleStrategy = require('passport-google-oauth20').Strategy;
 const { User } = require('../models');
 
-//구글 로그인
+// 구글 로그인
 module.exports = () => {
   passport.use(
     new googleStrategy(
@@ -13,13 +13,13 @@ module.exports = () => {
         callbackURL: process.env.GOOGLE_CALLBACK_URL,
         passReqToCallback: true,
       },
+
       async (request, accessToken, refreshToken, profile, done) => {
         try {
           const exUser = await User.findOne({
-            where: {snsId: profile.id,
-            provider: 'google',}
+            where: { snsId: profile.id, provider: 'google' },
           });
-          // 이미 가입된 구글 프로필이면 성공
+
           if (exUser) {
             done(null, exUser);
           } else {

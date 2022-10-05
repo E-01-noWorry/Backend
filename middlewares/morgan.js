@@ -17,7 +17,6 @@ const stream = {
   },
 };
 
-// 로깅 스킵 여부
 const skip = (_, res) => {
   if (process.env.NODE_ENV === 'production') {
     return res.statusCode < 200;

@@ -56,7 +56,7 @@ const io = require('socket.io')(server, {
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  // 채팅방 목록? 접속(입장전)
+  // 채팅방 입장
   socket.on('join-room', async (data) => {
     let { roomKey, userKey } = data;
     let enterUser = await Participant.findOne({
@@ -107,12 +107,11 @@ io.on('connection', (socket) => {
       let param = { nickname: enterUser.User.nickname };
       io.to(enterUser.Room.title).emit('welcome', param);
     } else {
-      // 해당 채팅방 입장
       socket.join(enterUser.Room.title);
     }
   });
 
-  // 채팅 받아서 저장하고, 그 채팅 보내서 보여주기
+  // 채팅 받아 저장 후, 전달
   socket.on('chat_message', async (data) => {
     let { message, roomKey, userKey } = data;
 
@@ -134,11 +133,8 @@ io.on('connection', (socket) => {
       });
     }
 
-    const newChat = await Chat.create({
-      roomKey,
-      userKey,
-      chat: message,
-    });
+    await Chat.create({ roomKey, userKey, chat: message });
+
     const chatUser = await Participant.findOne({
       where: { roomKey, userKey },
       include: [
@@ -180,13 +176,13 @@ io.on('connection', (socket) => {
       point: chatUser.User.point,
       time: dayjs(new Date()).format(),
     };
-
     io.to(chatUser.Room.title).emit('message', param);
   });
 
-  // 채팅방 나가기(채팅방에서 아에 퇴장)
+  // 채팅방 나가기
   socket.on('leave-room', async (data) => {
     let { roomKey, userKey } = data;
+
     const leaveUser = await Participant.findOne({
       where: { roomKey, userKey },
       include: [
@@ -200,7 +196,7 @@ io.on('connection', (socket) => {
       let param = { nickname: leaveUser.User.nickname };
       socket.broadcast.to(leaveUser.Room.title).emit('byeHost', param);
     } else {
-      // 일반유저가 나갔을 때(호스트X)
+      // 일반유저가 나갔을 때
       await Chat.create({
         roomKey,
         userKey: 12, // 관리자 유저키
@@ -212,10 +208,12 @@ io.on('connection', (socket) => {
     }
   });
 
-  // 채팅방의 사람들 정보 주기
+  // 채팅방 유저 정보 전달
   socket.on('showUsers', async (data) => {
     let { roomKey, userKey } = data;
+
     const room = await Room.findOne({ where: roomKey });
+
     const allUsers = await Participant.findAll({
       where: { roomKey },
       include: [{ model: User, attributes: ['nickname', 'point'] }],
@@ -233,9 +231,11 @@ io.on('connection', (socket) => {
 
   // 추천하기
   socket.on('recommend', async (data) => {
-    // 여기서 유저키는 추천 받은 사람의 유저키
+    // userKey = 추천 받은 유저
     let { roomKey, userKey } = data;
+
     const room = await Room.findOne({ where: roomKey });
+
     const recommendUser = await User.increment(
       { point: 5 },
       { where: { userKey } }
@@ -247,13 +247,12 @@ io.on('connection', (socket) => {
 
   // 강퇴하기
   socket.on('expulsion', async (data) => {
-    // 여기서 유저키는 내보낼 사람의 유저키
+    // userKey = 강퇴 받은 유저
     let { roomKey, userKey } = data;
+
     const room = await Room.findOne({ where: roomKey });
 
-    await Participant.destroy({
-      where: { roomKey, userKey },
-    });
+    await Participant.destroy({ where: { roomKey, userKey } });
 
     const expulsionUser = await User.findOne({ where: { userKey } });
 

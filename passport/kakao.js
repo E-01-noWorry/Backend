@@ -5,10 +5,10 @@ const { User } = require('../models');
 
 module.exports = () => {
   passport.use(
-    new KaKaoStrategy( //KaKaoStrategy에서 인증전략 시행(카카오 서버에서 보내는 계정 정보가 들어있음.)
+    new KaKaoStrategy(
       {
-        clientID: process.env.CLIENT_ID, // 카카오 로그인에서 발급받은 REST API 키
-        callbackURL: process.env.CALLBACK_URL, // 카카오 로그인 Redirect URI 경로
+        clientID: process.env.CLIENT_ID,
+        callbackURL: process.env.CALLBACK_URL,
       },
 
       // clientID에 카카오 앱 아이디 추가
@@ -18,12 +18,11 @@ module.exports = () => {
       async (accessToken, refreshToken, profile, done) => {
         try {
           const exUser = await User.findOne({
-            //db에서 가입이력 조사
-            // 카카오 플랫폼에서 로그인 했고 & snsId필드에 카카오 아이디가 일치할경우
             where: { snsId: profile.id, provider: 'kakao' },
           });
-          let nickname = ''
-          // 이미 가입된 카카오 프로필이면 성공
+
+          let nickname = '';
+
           if (exUser) {
             done(null, exUser);
             console.log(exUser, '카카오 로그인 성공!');

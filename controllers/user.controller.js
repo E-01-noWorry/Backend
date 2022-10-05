@@ -9,6 +9,7 @@ class UserController {
   postSignup = async (req, res, next) => {
     try {
       const result = joi.userSchema.validate(req.body);
+
       if (result.error) {
         throw new ErrorCustom(400, '형식에 맞게 모두 입력해주세요');
       }
@@ -60,13 +61,11 @@ class UserController {
   changeNickname = async (req, res, next) => {
     try {
       const { userKey } = res.locals.user;
-
       const validation = joi.nicknameSchema.validate(req.body);
 
       if (validation.error) {
         throw new ErrorCustom(400, '한글, 영어, 숫자 2~10자로 입력해주세요.');
       }
-
       const { nickname } = validation.value;
 
       await this.userService.changeNic(userKey, nickname);

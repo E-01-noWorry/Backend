@@ -27,7 +27,6 @@ class ChatService {
         hashTag: newRoom.hashTag,
         host: nickname,
         userKey,
-        // roomPoint: roomPoint.point,
       },
     };
   };

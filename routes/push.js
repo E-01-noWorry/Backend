@@ -9,7 +9,7 @@ admin.initializeApp({
   credential: admin.credential.cert(serAccount),
 });
 
-// 토큰 받아와서 저장
+// 디바이스 토큰 저장
 router.post('/', authMiddleware, async (req, res, next) => {
   try {
     const { userKey } = res.locals.user;

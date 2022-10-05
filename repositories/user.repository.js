@@ -2,17 +2,13 @@ const { User } = require('../models');
 
 class UserRepository {
   findOneId = async (userId) => {
-    const findOneId = await User.findOne({
-      where: { userId },
-    });
+    const findOneId = await User.findOne({ where: { userId } });
 
     return findOneId;
   };
 
   findOneUser = async (userKey) => {
-    const findOneUser = await User.findOne({
-      where: { userKey },
-    });
+    const findOneUser = await User.findOne({ where: { userKey } });
 
     return findOneUser;
   };

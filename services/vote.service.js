@@ -38,14 +38,11 @@ class VoteService {
       throw new ErrorCustom(400, '투표가 마감되었습니다.');
     }
 
-    // 투표했는지 확인
     const voteCheck = await this.voteRepository.findOneVote(selectKey, userKey);
 
-    // 안하면 투표 데이터 생성
     if (!voteCheck) {
       await this.voteRepository.createVote(selectKey, userKey, choice);
 
-      //선택글 투표시 +1점씩 포인트 지급
       let votePoint = await this.voteRepository.incrementPoint(userKey);
 
       const allVotes = await this.voteRepository.findAllVote(selectKey);
@@ -57,8 +54,7 @@ class VoteService {
         return Math.round(num * 100) / 100;
       }
 
-      // 투표가 3개씩 될때 알림 보냄
-      if (total % 3 === 0) {
+      if (total % 5 === 0) {
         if (isSelect.User.deviceToken) {
           let target_token = isSelect.User.deviceToken;
 
@@ -111,7 +107,7 @@ class VoteService {
       return Math.round(num * 100) / 100;
     }
 
-    // 글이 마감되었는지 확인 마감되면 바로 투표결과 보여줌
+    // 글 마감 확인, 마감시 결과 전달
     if (isSelect.completion === true) {
       return {
         ok: true,
@@ -126,7 +122,7 @@ class VoteService {
       };
     }
 
-    // 미들웨어를 거쳐서 로그인 유무 확인(비로그인시)
+    // 로그인 유무 확인(비로그인)
     if (!user) {
       return {
         ok: true,
@@ -134,10 +130,10 @@ class VoteService {
         result: { total },
       };
     } else {
-      // 미들웨어를 거쳐서 로그인 유무 확인(로그인시)
+      // 로그인 유무 확인(로그인시)
       const userKey = user.userKey;
 
-      // 글작성자인지 확인
+      // 글작성자 확인
       if (userKey === isSelect.userKey) {
         return {
           ok: true,
@@ -157,7 +153,7 @@ class VoteService {
         userKey
       );
 
-      // 로그인은 했지만, 투표를 안하면 비율 안보이게함
+      // 미 투표시 결과 미전달
       if (!voteCheck) {
         return {
           ok: true,
@@ -165,7 +161,7 @@ class VoteService {
           result: { total },
         };
       } else {
-        // 로그인하고 투표까지하면 투표비율 보여줌
+        // 투표시 결과 전달
         const isVote = await this.voteRepository.findOneVote(
           selectKey,
           userKey

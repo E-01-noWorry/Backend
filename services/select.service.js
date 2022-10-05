@@ -8,7 +8,6 @@ class SelectService {
   selectRepository = new SelectRepository();
 
   createSelect = async (title, category, time, options, location, userKey) => {
-    // 선택글 생성 5분 쿨타임 구현
     const cooltime = dayjs(new Date()).subtract(5, 'm').format();
 
     const fiveminute = await this.selectRepository.findOneCooltime(
@@ -31,12 +30,11 @@ class SelectService {
       userKey
     );
 
-    // 선택글 생성시 +3점씩 포인트 지급
     await this.selectRepository.incrementPoint(userKey);
 
-    // 스케줄러로 마감시간이 되면 completion true로 바꾸고, 최다선택지 투표한 사람 포인트 적립
     schedule.scheduleJob(deadLine, async () => {
-      console.log('게시물 마감처리');
+      console.log(deadLine, '게시물 마감처리');
+
       await this.selectRepository.updateCompletion(createSelect);
 
       const completionVote = await this.selectRepository.completionVote(

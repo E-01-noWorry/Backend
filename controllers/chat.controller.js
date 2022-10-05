@@ -10,6 +10,7 @@ class ChatController {
     try {
       const { userKey, nickname } = res.locals.user;
       const result = joi.chatSchema.validate(req.body);
+
       if (result.error) {
         throw new ErrorCustom(400, '제목을 입력해주세요.');
       }
@@ -67,7 +68,7 @@ class ChatController {
       const pageNum = joi.pageSchema.validate(req.query.page).value;
 
       if (pageNum > 1) {
-        offset = limit * (pageNum - 1); //5 10
+        offset = limit * (pageNum - 1);
       }
 
       const allRooms = await this.chatService.allChat(offset, limit);

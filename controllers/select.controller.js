@@ -10,11 +10,12 @@ class SelectController {
     try {
       const { userKey, nickname } = res.locals.user;
       const validation = joi.selectSchema.validate(req.body);
+
       if (validation.error) {
         throw new ErrorCustom(400, '항목들을 모두 입력해주세요.');
       }
-
       const { title, category, time, options } = validation.value;
+
       if (options.indexOf(',') === -1) {
         throw new ErrorCustom(400, '선택지는 최소 2개 이상 작성해주세요.');
       }
@@ -44,7 +45,6 @@ class SelectController {
           deadLine: createSelect.deadLine,
           completion: false,
           nickname: nickname,
-          // selectPoint: createSelect.point,
         },
       });
     } catch (err) {
@@ -54,10 +54,10 @@ class SelectController {
 
   getAllSelect = async (req, res, next) => {
     try {
-      const pageNum = joi.pageSchema.validate(req.query.page).value;
-
       let offset = 0;
       const limit = 5;
+      const pageNum = joi.pageSchema.validate(req.query.page).value;
+
       if (pageNum > 1) {
         offset = limit * (pageNum - 1);
       }
@@ -87,10 +87,10 @@ class SelectController {
 
   getFilter = async (req, res, next) => {
     try {
-      const pageNum = joi.pageSchema.validate(req.query.page).value;
-
       let offset = 0;
       const limit = 5;
+      const pageNum = joi.pageSchema.validate(req.query.page).value;
+
       if (pageNum > 1) {
         offset = limit * (pageNum - 1);
       }
@@ -120,10 +120,10 @@ class SelectController {
   getCategory = async (req, res, next) => {
     try {
       const { category } = joi.categorySchema.validate(req.params).value;
-      const pageNum = joi.pageSchema.validate(req.query.page).value;
-
       let offset = 0;
       const limit = 5;
+      const pageNum = joi.pageSchema.validate(req.query.page).value;
+
       if (pageNum > 1) {
         offset = limit * (pageNum - 1);
       }
@@ -156,10 +156,10 @@ class SelectController {
 
   getOngoing = async (req, res, next) => {
     try {
-      const pageNum = joi.pageSchema.validate(req.query.page).value;
-
       let offset = 0;
       const limit = 5;
+      const pageNum = joi.pageSchema.validate(req.query.page).value;
+
       if (pageNum > 1) {
         offset = limit * (pageNum - 1);
       }

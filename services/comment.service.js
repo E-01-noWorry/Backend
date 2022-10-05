@@ -23,7 +23,6 @@ class CommentService {
       createComment
     );
 
-    // 글쓴이 토큰 유무 확인 후 알림 보내주기
     if (oneComment.User.deviceToken) {
       let target_token = oneComment.User.deviceToken;
 
