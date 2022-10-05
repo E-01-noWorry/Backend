@@ -47,8 +47,8 @@ class UserService {
       process.env.SECRET_KEY,
       { expiresIn: '14d' }
     );
-    console.log(accessToken, 'access토큰 확인');
-    console.log(refreshToken, 'refresh토큰 확인');
+    // console.log(accessToken, 'access토큰 확인');
+    // console.log(refreshToken, 'refresh토큰 확인');
 
     await this.userRepository.updateRefresh(refreshToken, user);
 

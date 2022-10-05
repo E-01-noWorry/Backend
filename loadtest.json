@@ -4,7 +4,7 @@
     "phases": [
       {
         "duration": 60,
-        "arrivalRate": 30
+        "arrivalRate": 5
       }
     ]
   },
@@ -17,8 +17,12 @@
           }
         },
         {
-          "get": {
-            "url": "/api/select?page=2"
+          "post": {
+            "url": "/api/user/login",
+            "json": {
+              "userId": "jinyeop6",
+              "password": "123qwe"
+            }
           }
         }
       ]
