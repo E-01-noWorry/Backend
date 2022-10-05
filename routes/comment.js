@@ -8,10 +8,10 @@ const commentController = new CommentController();
 // 댓글 작성
 router.post('/:selectKey', authMiddleware, commentController.postComment);
 
-//댓글 전체 조회
+// 댓글 전체 조회
 router.get('/:selectKey', commentController.getAllComment);
 
-//댓글 수정
+// 댓글 수정
 router.put('/:commentKey', authMiddleware, commentController.putComment);
 
 // 댓글 삭제

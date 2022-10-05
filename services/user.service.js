@@ -24,12 +24,10 @@ class UserService {
       throw new ErrorCustom(400, '중복된 닉네임입니다.');
     }
 
-    const salt = await bcrypt.genSalt(10); //기본이 10, 숫자가 높을 수록 연산 시간과 보안이 높아짐.
+    const salt = await bcrypt.genSalt(10); // 기본이 10, 숫자가 높을 수록 연산 시간과 보안이 높아짐.
     const pwHash = await bcrypt.hash(password, salt);
 
     await this.userRepository.createUser(userId, nickname, pwHash);
-
-    return { msg: '회원가입에 성공하였습니다.' };
   };
 
   loginUser = async (userId, password) => {
@@ -42,29 +40,19 @@ class UserService {
     const accessToken = jwt.sign(
       { userKey: user.userKey },
       process.env.SECRET_KEY,
-      {
-        expiresIn: '3h',
-      }
+      { expiresIn: '3h' }
     );
     const refreshToken = jwt.sign(
       { userKey: user.userKey },
       process.env.SECRET_KEY,
-      {
-        expiresIn: '14d',
-      }
+      { expiresIn: '14d' }
     );
     console.log(accessToken, 'access토큰 확인');
     console.log(refreshToken, 'refresh토큰 확인');
 
     await this.userRepository.updateRefresh(refreshToken, user);
 
-    return {
-      nickname: user.nickname,
-      userKey: user.userKey,
-      accessToken,
-      refreshToken: user.refreshToken,
-      msg: '로그인에 성공하였습니다.',
-    };
+    return [user, accessToken];
   };
 
   checkUser = async (userKey) => {

@@ -12,15 +12,11 @@ exports.scheduler = () => {
   let now;
 
   schedule.scheduleJob('*/10 * * * *', async function () {
-    if (process.env.NODE_ENV == 'production' && process.env.PORT2) {
-      now = dayjs().tz().format();
-    } else {
-      now = dayjs().tz().format();
-    }
+    now = dayjs().tz().format();
+    console.log(now, '반복 스케줄러 동작');
 
-    console.log(now);
-    console.log('반복 스케줄러 동작');
     const datas = await Select.findAll({});
+
     await Promise.all(
       datas.map((e) => {
         if (dayjs(e.deadLine).format() < now) {

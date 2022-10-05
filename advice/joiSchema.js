@@ -11,10 +11,6 @@ exports.userSchema = joi.object({
   confirm: joi.string(),
 });
 
-exports.userKeySchema = joi.object({
-  userKey: joi.number().required(),
-});
-
 exports.nicknameSchema = joi.object({
   nickname: joi.string().pattern(nicknameRegEx).required(),
 });
