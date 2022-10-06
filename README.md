@@ -79,7 +79,7 @@
 
 <br>
 
-#### 👉 [보러가기](https://youtu.be/2BKY5G8FlQg)
+#### 👉 [보러가기](https://youtu.be/3XpgmLfkcyQ)
 
 <br>
 
