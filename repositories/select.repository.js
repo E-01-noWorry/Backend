@@ -36,7 +36,7 @@ class SelectRepository {
   };
 
   incrementPoint = async (userKey) => {
-    await User.increment({ point: 5 }, { where: { userKey } });
+    await User.increment({ point: 3 }, { where: { userKey } });
   };
 
   //

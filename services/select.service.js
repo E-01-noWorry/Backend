@@ -62,7 +62,7 @@ class SelectService {
             i
           );
           choiceUser.map((e) => {
-            e.User.update({ point: e.User.point + 3 });
+            e.User.update({ point: e.User.point + 5 });
           });
         }
       }
