@@ -9,6 +9,15 @@
 
 ### 👉 [곰곰 노션](https://www.notion.so/c8bbb8119d4a46e996c2806e41e2be4c)
 
+<br>
+
+<details>
+<summary> 최고의 프로젝트상 </summary>
+<img width="1080" src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/a59b647c-439d-4a25-8252-0ce29c8667aa/E%E1%84%87%E1%85%A1%E1%86%AB_%E1%84%89%E1%85%A1%E1%86%BC%E1%84%8C%E1%85%A1%E1%86%BC.016.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20221023%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20221023T044356Z&X-Amz-Expires=86400&X-Amz-Signature=2e5d7582a62d2b3d6d5a9a1fe9fe348350ac57526c4fd7dc30b43224fde4a25c&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22E%25E1%2584%2587%25E1%2585%25A1%25E1%2586%25AB_%25E1%2584%2589%25E1%2585%25A1%25E1%2586%25BC%25E1%2584%258C%25E1%2585%25A1%25E1%2586%25BC.016.jpeg%22&x-id=GetObject">
+</details>
+
+<br>
+
 ---
 
 <br>
