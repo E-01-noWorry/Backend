@@ -156,9 +156,13 @@
 ❗️ 해결
 
 - 파일 업로드를 프론트에서 처리 하는 것이 더 효율적이지만, 한번에 업로드하는 이미지 파일이 많지 않았고, 보안 문제는 미연에 방지하는 것이 더 중요하다고 판단하여 서버에서 S3 업로드 처리를 하기로 결정함
-- 트래픽 부하를 줄이기 위해 프론트에서 파일 크기를 리사이징 하고 서버로 넘겨 트래픽을 줄이고, 이미지 파일의 용량을 제한하는 방향으로 진행함.<br><br>
-</details>
-<br>
+- 트래픽 부하를 줄이기 위해 프론트에서 파일 크기를 리사이징 하고 서버로 넘겨 트래픽을 줄이고, 이미지 파일의 용량을 제한하는 방향으로 진행함.
+
+  - (1287ms → 254ms 약 80% 절감)<br>
+    <img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/9fa5d1d8-794c-4adc-991d-d1cee7d769ee/KakaoTalk_20221011_031515413.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20221023%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20221023T045045Z&X-Amz-Expires=86400&X-Amz-Signature=a97d6bdcf54ed76dd7718132af6acd0d2d9616f236bb7d8cda7cbab62078af60&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22KakaoTalk_20221011_031515413.png%22&x-id=GetObject"><br><br>
+
+</details><br>
+
 <details>
 <summary> 고민투표글 시간 종료시 마감처리 </summary>
 <br>
@@ -181,11 +185,13 @@
 - 위 과정에서 현재 한국시간에 딱 맞춰서 함수가 실행되지 않는 문제가 발생
   - 배포된 EC2의 타임존이 한국과 9시간 차이나는 환경이라, 단순히 9시간을 더해줬지만 문제가 해결되지 않음
   - 결국 기존의 new Date() 함수를 dayjs로 모두 바꾸고, <br>배포환경도 dayjs.tz.setDefault('Asia/Seoul')로 한국 타임존을 설정하여 문제를 해결함<br><br>
-  </details>
-  <br>
-  <details>
-  <summary> 카카오 소셜로그인 </summary>
-  <br>
+
+</details><br>
+
+<details>
+<summary> 카카오 소셜로그인 </summary>
+
+<br>
 
 ❓ 문제
 
@@ -199,6 +205,7 @@
   ![](https://user-images.githubusercontent.com/107025988/193506725-96668b13-3f76-42c1-850c-d17a24337e8a.png)
 - 서버에서 .env에 작성해두었던 callback_url을 프론트 서버로 수정하였고, 프론트에서도 데이터를 받아온 후 메인페이지로 이동하도록 코드를 작성하고, 로그인 데이터를 받아오는 코드도 수정하였습니다.
 - 서버에서는 callback_url을 서버 쪽으로 작성하고 있었기 때문에 프론트에서 데이터 접근이 불가능했었고, 프론트에서는 window.location.replace(’/’) 코드가 중복되어 무한 로딩에 걸리는 문제를 확인하여 해결하였습니다.
+
 </details>
 
 <br>
